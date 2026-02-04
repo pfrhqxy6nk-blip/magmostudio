@@ -171,7 +171,7 @@ const AuthProvider = ({ children }) => {
       progress: 0,
       roadmap: [],
       comments: [
-        { id: Date.now(), author: 'Олексій (PM)', text: 'Вітаємо у MAGMO STUDIO! Ми розпочинаємо підготовку вашого проекту. Чекаємо на ваші перші коментарі щодо дизайну.', date: new Date().toISOString() }
+        { id: Date.now(), author: 'Олексій (PM)', text: 'Вітаємо у magmostudio! Ми розпочинаємо підготовку вашого проекту. Чекаємо на ваші перші коментарі щодо дизайну.', date: new Date().toISOString() }
       ]
     };
 
@@ -437,7 +437,7 @@ const MainLayout = ({ children }) => (
       {children}
     </main>
     <footer style={{ padding: '60px 40px', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
-      <p>&copy; 2024 MAGMO STUDIO. All rights reserved.</p>
+      <p>&copy; 2024 magmostudio. All rights reserved.</p>
     </footer>
   </div>
 );

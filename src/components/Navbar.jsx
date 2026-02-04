@@ -48,7 +48,7 @@ const Navbar = () => {
                     <span style={{ color: 'black', fontWeight: 900, fontSize: '1rem' }}>M</span>
                 </div>
                 <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white', letterSpacing: '1px' }}>
-                    MAGMO<span style={{ color: '#FF4D00' }}>.</span>
+                    magmostudio<span style={{ color: '#FF4D00' }}>.</span>
                 </span>
             </Link>
 
