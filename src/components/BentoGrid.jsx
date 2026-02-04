@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import iphoneMockup from '/iphone_mockup.png';
-import LavaEffect from './LavaEffect';
 
 const Card = ({ children, className, style }) => (
     <motion.div
@@ -33,8 +32,7 @@ const BentoGrid = () => {
             gap: '20px'
         }}>
             {/* Example Item 1: Large Mockup */}
-            <Card style={{ gridColumn: 'span 8', gridRow: 'span 2', minHeight: '500px', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-                <LavaEffect intensity="medium" />
+            <Card style={{ gridColumn: 'span 8', gridRow: 'span 2', minHeight: '500px', display: 'flex', alignItems: 'center' }}>
                 <div style={{ padding: '60px', position: 'relative', zIndex: 10, maxWidth: '450px' }}>
                     <div style={{
                         background: 'linear-gradient(90deg, #FF4D00 0%, #FF9500 100%)',
