@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 const Navbar = () => {
     const location = useLocation();
     const isHomePage = location.pathname === '/';
+    const isProfile = location.pathname === '/profile';
 
     const scrollToSection = (e, id) => {
         if (isHomePage) {
@@ -52,47 +53,51 @@ const Navbar = () => {
                 </span>
             </Link>
 
-            <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-                <a
-                    href="#services"
-                    onClick={(e) => scrollToSection(e, 'services')}
-                    style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '1px', transition: '0.3s' }}
-                >
-                    ПОСЛУГИ
-                </a>
-                <a
-                    href="#cases"
-                    onClick={(e) => scrollToSection(e, 'cases')}
-                    style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '1px', transition: '0.3s' }}
-                >
-                    КЕЙСИ
-                </a>
-                <a
-                    href="#configurator"
-                    onClick={(e) => scrollToSection(e, 'configurator')}
-                    style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '1px', transition: '0.3s' }}
-                >
-                    КОНФІГУРАТОР
-                </a>
-            </div>
+            {!isProfile && (
+                <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+                    <a
+                        href="#services"
+                        onClick={(e) => scrollToSection(e, 'services')}
+                        style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '1px', transition: '0.3s' }}
+                    >
+                        ПОСЛУГИ
+                    </a>
+                    <a
+                        href="#cases"
+                        onClick={(e) => scrollToSection(e, 'cases')}
+                        style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '1px', transition: '0.3s' }}
+                    >
+                        КЕЙСИ
+                    </a>
+                    <a
+                        href="#configurator"
+                        onClick={(e) => scrollToSection(e, 'configurator')}
+                        style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '1px', transition: '0.3s' }}
+                    >
+                        КОНФІГУРАТОР
+                    </a>
+                </div>
+            )}
 
-            <Link to="/profile">
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    style={{
-                        backgroundColor: 'white',
-                        color: 'black',
-                        padding: '10px 24px',
-                        borderRadius: '50px',
-                        fontWeight: 800,
-                        fontSize: '0.8rem',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Профіль
-                </motion.button>
-            </Link>
+            {!isProfile && (
+                <Link to="/profile">
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        style={{
+                            backgroundColor: 'white',
+                            color: 'black',
+                            padding: '10px 24px',
+                            borderRadius: '50px',
+                            fontWeight: 800,
+                            fontSize: '0.8rem',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Профіль
+                    </motion.button>
+                </Link>
+            )}
         </motion.nav>
     );
 };
