@@ -94,7 +94,7 @@ const Magnetic = ({ children }) => {
     );
 };
 
-const AdminOverview = ({ projects, onFilter }) => {
+const AdminOverview = ({ projects, onFilter, isMobile }) => {
     const stats = [
         { id: 'ACTIVE', label: 'АКТИВНІ ПРОЕКТИ', value: projects.filter(p => p.status === 'ACTIVE').length, icon: <Layout size={20} />, color: '#4CAF50' },
         { id: 'PENDING', label: 'НОВІ ЗАЯВКИ', value: projects.filter(p => p.status === 'PENDING').length, icon: <Clock size={20} />, color: ADMIN_THEME.primary },
@@ -108,7 +108,7 @@ const AdminOverview = ({ projects, onFilter }) => {
                 <Shield size={16} color={ADMIN_THEME.primary} />
                 <span style={{ fontSize: '0.7rem', fontWeight: 900, letterSpacing: '2px', color: ADMIN_THEME.primary }}>ADMINISTRATIVE OVERVIEW & CONTROL</span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: '20px' }}>
                 {stats.map((s, i) => (
                     <motion.div
                         key={i}
@@ -212,7 +212,54 @@ const AdminTeamView = ({ addAdmin, removeAdmin }) => {
     );
 };
 
-const AdminTable = ({ projects, onSelect, onDelete }) => {
+const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
+    if (isMobile) {
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {projects.map((p) => {
+                    const status = getStatusDetails(p.status, true);
+                    return (
+                        <motion.div
+                            key={p.id}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => onSelect(p.id)}
+                            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '24px', position: 'relative' }}
+                        >
+                            <div style={{ position: 'absolute', top: '24px', right: '24px' }}>
+                                <div
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDelete(p.id);
+                                    }}
+                                    style={{ width: '30px', height: '30px', background: 'rgba(255,50,50,0.1)', color: '#FF3333', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 900 }}
+                                >
+                                    <Trash2 size={16} />
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '16px' }}>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: ADMIN_THEME.primary, marginBottom: '4px' }}>{p.owner_email}</div>
+                                <div style={{ fontSize: '1.2rem', fontWeight: 800 }}>{p.title}</div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '8px' }}>{p.category}</span>
+                                <span style={{ fontSize: '0.65rem', fontWeight: 950, color: status.color, background: status.bg, padding: '6px 12px', borderRadius: '30px', letterSpacing: '1px' }}>{status.label}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ flex: 1, height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${p.progress}%`, background: status.color, boxShadow: `0 0 10px ${status.color}40` }} />
+                                </div>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 950 }}>{p.progress}%</span>
+                            </div>
+                        </motion.div>
+                    );
+                })}
+            </div>
+        );
+    }
+
     return (
         <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
@@ -260,21 +307,23 @@ const AdminTable = ({ projects, onSelect, onDelete }) => {
                                                 e.stopPropagation();
                                                 onDelete(p.id);
                                             }}
-                                            style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,50,50,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF3232', cursor: 'pointer' }}
+                                            onDelete(p.id);
+                                            }}
+                                        style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,50,50,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF3232', cursor: 'pointer' }}
                                         >
-                                            <Trash2 size={18} strokeWidth={3} />
-                                        </div>
-                                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: ADMIN_THEME.primary }}>
-                                            <ChevronRight size={18} strokeWidth={3} />
-                                        </div>
+                                        <Trash2 size={18} strokeWidth={3} />
                                     </div>
-                                </td>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: ADMIN_THEME.primary }}>
+                                        <ChevronRight size={18} strokeWidth={3} />
+                                    </div>
+                                </div>
+                            </td>
                             </motion.tr>
-                        );
+                );
                     })}
-                </tbody>
-            </table>
-        </div>
+            </tbody>
+        </table>
+        </div >
     );
 };
 
@@ -468,7 +517,7 @@ const Dashboard = () => {
                                 )}
                             </div>
 
-                            {isAdminMode && <AdminOverview projects={projects} onFilter={setFilterStatus} />}
+                            {isAdminMode && <AdminOverview projects={projects} onFilter={setFilterStatus} isMobile={isMobile} />}
 
                             {isAdminMode && filterStatus && (
                                 <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -481,6 +530,7 @@ const Dashboard = () => {
                                 <AdminTable
                                     projects={filteredProjects}
                                     onSelect={setSelectedProjectId}
+                                    isMobile={isMobile}
                                     onDelete={async (id) => {
                                         if (window.confirm('Ви впевнені, що хочете видалити цей проект?')) {
                                             const result = await deleteProject(id);
