@@ -171,8 +171,8 @@ const Configurator = () => {
                         ) : step.isDetails ? (
                             <textarea placeholder="Опишіть основні функції вашого майбутнього продукту..." value={details} onChange={(e) => setDetails(e.target.value)} style={{ width: '100%', height: '240px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '24px', color: 'white', fontSize: '1.1rem', resize: 'none', lineHeight: 1.6, outline: 'none' }} />
                         ) : (
-                            {
-                                step.isBudget ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                {step.isBudget ? (
                                     <div style={{
                                         position: 'relative',
                                         marginTop: '10px',
@@ -228,23 +228,22 @@ const Configurator = () => {
                                             );
                                         })}
                                     </div>
-                                )
-                            }
+                                )}
                             </div>
                         )}
-                </motion.div>
-            </AnimatePresence>
+                    </motion.div>
+                </AnimatePresence>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '60px', alignItems: 'center' }}>
-                <button onClick={prevStep} disabled={currentStep === 0} style={{ background: 'transparent', color: currentStep === 0 ? 'transparent' : 'rgba(255,255,255,0.4)', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ChevronLeft size={20} /> НАЗАД
-                </button>
-                <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'white' : 'rgba(255,255,255,0.05)', color: isStepComplete() ? 'black' : 'rgba(255,255,255,0.2)', padding: '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s' }}>
-                    {currentStep === steps.length - 1 ? 'СТВОРИТИ ПРОЕКТ' : 'ДАЛІ'}
-                    {currentStep === steps.length - 1 ? <Send size={20} /> : <ChevronRight size={20} />}
-                </motion.button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '60px', alignItems: 'center' }}>
+                    <button onClick={prevStep} disabled={currentStep === 0} style={{ background: 'transparent', color: currentStep === 0 ? 'transparent' : 'rgba(255,255,255,0.4)', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ChevronLeft size={20} /> НАЗАД
+                    </button>
+                    <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'white' : 'rgba(255,255,255,0.05)', color: isStepComplete() ? 'black' : 'rgba(255,255,255,0.2)', padding: '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s' }}>
+                        {currentStep === steps.length - 1 ? 'СТВОРИТИ ПРОЕКТ' : 'ДАЛІ'}
+                        {currentStep === steps.length - 1 ? <Send size={20} /> : <ChevronRight size={20} />}
+                    </motion.button>
+                </div>
             </div>
-        </div>
         </section >
     );
 };
