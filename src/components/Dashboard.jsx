@@ -285,6 +285,14 @@ const Dashboard = () => {
     const [selectedProjectId, setSelectedProjectId] = useState(null);
     const [isAdminMode, setIsAdminMode] = useState(false);
     const [filterStatus, setFilterStatus] = useState(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Sync admin mode with user state
     useEffect(() => {
@@ -318,10 +326,10 @@ const Dashboard = () => {
     return (
         <section style={{
             minHeight: '100vh',
-            padding: '120px 40px 60px',
-            display: 'grid',
+            padding: isMobile ? '80px 20px 100px' : '120px 40px 60px',
+            display: isMobile ? 'block' : 'grid',
             gridTemplateColumns: '280px 1fr',
-            gap: '60px',
+            gap: isMobile ? '40px' : '60px',
             maxWidth: '1600px',
             margin: '0 auto',
             position: 'relative',
@@ -334,8 +342,8 @@ const Dashboard = () => {
                 position: 'absolute',
                 top: '-10%',
                 right: '-5%',
-                width: '600px',
-                height: '600px',
+                width: isMobile ? '300px' : '600px',
+                height: isMobile ? '300px' : '600px',
                 background: isAdminMode
                     ? `radial-gradient(circle, ${ADMIN_THEME.primary}08 0%, transparent 70%)`
                     : 'radial-gradient(circle, rgba(255,77,0,0.05) 0%, transparent 70%)',
@@ -343,68 +351,100 @@ const Dashboard = () => {
                 pointerEvents: 'none',
                 transition: 'background 0.5s ease'
             }} />
-            <div style={{ position: 'absolute', bottom: '10%', left: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(255,77,0,0.03) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-            {/* Sidebar */}
-            <aside style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
-                <Magnetic>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '0 10px', cursor: 'pointer' }} onClick={() => setActiveTab('settings')}>
-                        <div style={{ position: 'relative' }}>
-                            <img src={user?.avatar} alt="Avatar" style={{ width: '50px', height: '50px', borderRadius: '15px' }} />
-                            <div style={{ position: 'absolute', bottom: -5, right: -5, width: '18px', height: '18px', background: isAdminMode ? ADMIN_THEME.primary : '#4CAF50', border: '3px solid #000', borderRadius: '50%' }} />
-                        </div>
-                        <div>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{user?.name}</h3>
-                            <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>{isAdminMode ? 'ADMIN MODE' : 'Клієнт'}</p>
-                        </div>
-                    </div>
-                </Magnetic>
+            <div style={{ position: 'absolute', bottom: '10%', left: '-10%', width: isMobile ? '250px' : '500px', height: isMobile ? '250px' : '500px', background: 'radial-gradient(circle, rgba(255,77,0,0.03) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
-                <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <SidebarLink icon={<Layout size={20} />} label="Мої проекти" active={activeTab === 'projects'} onClick={() => { setActiveTab('projects'); setSelectedProjectId(null); }} />
-                    <SidebarLink icon={<Settings size={20} />} label="Налаштування" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+            {/* Sidebar / Bottom Nav */}
+            <aside style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'row' : 'column',
+                gap: isMobile ? '0' : '40px',
+                position: isMobile ? 'fixed' : 'relative',
+                bottom: isMobile ? 0 : 'auto',
+                left: isMobile ? 0 : 'auto',
+                width: isMobile ? '100%' : 'auto',
+                background: isMobile ? '#111' : 'transparent',
+                zIndex: 100,
+                padding: isMobile ? '10px 20px' : '0',
+                justifyContent: isMobile ? 'space-around' : 'flex-start',
+                borderTop: isMobile ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                marginBottom: isMobile ? 0 : 0
+            }}>
+                {!isMobile && (
+                    <Magnetic>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '0 10px', cursor: 'pointer' }} onClick={() => setActiveTab('settings')}>
+                            <div style={{ position: 'relative' }}>
+                                <img src={user?.avatar} alt="Avatar" style={{ width: '50px', height: '50px', borderRadius: '15px' }} />
+                                <div style={{ position: 'absolute', bottom: -5, right: -5, width: '18px', height: '18px', background: isAdminMode ? ADMIN_THEME.primary : '#4CAF50', border: '3px solid #000', borderRadius: '50%' }} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{user?.name}</h3>
+                                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>{isAdminMode ? 'ADMIN MODE' : 'Клієнт'}</p>
+                            </div>
+                        </div>
+                    </Magnetic>
+                )}
+
+                <nav style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '20px' : '10px', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-around' : 'flex-start', alignItems: 'center' }}>
+                    <SidebarLink icon={<Layout size={24} />} label={isMobile ? "" : "Мої проекти"} active={activeTab === 'projects'} onClick={() => { setActiveTab('projects'); setSelectedProjectId(null); }} />
+                    <SidebarLink icon={<Settings size={24} />} label={isMobile ? "" : "Налаштування"} active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
 
                     {user?.is_root && (
                         <SidebarLink
-                            icon={<ShieldCheck size={20} />}
-                            label="Команда"
+                            icon={<ShieldCheck size={24} />}
+                            label={isMobile ? "" : "Команда"}
                             active={activeTab === 'team'}
                             onClick={() => setActiveTab('team')}
                         />
                     )}
 
                     {user?.is_admin && (
-                        <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
-                            <SidebarLink
-                                icon={<Briefcase size={20} />}
-                                label="Портфоліо CMS"
-                                active={activeTab === 'portfolio'}
-                                onClick={() => setActiveTab('portfolio')}
-                            />
-                            <button
-                                onClick={() => setIsAdminMode(!isAdminMode)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    color: isAdminMode ? ADMIN_THEME.primary : 'rgba(255,255,255,0.3)',
-                                    padding: '12px 15px',
-                                    width: '100%',
-                                    background: 'rgba(255,255,255,0.02)',
-                                    fontWeight: 700,
-                                    borderRadius: '12px',
-                                    border: isAdminMode ? `1px solid ${ADMIN_THEME.primary}` : '1px solid transparent',
-                                    transition: '0.3s'
-                                }}
-                            >
-                                <Shield size={20} /> {isAdminMode ? 'ВИЙТИ З АДМІНКИ' : 'АДМІН-ПАНЕЛЬ'}
+                        isMobile ? (
+                            <div onClick={() => setActiveTab('portfolio')} style={{ color: activeTab === 'portfolio' ? 'white' : 'rgba(255,255,255,0.4)' }}>
+                                <Briefcase size={24} />
+                            </div>
+                        ) : (
+                            <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
+                                <SidebarLink
+                                    icon={<Briefcase size={20} />}
+                                    label="Портфоліо CMS"
+                                    active={activeTab === 'portfolio'}
+                                    onClick={() => setActiveTab('portfolio')}
+                                />
+                                <button
+                                    onClick={() => setIsAdminMode(!isAdminMode)}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        color: isAdminMode ? ADMIN_THEME.primary : 'rgba(255,255,255,0.3)',
+                                        padding: '12px 15px',
+                                        width: '100%',
+                                        background: 'rgba(255,255,255,0.02)',
+                                        fontWeight: 700,
+                                        borderRadius: '12px',
+                                        border: isAdminMode ? `1px solid ${ADMIN_THEME.primary}` : '1px solid transparent',
+                                        transition: '0.3s'
+                                    }}
+                                >
+                                    <Shield size={20} /> {isAdminMode ? 'ВИЙТИ З АДМІНКИ' : 'АДМІН-ПАНЕЛЬ'}
+                                </button>
+                            </div>
+                        )
+                    )}
+
+                    {!isMobile && (
+                        <div style={{ marginTop: user?.is_admin ? '10px' : '20px', borderTop: !user?.is_admin ? '1px solid rgba(255,255,255,0.05)' : 'none', paddingTop: !user?.is_admin ? '20px' : '0' }}>
+                            <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255,50,50,0.6)', padding: '12px 15px', width: '100%', background: 'transparent', fontWeight: 600 }}>
+                                <LogOut size={20} /> Вийти
                             </button>
                         </div>
                     )}
-                    <div style={{ marginTop: user?.is_admin ? '10px' : '20px', borderTop: !user?.is_admin ? '1px solid rgba(255,255,255,0.05)' : 'none', paddingTop: !user?.is_admin ? '20px' : '0' }}>
-                        <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255,50,50,0.6)', padding: '12px 15px', width: '100%', background: 'transparent', fontWeight: 600 }}>
-                            <LogOut size={20} /> Вийти
-                        </button>
-                    </div>
+
+                    {isMobile && (
+                        <div onClick={logout} style={{ color: 'rgba(255,50,50,0.6)' }}>
+                            <LogOut size={24} />
+                        </div>
+                    )}
                 </nav>
             </aside>
 
