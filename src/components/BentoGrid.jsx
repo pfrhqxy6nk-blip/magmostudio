@@ -78,13 +78,15 @@ const BentoGrid = () => {
                     >
                         <div style={{ position: 'absolute', top: '15px', left: '50%', transform: 'translateX(-50%)', width: '50px', height: '18px', background: '#222', borderRadius: '10px', zIndex: 10, border: '1px solid rgba(255,255,255,0.05)' }} />
                         <video
-                            src="/v24044gl0000d60ftqnog65pd6n0cgig.mp4"
                             autoPlay
                             muted
                             loop
                             playsInline
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
+                        >
+                            <source src="/promo.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
                     </motion.div>
                 </div>
             </Card>
