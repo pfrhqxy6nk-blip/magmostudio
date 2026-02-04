@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import promoVideo from '../assets/promo.mp4';
+import iphoneMockup from '/iphone_mockup.png';
 
 const Card = ({ children, className, style }) => (
     <motion.div
@@ -84,7 +86,7 @@ const BentoGrid = () => {
                             playsInline
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         >
-                            <source src="/promo.mp4" type="video/mp4" />
+                            <source src={promoVideo} type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
                     </motion.div>
@@ -107,7 +109,7 @@ const BentoGrid = () => {
                     <p style={{ color: '#888', marginTop: '10px' }}>UI/UX світового рівня</p>
                 </div>
                 <motion.img
-                    src="/iphone_mockup.png"
+                    src={iphoneMockup}
                     alt="iPhone 15 Pro"
                     style={{
                         position: 'absolute',
