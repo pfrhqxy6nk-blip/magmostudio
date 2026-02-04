@@ -437,7 +437,7 @@ const MainLayout = ({ children }) => (
       {children}
     </main>
     <footer style={{ padding: '60px 40px', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
-      <p>&copy; 2024 magmostudio (v1.1). All rights reserved.</p>
+      <p>&copy; 2024 magmostudio (v1.2). All rights reserved.</p>
     </footer>
   </div>
 );

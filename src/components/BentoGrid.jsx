@@ -69,7 +69,7 @@ const BentoGrid = () => {
                         style={{
                             width: '220px',
                             height: '460px',
-                            background: '#000',
+                            background: 'linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)',
                             borderRadius: '35px',
                             border: '10px solid #222',
                             position: 'relative',
@@ -83,10 +83,10 @@ const BentoGrid = () => {
                             muted
                             loop
                             playsInline
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            poster="/iphone_mockup.png"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', background: 'transparent' }}
                         >
                             <source src="/promo.mp4" type="video/mp4" />
-                            Your browser does not support the video tag.
                         </video>
                     </motion.div>
                 </div>
