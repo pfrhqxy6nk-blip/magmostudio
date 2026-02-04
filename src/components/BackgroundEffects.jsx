@@ -54,6 +54,56 @@ const BackgroundEffects = () => {
                     filter: 'blur(80px)',
                 }}
             />
+
+            {/* Lava Orb 1 */}
+            <motion.div
+                animate={{
+                    y: [-100, 100, -100],
+                    x: [-50, 50, -50],
+                    scale: [1, 1.3, 1],
+                    opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                style={{
+                    position: 'absolute',
+                    top: '30%',
+                    left: '70%',
+                    width: '400px',
+                    height: '400px',
+                    background: 'radial-gradient(circle, rgba(255,77,0,0.25) 0%, rgba(255,30,0,0.15) 40%, rgba(0,0,0,0) 70%)',
+                    filter: 'blur(70px)',
+                    borderRadius: '50%'
+                }}
+            />
+
+            {/* Lava Orb 2 */}
+            <motion.div
+                animate={{
+                    y: [100, -100, 100],
+                    x: [50, -50, 50],
+                    scale: [1.2, 0.9, 1.2],
+                    opacity: [0.4, 0.7, 0.4]
+                }}
+                transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                }}
+                style={{
+                    position: 'absolute',
+                    bottom: '20%',
+                    left: '15%',
+                    width: '500px',
+                    height: '500px',
+                    background: 'radial-gradient(circle, rgba(255,149,0,0.2) 0%, rgba(255,77,0,0.1) 50%, rgba(0,0,0,0) 70%)',
+                    filter: 'blur(90px)',
+                    borderRadius: '50%'
+                }}
+            />
         </div>
     );
 };
