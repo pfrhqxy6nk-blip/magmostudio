@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Send, Info, DollarSign, Wallet } from 'lucide-react';
 import { useAuth } from '../App';
@@ -48,6 +48,13 @@ const Configurator = () => {
     const [projectTitle, setProjectTitle] = useState('');
     const [customBudget, setCustomBudget] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleSelect = (optionId) => {
         setSelections({ ...selections, [currentStep]: optionId });
@@ -112,14 +119,14 @@ const Configurator = () => {
     const step = steps[currentStep];
 
     return (
-        <section id="configurator" style={{ padding: '120px 20px', minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <section id="configurator" style={{ padding: isMobile ? '80px 20px' : '120px 20px', minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ maxWidth: '900px', width: '100%', position: 'relative' }}>
 
                 {/* Progress Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         {steps.map((_, i) => (
-                            <div key={i} style={{ width: '40px', height: '4px', borderRadius: '2px', background: i <= currentStep ? '#FF4D00' : 'rgba(255,255,255,0.1)', transition: '0.4s' }} />
+                            <div key={i} style={{ width: isMobile ? '20px' : '40px', height: '4px', borderRadius: '2px', background: i <= currentStep ? '#FF4D00' : 'rgba(255,255,255,0.1)', transition: '0.4s' }} />
                         ))}
                     </div>
                     <span style={{ fontSize: '0.8rem', fontWeight: 900, opacity: 0.4, letterSpacing: '1px' }}>КРОК {currentStep + 1} / {steps.length}</span>
@@ -127,8 +134,8 @@ const Configurator = () => {
 
                 <AnimatePresence mode="wait">
                     <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-                        <h2 style={{ fontSize: '3.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.04em' }}>{step.title}</h2>
-                        <p style={{ color: '#FF4D00', fontSize: '1.2rem', fontWeight: 700, marginBottom: '32px' }}>{step.subtitle}</p>
+                        <h2 style={{ fontSize: isMobile ? '2rem' : '3.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.04em' }}>{step.title}</h2>
+                        <p style={{ color: '#FF4D00', fontSize: isMobile ? '1rem' : '1.2rem', fontWeight: 700, marginBottom: '32px' }}>{step.subtitle}</p>
 
                         {/* Description Box */}
                         <div style={{ background: 'rgba(255,77,0,0.03)', borderLeft: '4px solid #FF4D00', padding: '24px', borderRadius: '0 20px 20px 0', marginBottom: '20px', display: 'flex', gap: '20px', backdropFilter: 'blur(10px)' }}>
@@ -150,7 +157,7 @@ const Configurator = () => {
                                         borderRadius: '20px',
                                         padding: '24px',
                                         color: 'white',
-                                        fontSize: '1.2rem',
+                                        fontSize: isMobile ? '1rem' : '1.2rem',
                                         fontWeight: 800,
                                         outline: 'none',
                                         transition: '0.3s',
@@ -163,7 +170,7 @@ const Configurator = () => {
                         {step.isContact ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 <input type="text" placeholder="Ваше ім'я" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px', color: 'white', fontSize: '1.1rem', width: '100%', outline: 'none' }} />
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                <div style={{ display: isMobile ? 'flex' : 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                     <input type="email" placeholder="Email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px', color: 'white', fontSize: '1.1rem', outline: 'none' }} />
                                     <input type="text" placeholder="Telegram @username" value={contact.telegram} onChange={(e) => setContact({ ...contact, telegram: e.target.value })} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px', color: 'white', fontSize: '1.1rem', outline: 'none' }} />
                                 </div>
@@ -176,7 +183,7 @@ const Configurator = () => {
                                     <div style={{
                                         position: 'relative',
                                         marginTop: '10px',
-                                        padding: '40px',
+                                        padding: isMobile ? '30px 20px' : '40px',
                                         background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
                                         borderRadius: '40px',
                                         border: '2px solid rgba(255,255,255,0.05)',
@@ -194,7 +201,7 @@ const Configurator = () => {
                                         </div>
 
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                                            <span style={{ fontSize: '3.5rem', fontWeight: 950, color: customBudget ? '#FF4D00' : 'rgba(255,255,255,0.05)', marginRight: '10px' }}>$</span>
+                                            <span style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 950, color: customBudget ? '#FF4D00' : 'rgba(255,255,255,0.05)', marginRight: '10px' }}>$</span>
                                             <input
                                                 type="number"
                                                 placeholder="0.00"
@@ -204,9 +211,9 @@ const Configurator = () => {
                                                     background: 'transparent',
                                                     border: 'none',
                                                     color: 'white',
-                                                    fontSize: '4.5rem',
+                                                    fontSize: isMobile ? '3rem' : '4.5rem',
                                                     fontWeight: 950,
-                                                    width: '280px',
+                                                    width: isMobile ? '200px' : '280px',
                                                     textAlign: 'left',
                                                     outline: 'none',
                                                     letterSpacing: '-4px',
@@ -214,10 +221,10 @@ const Configurator = () => {
                                                 }}
                                             />
                                         </div>
-                                        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>Введіть суму, на яку ви орієнтуєтесь</p>
+                                        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textAlign: 'center' }}>Введіть суму, на яку ви орієнтуєтесь</p>
                                     </div>
                                 ) : (
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
                                         {step.options?.map((option) => {
                                             const isSelected = selections[currentStep] === option.id;
                                             return (
@@ -238,7 +245,7 @@ const Configurator = () => {
                     <button onClick={prevStep} disabled={currentStep === 0} style={{ background: 'transparent', color: currentStep === 0 ? 'transparent' : 'rgba(255,255,255,0.4)', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ChevronLeft size={20} /> НАЗАД
                     </button>
-                    <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'white' : 'rgba(255,255,255,0.05)', color: isStepComplete() ? 'black' : 'rgba(255,255,255,0.2)', padding: '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s' }}>
+                    <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'white' : 'rgba(255,255,255,0.05)', color: isStepComplete() ? 'black' : 'rgba(255,255,255,0.2)', padding: isMobile ? '20px 32px' : '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s' }}>
                         {currentStep === steps.length - 1 ? 'СТВОРИТИ ПРОЕКТ' : 'ДАЛІ'}
                         {currentStep === steps.length - 1 ? <Send size={20} /> : <ChevronRight size={20} />}
                     </motion.button>
