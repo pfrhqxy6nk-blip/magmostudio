@@ -1359,7 +1359,7 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
 
     const isStepComplete = () => {
         if (step === 1) return formData.title.length > 2 && formData.category;
-        if (step === 2) return formData.budget || formData.customBudget.length >= 3;
+        if (step === 2) return formData.customBudget.length >= 2;
         if (step === 3) return formData.details.length > 5;
         return false;
     };
@@ -1412,29 +1412,6 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                                 <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Вкажіть ваш бюджет.</p>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '20px' }}>
-                                {[
-                                    { title: '$5k - $15k' },
-                                    { title: '$20k - $50k' },
-                                    { title: '$100k+' }
-                                ].map((b) => (
-                                    <div
-                                        key={b.title}
-                                        onClick={() => setFormData({ ...formData, budget: b.title, customBudget: '' })}
-                                        style={{
-                                            padding: '16px 8px',
-                                            borderRadius: '16px',
-                                            border: `1px solid ${formData.budget === b.title ? '#FF4D00' : 'rgba(255,255,255,0.05)'}`,
-                                            background: formData.budget === b.title ? 'rgba(255,77,0,0.08)' : 'rgba(255,255,255,0.01)',
-                                            cursor: 'pointer',
-                                            textAlign: 'center',
-                                            transition: '0.2s'
-                                        }}
-                                    >
-                                        <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>{b.title}</span>
-                                    </div>
-                                ))}
-                            </div>
 
                             <div style={{ padding: '20px', background: 'rgba(255,255,255,0.01)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: formData.customBudget ? 1 : 0.4 }}>

@@ -21,12 +21,7 @@ const steps = [
         title: "Інвестиції",
         subtitle: "Оберіть бюджетний діапазон або вкажіть свій",
         description: "Важливо вказати реалістичний бюджет. Це впливає на складність дизайну, кількість ітерацій та швидкість виходу продукту на ринок.",
-        isBudget: true,
-        options: [
-            { id: 'b1', title: '$500 - $1,000' },
-            { id: 'b2', title: '$1,500 - $3,000' },
-            { id: 'b3', title: '$5,000+' },
-        ]
+        isBudget: true
     },
     {
         id: 3,
@@ -176,20 +171,8 @@ const Configurator = () => {
                         ) : step.isDetails ? (
                             <textarea placeholder="Опишіть основні функції вашого майбутнього продукту..." value={details} onChange={(e) => setDetails(e.target.value)} style={{ width: '100%', height: '240px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '24px', color: 'white', fontSize: '1.1rem', resize: 'none', lineHeight: 1.6, outline: 'none' }} />
                         ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-                                    {step.options?.map((option) => {
-                                        const isSelected = selections[currentStep] === option.id;
-                                        return (
-                                            <motion.div key={option.id} onClick={() => handleSelect(option.id)} whileHover={{ y: -5, background: isSelected ? 'rgba(255, 77, 0, 0.15)' : 'rgba(255,255,255,0.05)' }} whileTap={{ scale: 0.98 }} style={{ padding: '40px 24px', borderRadius: '32px', background: isSelected ? 'rgba(255, 77, 0, 0.1)' : 'rgba(255,255,255,0.03)', border: `2px solid ${isSelected ? '#FF4D00' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', textAlign: 'center', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
-                                                <h4 style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '0' }}>{option.title}</h4>
-                                                {option.desc && <p style={{ fontSize: '0.85rem', color: isSelected ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginTop: '10px' }}>{option.desc}</p>}
-                                            </motion.div>
-                                        );
-                                    })}
-                                </div>
-
-                                {step.isBudget && (
+                            {
+                                step.isBudget ? (
                                     <div style={{
                                         position: 'relative',
                                         marginTop: '10px',
@@ -216,10 +199,7 @@ const Configurator = () => {
                                                 type="number"
                                                 placeholder="0.00"
                                                 value={customBudget}
-                                                onChange={(e) => {
-                                                    setCustomBudget(e.target.value);
-                                                    if (e.target.value) setSelections({ ...selections, [currentStep]: null });
-                                                }}
+                                                onChange={(e) => setCustomBudget(e.target.value)}
                                                 style={{
                                                     background: 'transparent',
                                                     border: 'none',
@@ -236,23 +216,36 @@ const Configurator = () => {
                                         </div>
                                         <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>Введіть суму, на яку ви орієнтуєтесь</p>
                                     </div>
-                                )}
+                                ) : (
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+                                        {step.options?.map((option) => {
+                                            const isSelected = selections[currentStep] === option.id;
+                                            return (
+                                                <motion.div key={option.id} onClick={() => handleSelect(option.id)} whileHover={{ y: -5, background: isSelected ? 'rgba(255, 77, 0, 0.15)' : 'rgba(255,255,255,0.05)' }} whileTap={{ scale: 0.98 }} style={{ padding: '40px 24px', borderRadius: '32px', background: isSelected ? 'rgba(255, 77, 0, 0.1)' : 'rgba(255,255,255,0.03)', border: `2px solid ${isSelected ? '#FF4D00' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', textAlign: 'center', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                                                    <h4 style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '0' }}>{option.title}</h4>
+                                                    {option.desc && <p style={{ fontSize: '0.85rem', color: isSelected ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginTop: '10px' }}>{option.desc}</p>}
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+                                )
+                            }
                             </div>
                         )}
-                    </motion.div>
-                </AnimatePresence>
+                </motion.div>
+            </AnimatePresence>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '60px', alignItems: 'center' }}>
-                    <button onClick={prevStep} disabled={currentStep === 0} style={{ background: 'transparent', color: currentStep === 0 ? 'transparent' : 'rgba(255,255,255,0.4)', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <ChevronLeft size={20} /> НАЗАД
-                    </button>
-                    <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'white' : 'rgba(255,255,255,0.05)', color: isStepComplete() ? 'black' : 'rgba(255,255,255,0.2)', padding: '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s' }}>
-                        {currentStep === steps.length - 1 ? 'СТВОРИТИ ПРОЕКТ' : 'ДАЛІ'}
-                        {currentStep === steps.length - 1 ? <Send size={20} /> : <ChevronRight size={20} />}
-                    </motion.button>
-                </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '60px', alignItems: 'center' }}>
+                <button onClick={prevStep} disabled={currentStep === 0} style={{ background: 'transparent', color: currentStep === 0 ? 'transparent' : 'rgba(255,255,255,0.4)', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <ChevronLeft size={20} /> НАЗАД
+                </button>
+                <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'white' : 'rgba(255,255,255,0.05)', color: isStepComplete() ? 'black' : 'rgba(255,255,255,0.2)', padding: '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s' }}>
+                    {currentStep === steps.length - 1 ? 'СТВОРИТИ ПРОЕКТ' : 'ДАЛІ'}
+                    {currentStep === steps.length - 1 ? <Send size={20} /> : <ChevronRight size={20} />}
+                </motion.button>
             </div>
-        </section>
+        </div>
+        </section >
     );
 };
 
