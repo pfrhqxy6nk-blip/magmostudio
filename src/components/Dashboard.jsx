@@ -1165,13 +1165,40 @@ const SettingsView = ({ user, updateUser }) => {
     const [phone, setPhone] = useState(user?.phone || '');
     const [company, setCompany] = useState(user?.company || '');
     const [role, setRole] = useState(user?.role || '');
-    const [notifications, setNotifications] = useState({ email: true, push: false });
+    const [avatarStyle, setAvatarStyle] = useState('avataaars');
+    const [avatarSeed, setAvatarSeed] = useState(user?.email || 'seed');
     const [showPassword, setShowPassword] = useState(false);
+    const [passwordData, setPasswordData] = useState({ current: '', next: '' });
 
     const handleSave = () => {
-        updateUser({ name, email, phone, company, role });
+        const avatar = `https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`;
+        updateUser({ name, email, phone, company, role, avatar });
         alert('Збережено успішно');
     };
+
+    const handlePasswordUpdate = () => {
+        if (passwordData.current !== user.password) {
+            alert('Поточний пароль невірний');
+            return;
+        }
+        if (passwordData.next.length < 4) {
+            alert('Новий пароль занадто короткий (мін. 4 символи)');
+            return;
+        }
+        updateUser({ password: passwordData.next });
+        setPasswordData({ current: '', next: '' });
+        setShowPassword(false);
+        alert('Пароль успішно змінено');
+    };
+
+    const avatarStyles = [
+        { id: 'avataaars', label: 'Classic' },
+        { id: 'pixel-art', label: 'Pixel' },
+        { id: 'bottts', label: 'Robot' },
+        { id: 'identicon', label: 'Abstract' },
+        { id: 'micah', label: 'Staged' },
+        { id: 'lorelei', label: 'Modern' }
+    ];
 
     const Section = ({ title, icon: Icon, children }) => (
         <div style={{ marginBottom: '40px' }}>
@@ -1225,9 +1252,46 @@ const SettingsView = ({ user, updateUser }) => {
                 </div>
             </Section>
 
-            <Section title="Сповіщення" icon={Bell}>
-                <Toggle label="Email сповіщення" active={notifications.email} onToggle={() => setNotifications({ ...notifications, email: !notifications.email })} />
-                <Toggle label="Push сповіщення" active={notifications.push} onToggle={() => setNotifications({ ...notifications, push: !notifications.push })} />
+            <Section title="Профільний Аватар" icon={User}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                    <div style={{ position: 'relative' }}>
+                        <img
+                            src={`https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`}
+                            style={{ width: '100px', height: '100px', borderRadius: '30px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,77,0,0.2)' }}
+                            alt="Avatar Preview"
+                        />
+                        <motion.button
+                            whileTap={{ rotate: 180 }}
+                            onClick={() => setAvatarSeed(Math.random().toString(36).substring(7))}
+                            style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '36px', height: '36px', borderRadius: '12px', background: '#FF4D00', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255,77,0,0.3)' }}
+                        >
+                            <Zap size={16} fill="white" />
+                        </motion.button>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px', marginBottom: '12px', display: 'block' }}>ОБЕРІТЬ СТИЛЬ</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                            {avatarStyles.map(s => (
+                                <button
+                                    key={s.id}
+                                    onClick={() => setAvatarStyle(s.id)}
+                                    style={{
+                                        padding: '10px',
+                                        borderRadius: '12px',
+                                        background: avatarStyle === s.id ? 'rgba(255,77,0,0.1)' : 'rgba(255,255,255,0.03)',
+                                        border: `1px solid ${avatarStyle === s.id ? '#FF4D00' : 'transparent'}`,
+                                        color: avatarStyle === s.id ? '#FF4D00' : 'rgba(255,255,255,0.6)',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 800,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {s.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </Section>
 
             <Section title="Безпека" icon={Lock}>
@@ -1236,9 +1300,26 @@ const SettingsView = ({ user, updateUser }) => {
                 </button>
                 {showPassword && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <input type="password" placeholder="Поточний пароль" style={{ padding: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white' }} />
-                        <input type="password" placeholder="Новий пароль" style={{ padding: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white' }} />
-                        <button style={{ background: '#FF4D00', color: 'white', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 900 }}>ПІДТВЕРДИТИ</button>
+                        <input
+                            type="password"
+                            placeholder="Поточний пароль"
+                            value={passwordData.current}
+                            onChange={e => setPasswordData({ ...passwordData, current: e.target.value })}
+                            style={{ padding: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white', outline: 'none' }}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Новий пароль"
+                            value={passwordData.next}
+                            onChange={e => setPasswordData({ ...passwordData, next: e.target.value })}
+                            style={{ padding: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white', outline: 'none' }}
+                        />
+                        <button
+                            onClick={handlePasswordUpdate}
+                            style={{ background: '#FF4D00', color: 'white', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 900, cursor: 'pointer' }}
+                        >
+                            ПІДТВЕРДИТИ
+                        </button>
                     </motion.div>
                 )}
             </Section>
