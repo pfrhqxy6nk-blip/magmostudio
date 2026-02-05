@@ -332,6 +332,7 @@ const Dashboard = () => {
     const [selectedProjectId, setSelectedProjectId] = useState(null);
     const [isAdminMode, setIsAdminMode] = useState(false);
     const [filterStatus, setFilterStatus] = useState(null);
+    // State for mobile detection
     const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
