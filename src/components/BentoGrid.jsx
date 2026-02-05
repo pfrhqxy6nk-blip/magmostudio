@@ -73,44 +73,45 @@ const BentoGrid = () => {
                     </p>
                 </div>
 
-                {!isMobile && (
-                    <div style={{
-                        position: 'absolute',
-                        right: '60px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        zIndex: 5
-                    }}>
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            whileHover={{ scale: 1.05 }}
-                            transition={{ duration: 0.8 }}
-                            style={{
-                                width: '220px',
-                                height: '460px',
-                                background: 'linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)',
-                                borderRadius: '35px',
-                                border: '10px solid #222',
-                                position: 'relative',
-                                overflow: 'hidden',
-                                boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 30px rgba(255, 77, 0, 0.2)'
-                            }}
+                <div style={{
+                    position: isMobile ? 'relative' : 'absolute',
+                    right: isMobile ? 'auto' : '60px',
+                    top: isMobile ? 'auto' : '50%',
+                    transform: isMobile ? 'none' : 'translateY(-50%)',
+                    zIndex: 5,
+                    marginTop: isMobile ? '20px' : '0',
+                    width: isMobile ? '200px' : 'auto'
+                }}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.8 }}
+                        style={{
+                            width: '220px',
+                            height: '460px',
+                            background: 'linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%)',
+                            borderRadius: '35px',
+                            border: '10px solid #222',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 30px rgba(255, 77, 0, 0.2)',
+                            transform: isMobile ? 'scale(0.9)' : 'scale(1)'
+                        }}
+                    >
+                        <div style={{ position: 'absolute', top: '15px', left: '50%', transform: 'translateX(-50%)', width: '50px', height: '18px', background: '#222', borderRadius: '10px', zIndex: 10, border: '1px solid rgba(255,255,255,0.05)' }} />
+                        <video
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            poster="/iphone_mockup.png"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', background: 'transparent' }}
                         >
-                            <div style={{ position: 'absolute', top: '15px', left: '50%', transform: 'translateX(-50%)', width: '50px', height: '18px', background: '#222', borderRadius: '10px', zIndex: 10, border: '1px solid rgba(255,255,255,0.05)' }} />
-                            <video
-                                autoPlay
-                                muted
-                                loop
-                                playsInline
-                                poster="/iphone_mockup.png"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover', background: 'transparent' }}
-                            >
-                                <source src="/promo.mp4" type="video/mp4" />
-                            </video>
-                        </motion.div>
-                    </div>
-                )}
+                            <source src="/promo.mp4" type="video/mp4" />
+                        </video>
+                    </motion.div>
+                </div>
             </Card>
 
             {/* Example Item 2: Stat or Feature */}
