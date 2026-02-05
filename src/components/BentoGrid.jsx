@@ -43,7 +43,7 @@ const BentoGrid = () => {
             paddingRight: isMobile ? '20px' : '0'
         }}>
             {/* Example Item 1: Large Mockup */}
-            <Card style={{
+            <Card className="bento-card-mobile-stack" style={{
                 gridColumn: isMobile ? 'span 1' : 'span 8',
                 gridRow: isMobile ? 'auto' : 'span 2',
                 minHeight: isMobile ? 'auto' : '500px',
@@ -53,7 +53,7 @@ const BentoGrid = () => {
                 textAlign: isMobile ? 'center' : 'left',
                 paddingBottom: isMobile ? '40px' : '0'
             }}>
-                <div style={{ padding: isMobile ? '40px 20px 20px' : '60px', position: 'relative', zIndex: 10, maxWidth: isMobile ? '100%' : '450px' }}>
+                <div className="bento-text-content" style={{ padding: isMobile ? '40px 20px 20px' : '60px', position: 'relative', zIndex: 10, maxWidth: isMobile ? '100%' : '450px' }}>
                     <div style={{
                         background: 'linear-gradient(90deg, #FF4D00 0%, #FF9500 100%)',
                         padding: '6px 14px',
@@ -74,7 +74,7 @@ const BentoGrid = () => {
                     </p>
                 </div>
 
-                <div style={{
+                <div className="bento-video-mockup" style={{
                     position: isMobile ? 'static' : 'absolute',
                     right: isMobile ? 'auto' : '60px',
                     top: isMobile ? 'auto' : '50%',

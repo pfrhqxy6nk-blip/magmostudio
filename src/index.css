@@ -66,4 +66,33 @@ button {
     font-size: 14px;
     /* Slightly scale down base font if causing issues, but rems handle it */
   }
+
+  /* Enforce stacked layout for Bento Card on mobile */
+  .bento-card-mobile-stack {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: center !important;
+    min-height: auto !important;
+    padding-bottom: 40px !important;
+  }
+
+  .bento-text-content {
+    max-width: 100% !important;
+    padding: 40px 20px 20px !important;
+  }
+
+  .bento-video-mockup {
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    margin-top: 20px !important;
+    width: auto !important;
+    display: block !important;
+  }
+
+  .bento-video-mockup>div {
+    transform: scale(0.9) !important;
+    margin: 0 auto !important;
+  }
 }
