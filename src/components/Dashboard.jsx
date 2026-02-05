@@ -307,22 +307,20 @@ const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
                                                 e.stopPropagation();
                                                 onDelete(p.id);
                                             }}
-                                            onDelete(p.id);
-                                            }}
-                                        style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,50,50,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF3232', cursor: 'pointer' }}
+                                            style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,50,50,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FF3232', cursor: 'pointer' }}
                                         >
-                                        <Trash2 size={18} strokeWidth={3} />
+                                            <Trash2 size={18} strokeWidth={3} />
+                                        </div>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: ADMIN_THEME.primary }}>
+                                            <ChevronRight size={18} strokeWidth={3} />
+                                        </div>
                                     </div>
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: ADMIN_THEME.primary }}>
-                                        <ChevronRight size={18} strokeWidth={3} />
-                                    </div>
-                                </div>
-                            </td>
+                                </td>
                             </motion.tr>
-                );
+                        );
                     })}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
         </div >
     );
 };
