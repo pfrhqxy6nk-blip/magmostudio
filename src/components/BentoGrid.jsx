@@ -46,13 +46,14 @@ const BentoGrid = () => {
             <Card style={{
                 gridColumn: isMobile ? 'span 1' : 'span 8',
                 gridRow: isMobile ? 'auto' : 'span 2',
-                minHeight: '500px',
+                minHeight: isMobile ? 'auto' : '500px',
                 display: 'flex',
                 alignItems: 'center',
                 flexDirection: isMobile ? 'column' : 'row',
-                textAlign: isMobile ? 'center' : 'left'
+                textAlign: isMobile ? 'center' : 'left',
+                paddingBottom: isMobile ? '40px' : '0'
             }}>
-                <div style={{ padding: isMobile ? '40px 20px' : '60px', position: 'relative', zIndex: 10, maxWidth: isMobile ? '100%' : '450px' }}>
+                <div style={{ padding: isMobile ? '40px 20px 20px' : '60px', position: 'relative', zIndex: 10, maxWidth: isMobile ? '100%' : '450px' }}>
                     <div style={{
                         background: 'linear-gradient(90deg, #FF4D00 0%, #FF9500 100%)',
                         padding: '6px 14px',
@@ -74,13 +75,13 @@ const BentoGrid = () => {
                 </div>
 
                 <div style={{
-                    position: isMobile ? 'relative' : 'absolute',
+                    position: isMobile ? 'static' : 'absolute',
                     right: isMobile ? 'auto' : '60px',
                     top: isMobile ? 'auto' : '50%',
                     transform: isMobile ? 'none' : 'translateY(-50%)',
                     zIndex: 5,
                     marginTop: isMobile ? '20px' : '0',
-                    width: isMobile ? '200px' : 'auto'
+                    width: isMobile ? 'auto' : 'auto'
                 }}>
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
