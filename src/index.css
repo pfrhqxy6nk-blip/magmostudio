@@ -96,3 +96,18 @@ button {
     margin: 0 auto !important;
   }
 }
+
+.site-footer {
+  padding: 60px 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  color: rgba(255, 255, 255, 0.3);
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 30px 20px;
+    font-size: 0.8rem;
+  }
+}

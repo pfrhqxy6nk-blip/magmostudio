@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import BackgroundEffects from './components/BackgroundEffects';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Hero from './components/Hero';
 import BentoGrid from './components/BentoGrid';
 import Configurator from './components/Configurator';
@@ -169,7 +170,15 @@ const AuthProvider = ({ children }) => {
       owner_email: projectData.owner_email || user?.email,
       status: 'PENDING',
       progress: 0,
-      roadmap: [],
+      roadmap: [
+        { title: 'Збір вимог', status: 'upcoming' },
+        { title: 'Проектування', status: 'upcoming' },
+        { title: 'Дизайн', status: 'upcoming' },
+        { title: 'Верстка та програмування', status: 'upcoming' },
+        { title: 'Тестування', status: 'upcoming' },
+        { title: 'Запуск', status: 'upcoming' },
+        { title: 'Підтримка та розвиток', status: 'upcoming' }
+      ],
       comments: [
         { id: Date.now(), author: 'Олексій (PM)', text: 'Вітаємо у magmostudio! Ми розпочинаємо підготовку вашого проекту. Чекаємо на ваші перші коментарі щодо дизайну.', date: new Date().toISOString() }
       ]
@@ -436,9 +445,7 @@ const MainLayout = ({ children }) => (
     <main style={{ position: 'relative', zIndex: 10 }}>
       {children}
     </main>
-    <footer style={{ padding: '60px 40px', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
-      <p>&copy; 2024 magmostudio (v1.2). All rights reserved.</p>
-    </footer>
+    <Footer />
   </div>
 );
 
