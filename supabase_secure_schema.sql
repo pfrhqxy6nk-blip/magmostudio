@@ -96,6 +96,11 @@ for each row execute procedure public.handle_new_user();
 -- ==========================================================
 -- Projects
 -- ==========================================================
+-- If you already have `public.projects` from an older schema, this adds the missing column
+-- so the policies below can be created without failing.
+alter table if exists public.projects
+  add column if not exists owner_id uuid;
+
 create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
   title text not null,
@@ -270,4 +275,3 @@ using (
     or auth.uid()::text = (storage.foldername(name))[1]
   )
 );
-
