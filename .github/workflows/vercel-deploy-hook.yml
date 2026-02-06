@@ -20,11 +20,21 @@ jobs:
             echo "Missing GitHub secret: VERCEL_DEPLOY_HOOK_URL"
             exit 1
           fi
+
+          # Trim common copy/paste issues (spaces, newlines, CRLF).
+          url="$(printf '%s' "$VERCEL_DEPLOY_HOOK_URL" | tr -d '\r\n' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+
+          if ! echo "$url" | grep -Eq '^https://api\.vercel\.com/v1/integrations/deploy/[A-Za-z0-9]+$'; then
+            echo "Invalid VERCEL_DEPLOY_HOOK_URL format."
+            echo "Expected: https://api.vercel.com/v1/integrations/deploy/<hookId>"
+            echo "Got (redacted): $(echo "$url" | sed -E 's#(https?://[^/]+/v1/integrations/deploy/).*#\\1<redacted>#')"
+            exit 1
+          fi
+
           echo "Triggering Vercel deploy hook..."
-          echo "Hook prefix:"
-          echo "$VERCEL_DEPLOY_HOOK_URL" | sed -E 's#(https?://[^/]+/v1/integrations/deploy/[^/]+).*#\\1/<redacted>#'
+          echo "Hook: $(echo "$url" | sed -E 's#(https?://[^/]+/v1/integrations/deploy/).*#\\1<redacted>#')"
           http_code="$(
-            curl -sS --location -X POST "$VERCEL_DEPLOY_HOOK_URL" \
+            curl -sS --location -X POST "$url" \
               --retry 3 --retry-delay 2 \
               --connect-timeout 10 --max-time 30 \
               --header "Content-Type: application/json" \
