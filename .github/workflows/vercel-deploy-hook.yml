@@ -27,12 +27,17 @@ jobs:
           if ! echo "$url" | grep -Eq '^https://api\.vercel\.com/v1/integrations/deploy/[A-Za-z0-9]+$'; then
             echo "Invalid VERCEL_DEPLOY_HOOK_URL format."
             echo "Expected: https://api.vercel.com/v1/integrations/deploy/<hookId>"
-            echo "Got (redacted): $(echo "$url" | sed -E 's#(https?://[^/]+/v1/integrations/deploy/).*#\\1<redacted>#')"
+            # Avoid printing the hook token; show only a safe prefix.
+            if echo "$url" | grep -Eq '^https?://'; then
+              echo "Got (redacted): https://api.vercel.com/v1/integrations/deploy/<redacted>"
+            else
+              echo "Got (redacted): <not-a-url>"
+            fi
             exit 1
           fi
 
           echo "Triggering Vercel deploy hook..."
-          echo "Hook: $(echo "$url" | sed -E 's#(https?://[^/]+/v1/integrations/deploy/).*#\\1<redacted>#')"
+          echo "Hook: https://api.vercel.com/v1/integrations/deploy/<redacted>"
           http_code="$(
             curl -sS --location -X POST "$url" \
               --retry 3 --retry-delay 2 \
