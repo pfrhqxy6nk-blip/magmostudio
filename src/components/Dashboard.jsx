@@ -1248,6 +1248,29 @@ const PaymentCard = ({ project, onPay, adminMode }) => (
     </motion.div>
 );
 
+const Section = ({ title, icon: Icon, children }) => (
+    <div style={{ marginBottom: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(112, 0, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={20} color="#7000FF" />
+            </div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white' }}>{title}</h3>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '24px' }}>
+            {children}
+        </div>
+    </div>
+);
+
+const Toggle = ({ active, onToggle, label }) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{label}</span>
+        <div onClick={onToggle} style={{ width: '44px', height: '24px', background: active ? '#7000FF' : 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '2px', cursor: 'pointer', transition: '0.3s' }}>
+            <div style={{ width: '20px', height: '20px', background: 'white', borderRadius: '50%', transform: active ? 'translateX(20px)' : 'translateX(0)', transition: '0.3s' }} />
+        </div>
+    </div>
+);
+
 const SettingsView = ({ user, updateUser }) => {
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
@@ -1288,29 +1311,6 @@ const SettingsView = ({ user, updateUser }) => {
         { id: 'micah', label: 'Staged' },
         { id: 'lorelei', label: 'Modern' }
     ];
-
-    const Section = ({ title, icon: Icon, children }) => (
-        <div style={{ marginBottom: '40px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(112, 0, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={20} color="#7000FF" />
-                </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white' }}>{title}</h3>
-            </div>
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '24px' }}>
-                {children}
-            </div>
-        </div>
-    );
-
-    const Toggle = ({ active, onToggle, label }) => (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{label}</span>
-            <div onClick={onToggle} style={{ width: '44px', height: '24px', background: active ? '#7000FF' : 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '2px', cursor: 'pointer', transition: '0.3s' }}>
-                <div style={{ width: '20px', height: '20px', background: 'white', borderRadius: '50%', transform: active ? 'translateX(20px)' : 'translateX(0)', transition: '0.3s' }} />
-            </div>
-        </div>
-    );
 
     return (
         <div style={{ maxWidth: '800px' }}>
