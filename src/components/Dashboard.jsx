@@ -57,10 +57,10 @@ const ADMIN_THEME = {
 };
 
 const getStatusDetails = (status, isAdmin = false) => {
-    const primary = isAdmin ? ADMIN_THEME.primary : '#FF4D00';
+    const primary = isAdmin ? ADMIN_THEME.primary : '#7000FF';
     switch (status) {
         case 'ACTIVE': return { label: 'В РОБОТІ', color: '#4CAF50', bg: 'rgba(76, 175, 80, 0.1)' };
-        case 'PENDING': return { label: 'ОБРОБКА', color: isAdmin ? ADMIN_THEME.primary : '#FF9500', bg: isAdmin ? 'rgba(0, 240, 255, 0.1)' : 'rgba(255, 149, 0, 0.1)' };
+        case 'PENDING': return { label: 'ОБРОБКА', color: isAdmin ? ADMIN_THEME.primary : '#BD00FF', bg: isAdmin ? 'rgba(0, 240, 255, 0.1)' : 'rgba(189, 0, 255, 0.1)' };
         case 'PAYMENT': return { label: 'ОПЛАТА', color: primary, bg: `${primary}1a` };
         case 'COMPLETED': return { label: 'ГОТОВО', color: '#2196F3', bg: 'rgba(33, 150, 243, 0.1)' };
         default: return { label: 'СТАТУС', color: '#FFF', bg: 'rgba(255, 255, 255, 0.1)' };
@@ -165,7 +165,7 @@ const AdminTeamView = ({ addAdmin, removeAdmin }) => {
 
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '32px', padding: '40px', maxWidth: '800px' }}>
                 <div style={{ marginBottom: '40px' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#FF4D00', marginBottom: '20px', letterSpacing: '1px' }}>ДОДАТИ РОЗРОБНИКА</h3>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#7000FF', marginBottom: '20px', letterSpacing: '1px' }}>ДОДАТИ РОЗРОБНИКА</h3>
                     <form onSubmit={handleAdd} style={{ display: 'flex', gap: '16px' }}>
                         <input
                             name="email"
@@ -178,7 +178,7 @@ const AdminTeamView = ({ addAdmin, removeAdmin }) => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             type="submit"
-                            style={{ background: '#FF4D00', color: 'white', border: 'none', borderRadius: '16px', padding: '0 32px', fontWeight: 900, cursor: 'pointer' }}
+                            style={{ background: '#7000FF', color: 'white', border: 'none', borderRadius: '16px', padding: '0 32px', fontWeight: 900, cursor: 'pointer' }}
                         >
                             ДОДАТИ
                         </motion.button>
@@ -193,7 +193,7 @@ const AdminTeamView = ({ addAdmin, removeAdmin }) => {
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <img src={member.avatar} style={{ width: '32px', height: '32px', borderRadius: '50%' }} alt="" />
                                     <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{member.email}</span>
-                                    {member.is_root && <span style={{ fontSize: '0.6rem', fontWeight: 950, color: '#FF4D00', background: 'rgba(255,77,0,0.1)', padding: '4px 8px', borderRadius: '6px' }}>ROOT</span>}
+                                    {member.is_root && <span style={{ fontSize: '0.6rem', fontWeight: 950, color: '#7000FF', background: 'rgba(112, 0, 255, 0.1)', padding: '4px 8px', borderRadius: '6px' }}>ROOT</span>}
                                 </div>
                                 {!member.is_root && (
                                     <button
@@ -394,12 +394,12 @@ const Dashboard = () => {
                 height: isMobile ? '300px' : '600px',
                 background: isAdminMode
                     ? `radial-gradient(circle, ${ADMIN_THEME.primary}08 0%, transparent 70%)`
-                    : 'radial-gradient(circle, rgba(255,77,0,0.05) 0%, transparent 70%)',
+                    : 'radial-gradient(circle, rgba(112, 0, 255, 0.05) 0%, transparent 70%)',
                 filter: 'blur(80px)',
                 pointerEvents: 'none',
                 transition: 'background 0.5s ease'
             }} />
-            <div style={{ position: 'absolute', bottom: '10%', left: '-10%', width: isMobile ? '250px' : '500px', height: isMobile ? '250px' : '500px', background: 'radial-gradient(circle, rgba(255,77,0,0.03) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: '10%', left: '-10%', width: isMobile ? '250px' : '500px', height: isMobile ? '250px' : '500px', background: 'radial-gradient(circle, rgba(112, 0, 255, 0.03) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
             {/* Sidebar / Bottom Nav */}
             <aside style={{
@@ -727,7 +727,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                                 />
                             </div>
                         ) : (
-                            <span style={{ color: '#FF4D00', fontWeight: 900, fontSize: '0.75rem', letterSpacing: '2px' }}>{project.category?.toUpperCase() || 'SAAS / WEB APP'}</span>
+                            <span style={{ color: '#7000FF', fontWeight: 900, fontSize: '0.75rem', letterSpacing: '2px' }}>{project.category?.toUpperCase() || 'SAAS / WEB APP'}</span>
                         )}
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             {isAdmin && project.status === 'PENDING' && (
@@ -857,7 +857,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                                             <div style={{ display: 'flex', gap: '8px' }}>
                                                 <button
                                                     onClick={handleAddStep}
-                                                    style={{ background: '#FF4D00', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer', flex: 1 }}
+                                                    style={{ background: '#7000FF', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer', flex: 1 }}
                                                 >
                                                     ЗБЕРЕГТИ
                                                 </button>
@@ -875,7 +875,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                             {roadmap.map((s, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        {s.status === 'completed' ? <CheckCircle2 size={18} color="#4CAF50" strokeWidth={3} /> : s.status === 'current' ? <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: '10px', height: '10px', background: '#FF4D00', borderRadius: '50%', boxShadow: '0 0 15px #FF4D00' }} /> : <Circle size={18} color="rgba(255,255,255,0.1)" strokeWidth={2} />}
+                                        {s.status === 'completed' ? <CheckCircle2 size={18} color="#4CAF50" strokeWidth={3} /> : s.status === 'current' ? <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: '10px', height: '10px', background: '#7000FF', borderRadius: '50%', boxShadow: '0 0 15px #7000FF' }} /> : <Circle size={18} color="rgba(255,255,255,0.1)" strokeWidth={2} />}
                                         <span style={{ fontWeight: 800, fontSize: '0.85rem', color: s.status === 'upcoming' ? 'rgba(255,255,255,0.2)' : 'white' }}>{s.title}</span>
                                     </div>
                                     {isAdmin && (
@@ -1055,9 +1055,9 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                         {comments.length === 0 ? (
                             <div style={{ padding: '20px', textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>Поки що немає коментарів</div>
                         ) : comments.map((c) => (
-                            <div key={c.id} style={{ padding: '12px', borderRadius: '16px', background: c.author?.includes('(Admin)') ? 'rgba(255,77,0,0.08)' : 'rgba(255,255,255,0.03)', alignSelf: c.author === user?.name || c.author?.includes('(Admin)') && user?.isAdmin ? 'flex-end' : 'flex-start', maxWidth: '90%', border: c.author?.includes('(Admin)') ? '1px solid rgba(255,77,0,0.1)' : '1px solid transparent' }}>
+                            <div key={c.id} style={{ padding: '12px', borderRadius: '16px', background: c.author?.includes('(Admin)') ? 'rgba(112, 0, 255, 0.08)' : 'rgba(255,255,255,0.03)', alignSelf: c.author === user?.name || c.author?.includes('(Admin)') && user?.isAdmin ? 'flex-end' : 'flex-start', maxWidth: '90%', border: c.author?.includes('(Admin)') ? '1px solid rgba(112, 0, 255, 0.1)' : '1px solid transparent' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '2px' }}>
-                                    <span style={{ fontWeight: 900, fontSize: '0.6rem', color: c.author?.includes('(Admin)') ? '#FF4D00' : 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{c.author}</span>
+                                    <span style={{ fontWeight: 900, fontSize: '0.6rem', color: c.author?.includes('(Admin)') ? '#7000FF' : 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{c.author}</span>
                                     <span style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.2)' }}>{new Date(c.date).toLocaleDateString()}</span>
                                 </div>
                                 <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.4 }}>{c.text}</p>
@@ -1066,7 +1066,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                     </div>
                     <form onSubmit={handleCommentSubmit} style={{ display: 'flex', gap: '8px' }}>
                         <input type="text" placeholder="Напишіть повідомлення..." value={commentText} onChange={e => setCommentText(e.target.value)} style={{ flex: 1, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '10px 14px', color: 'white', fontSize: '0.8rem', outline: 'none' }} />
-                        <motion.button whileHover={{ scale: 1.05 }} disabled={isSendingComment} type="submit" style={{ background: '#FF4D00', color: 'white', width: '40px', height: '40px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', opacity: isSendingComment ? 0.7 : 1 }}>
+                        <motion.button whileHover={{ scale: 1.05 }} disabled={isSendingComment} type="submit" style={{ background: '#7000FF', color: 'white', width: '40px', height: '40px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', opacity: isSendingComment ? 0.7 : 1 }}>
                             {isSendingComment ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} style={{ width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.5)', borderTop: '2px solid white', borderRadius: '50%' }} /> : <Send size={16} strokeWidth={3} />}
                         </motion.button>
                     </form>
@@ -1105,7 +1105,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
 const ResourceLink = ({ icon, label }) => (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ color: '#FF4D00' }}>{icon}</span>
+            <span style={{ color: '#7000FF' }}>{icon}</span>
             <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{label}</span>
         </div>
         <ExternalLink size={14} color="rgba(255,255,255,0.2)" />
@@ -1124,16 +1124,16 @@ const SidebarLink = ({ icon, label, active, onClick }) => (
             padding: '16px 20px',
             width: '100%',
             borderRadius: '16px',
-            background: active ? 'rgba(255, 77, 0, 0.1)' : 'transparent',
-            color: active ? '#FF4D00' : 'rgba(255,255,255,0.4)',
+            background: active ? 'rgba(112, 0, 255, 0.1)' : 'transparent',
+            color: active ? '#7000FF' : 'rgba(255,255,255,0.4)',
             transition: '0.3s cubic-bezier(0.2, 0, 0.2, 1)',
             fontWeight: 800,
             fontSize: '0.9rem',
-            border: active ? '1px solid rgba(255,77,0,0.1)' : '1px solid transparent',
+            border: active ? '1px solid rgba(112, 0, 255, 0.1)' : '1px solid transparent',
             cursor: 'pointer'
         }}
     >
-        <span style={{ color: active ? '#FF4D00' : 'inherit' }}>{icon}</span>
+        <span style={{ color: active ? '#7000FF' : 'inherit' }}>{icon}</span>
         {label}
     </motion.button>
 );
@@ -1193,7 +1193,7 @@ const ProjectCard = ({ project, onClick, adminMode }) => {
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: status.color, letterSpacing: '2px', textTransform: 'uppercase' }}>{status.label}</span>
-                            {adminMode && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#FF4D00', background: 'rgba(255,77,0,0.1)', padding: '2px 8px', borderRadius: '6px' }}>{project.owner_email}</span>}
+                            {adminMode && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#7000FF', background: 'rgba(112, 0, 255, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{project.owner_email}</span>}
                         </div>
                         <h3 style={{ fontSize: '1.8rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{project.title}</h3>
                     </div>
@@ -1231,17 +1231,17 @@ const RequestCard = ({ project, onMockDiscuss, adminMode }) => (
 const PaymentCard = ({ project, onPay, adminMode }) => (
     <motion.div
         whileHover={{ scale: 1.02 }}
-        style={{ background: 'linear-gradient(135deg, rgba(255, 77, 0, 0.1) 0%, rgba(255, 77, 0, 0.05) 100%)', border: '1px solid rgba(255, 77, 0, 0.3)', borderRadius: '40px', padding: '40px' }}
+        style={{ background: 'linear-gradient(135deg, rgba(112, 0, 255, 0.1) 0%, rgba(112, 0, 255, 0.05) 100%)', border: '1px solid rgba(112, 0, 255, 0.3)', borderRadius: '40px', padding: '40px' }}
     >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
             <h3 style={{ fontSize: '1.6rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{project.title}</h3>
-            {adminMode && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#FF4D00', background: 'rgba(255,77,0,0.1)', padding: '4px 10px', borderRadius: '6px' }}>{project.owner_email}</span>}
+            {adminMode && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#7000FF', background: 'rgba(112, 0, 255, 0.1)', padding: '4px 10px', borderRadius: '6px' }}>{project.owner_email}</span>}
         </div>
         <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.5)', marginBottom: '32px', lineHeight: 1.5 }}>Перевірка завершена. Бюджет: {project.budget}. Необхідна оплата для початку робіт.</p>
         <motion.button
-            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(255,77,0,0.3)' }}
+            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(112, 0, 255, 0.3)' }}
             onClick={onPay}
-            style={{ width: '100%', background: '#FF4D00', color: 'white', padding: '18px', borderRadius: '20px', fontWeight: 900, fontSize: '0.85rem', letterSpacing: '1px', border: 'none', cursor: 'pointer' }}
+            style={{ width: '100%', background: '#7000FF', color: 'white', padding: '18px', borderRadius: '20px', fontWeight: 900, fontSize: '0.85rem', letterSpacing: '1px', border: 'none', cursor: 'pointer' }}
         >
             ПІДТВЕРДИТИ ОПЛАТУ
         </motion.button>
@@ -1292,8 +1292,8 @@ const SettingsView = ({ user, updateUser }) => {
     const Section = ({ title, icon: Icon, children }) => (
         <div style={{ marginBottom: '40px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,77,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon size={20} color="#FF4D00" />
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(112, 0, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon size={20} color="#7000FF" />
                 </div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white' }}>{title}</h3>
             </div>
@@ -1306,7 +1306,7 @@ const SettingsView = ({ user, updateUser }) => {
     const Toggle = ({ active, onToggle, label }) => (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{label}</span>
-            <div onClick={onToggle} style={{ width: '44px', height: '24px', background: active ? '#FF4D00' : 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '2px', cursor: 'pointer', transition: '0.3s' }}>
+            <div onClick={onToggle} style={{ width: '44px', height: '24px', background: active ? '#7000FF' : 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '2px', cursor: 'pointer', transition: '0.3s' }}>
                 <div style={{ width: '20px', height: '20px', background: 'white', borderRadius: '50%', transform: active ? 'translateX(20px)' : 'translateX(0)', transition: '0.3s' }} />
             </div>
         </div>
@@ -1346,13 +1346,13 @@ const SettingsView = ({ user, updateUser }) => {
                     <div style={{ position: 'relative' }}>
                         <img
                             src={`https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`}
-                            style={{ width: '100px', height: '100px', borderRadius: '30px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,77,0,0.2)' }}
+                            style={{ width: '100px', height: '100px', borderRadius: '30px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(112, 0, 255, 0.2)' }}
                             alt="Avatar Preview"
                         />
                         <motion.button
                             whileTap={{ rotate: 180 }}
                             onClick={() => setAvatarSeed(Math.random().toString(36).substring(7))}
-                            style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '36px', height: '36px', borderRadius: '12px', background: '#FF4D00', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(255,77,0,0.3)' }}
+                            style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '36px', height: '36px', borderRadius: '12px', background: '#7000FF', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(112, 0, 255, 0.3)' }}
                         >
                             <Zap size={16} fill="white" />
                         </motion.button>
@@ -1367,9 +1367,9 @@ const SettingsView = ({ user, updateUser }) => {
                                     style={{
                                         padding: '10px',
                                         borderRadius: '12px',
-                                        background: avatarStyle === s.id ? 'rgba(255,77,0,0.1)' : 'rgba(255,255,255,0.03)',
-                                        border: `1px solid ${avatarStyle === s.id ? '#FF4D00' : 'transparent'}`,
-                                        color: avatarStyle === s.id ? '#FF4D00' : 'rgba(255,255,255,0.6)',
+                                        background: avatarStyle === s.id ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255,255,255,0.03)',
+                                        border: `1px solid ${avatarStyle === s.id ? '#7000FF' : 'transparent'}`,
+                                        color: avatarStyle === s.id ? '#7000FF' : 'rgba(255,255,255,0.6)',
                                         fontSize: '0.75rem',
                                         fontWeight: 800,
                                         cursor: 'pointer'
@@ -1405,7 +1405,7 @@ const SettingsView = ({ user, updateUser }) => {
                         />
                         <button
                             onClick={handlePasswordUpdate}
-                            style={{ background: '#FF4D00', color: 'white', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 900, cursor: 'pointer' }}
+                            style={{ background: '#7000FF', color: 'white', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 900, cursor: 'pointer' }}
                         >
                             ПІДТВЕРДИТИ
                         </button>
@@ -1457,7 +1457,7 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(40px)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ background: '#050505', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '32px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '40px 30px', position: 'relative', boxShadow: '0 50px 100px rgba(0,0,0,0.9)' }}>
                 <button onClick={onClose} style={{ position: 'absolute', right: '20px', top: '20px', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}><X size={18} /></button>
-                {!isSuccess && <div style={{ display: 'flex', gap: '6px', marginBottom: '30px', marginTop: '10px' }}>{[1, 2, 3].map(i => (<div key={i} style={{ height: '3px', flex: 1, background: i <= step ? 'linear-gradient(90deg, #FF4D00, #FF9500)' : 'rgba(255,255,255,0.05)', borderRadius: '10px', boxShadow: i <= step ? '0 0 10px rgba(255,77,0,0.3)' : 'none' }} />))}</div>}
+                {!isSuccess && <div style={{ display: 'flex', gap: '6px', marginBottom: '30px', marginTop: '10px' }}>{[1, 2, 3].map(i => (<div key={i} style={{ height: '3px', flex: 1, background: i <= step ? 'linear-gradient(90deg, #7000FF, #BD00FF)' : 'rgba(255,255,255,0.05)', borderRadius: '10px', boxShadow: i <= step ? '0 0 10px rgba(112, 0, 255, 0.3)' : 'none' }} />))}</div>}
 
                 <AnimatePresence mode="wait">
                     {isSuccess ? (
@@ -1473,8 +1473,8 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                         step === 1 && (
                             <motion.div key="s1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                                 <h3 style={{ fontSize: '1.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.03em' }}>Тематика</h3>
-                                <div style={{ background: 'rgba(255,77,0,0.04)', borderLeft: '3px solid #FF4D00', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                    <Info size={16} color="#FF4D00" style={{ flexShrink: 0 }} />
+                                <div style={{ background: 'rgba(112, 0, 255, 0.04)', borderLeft: '3px solid #7000FF', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                    <Info size={16} color="#7000FF" style={{ flexShrink: 0 }} />
                                     <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Оберіть категорію проекту.</p>
                                 </div>
                                 <input type="text" placeholder="Назва вашого проекту" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px', color: 'white', width: '100%', marginBottom: '20px', fontSize: '0.95rem', outline: 'none', transition: '0.3s' }} value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
@@ -1483,8 +1483,8 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                                     {categories.map(cat => {
                                         const isSelected = formData.category === cat.id;
                                         return (
-                                            <motion.div whileHover={{ scale: 1.01 }} key={cat.id} onClick={() => setFormData({ ...formData, category: cat.id })} style={{ padding: '12px', borderRadius: '16px', border: `1px solid ${isSelected ? '#FF4D00' : 'rgba(255,255,255,0.05)'}`, background: isSelected ? 'rgba(255,77,0,0.08)' : 'rgba(255,255,255,0.01)', cursor: 'pointer', transition: '0.2s' }}>
-                                                <h4 style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: '2px', color: isSelected ? '#FF4D00' : 'white', letterSpacing: '-0.01em' }}>{cat.title}</h4>
+                                            <motion.div whileHover={{ scale: 1.01 }} key={cat.id} onClick={() => setFormData({ ...formData, category: cat.id })} style={{ padding: '12px', borderRadius: '16px', border: `1px solid ${isSelected ? '#7000FF' : 'rgba(255,255,255,0.05)'}`, background: isSelected ? 'rgba(112, 0, 255, 0.08)' : 'rgba(255,255,255,0.01)', cursor: 'pointer', transition: '0.2s' }}>
+                                                <h4 style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: '2px', color: isSelected ? '#7000FF' : 'white', letterSpacing: '-0.01em' }}>{cat.title}</h4>
                                                 <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', lineHeight: 1.2 }}>{cat.desc}</p>
                                             </motion.div>
                                         );
@@ -1496,19 +1496,19 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                     {!isSuccess && step === 2 && (
                         <motion.div key="s2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                             <h3 style={{ fontSize: '1.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.03em' }}>Інвестиції</h3>
-                            <div style={{ background: 'rgba(255,77,0,0.04)', borderLeft: '3px solid #FF4D00', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                <Info size={16} color="#FF4D00" style={{ flexShrink: 0 }} />
+                            <div style={{ background: 'rgba(112, 0, 255, 0.04)', borderLeft: '3px solid #7000FF', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <Info size={16} color="#7000FF" style={{ flexShrink: 0 }} />
                                 <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Вкажіть ваш бюджет.</p>
                             </div>
 
 
                             <div style={{ padding: '20px', background: 'rgba(255,255,255,0.01)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: formData.customBudget ? 1 : 0.4 }}>
-                                    <Shield size={14} color={formData.customBudget ? '#FF4D00' : 'white'} />
+                                    <Shield size={14} color={formData.customBudget ? '#7000FF' : 'white'} />
                                     <span style={{ fontSize: '0.6rem', fontWeight: 800, letterSpacing: '1px' }}>ВЛАСНИЙ БЮДЖЕТ</span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <span style={{ fontWeight: 900, color: formData.customBudget ? '#FF4D00' : 'rgba(255,255,255,0.1)', fontSize: '1.8rem' }}>$</span>
+                                    <span style={{ fontWeight: 900, color: formData.customBudget ? '#7000FF' : 'rgba(255,255,255,0.1)', fontSize: '1.8rem' }}>$</span>
                                     <input type="number" placeholder="0" value={formData.customBudget} onChange={e => setFormData({ ...formData, customBudget: e.target.value, budget: '' })} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '2rem', fontWeight: 900, outline: 'none', width: '180px', textAlign: 'left', letterSpacing: '-1px' }} />
                                 </div>
                             </div>
@@ -1517,8 +1517,8 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                     {!isSuccess && step === 3 && (
                         <motion.div key="s3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                             <h3 style={{ fontSize: '1.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.03em' }}>Деталі</h3>
-                            <div style={{ background: 'rgba(255,77,0,0.04)', borderLeft: '3px solid #FF4D00', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                <Info size={16} color="#FF4D00" style={{ flexShrink: 0 }} />
+                            <div style={{ background: 'rgba(112, 0, 255, 0.04)', borderLeft: '3px solid #7000FF', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                <Info size={16} color="#7000FF" style={{ flexShrink: 0 }} />
                                 <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Коротко опишіть задачу.</p>
                             </div>
                             <textarea placeholder="Опишіть суть вашого продукту..." style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px', color: 'white', width: '100%', height: '140px', resize: 'none', fontSize: '0.9rem', lineHeight: 1.5, outline: 'none' }} value={formData.details} onChange={e => setFormData({ ...formData, details: e.target.value })} />
@@ -1540,10 +1540,10 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                             </motion.button>
                         ) : (
                             <motion.button
-                                whileHover={{ scale: 1.02, boxShadow: '0 0 30px rgba(255,77,0,0.3)' }}
+                                whileHover={{ scale: 1.02, boxShadow: '0 0 30px rgba(112, 0, 255, 0.3)' }}
                                 onClick={handleSubmit}
                                 disabled={!isStepComplete()}
-                                style={{ background: '#FF4D00', color: 'white', padding: '14px 32px', borderRadius: '40px', fontWeight: 950, fontSize: '0.75rem', letterSpacing: '1px', transition: '0.2s', border: 'none', cursor: isStepComplete() ? 'pointer' : 'not-allowed' }}
+                                style={{ background: '#7000FF', color: 'white', padding: '14px 32px', borderRadius: '40px', fontWeight: 950, fontSize: '0.75rem', letterSpacing: '1px', transition: '0.2s', border: 'none', cursor: isStepComplete() ? 'pointer' : 'not-allowed' }}
                             >
                                 СТВОРИТИ
                             </motion.button>

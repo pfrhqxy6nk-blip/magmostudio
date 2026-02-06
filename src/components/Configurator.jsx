@@ -103,7 +103,7 @@ const Configurator = () => {
         return (
             <section id="configurator" style={{ padding: '120px 20px', minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', maxWidth: '500px' }}>
-                    <div style={{ width: '60px', height: '60px', background: '#FF4D00', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                    <div style={{ width: '60px', height: '60px', background: '#7000FF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
                         <Check size={32} color="black" strokeWidth={3} />
                     </div>
                     <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '16px' }}>Заявку прийнято!</h2>
@@ -126,7 +126,7 @@ const Configurator = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         {steps.map((_, i) => (
-                            <div key={i} style={{ width: isMobile ? '20px' : '40px', height: '4px', borderRadius: '2px', background: i <= currentStep ? '#FF4D00' : 'rgba(255,255,255,0.1)', transition: '0.4s' }} />
+                            <div key={i} style={{ width: isMobile ? '20px' : '40px', height: '4px', borderRadius: '2px', background: i <= currentStep ? '#7000FF' : 'rgba(255,255,255,0.1)', transition: '0.4s' }} />
                         ))}
                     </div>
                     <span style={{ fontSize: '0.8rem', fontWeight: 900, opacity: 0.4, letterSpacing: '1px' }}>КРОК {currentStep + 1} / {steps.length}</span>
@@ -135,11 +135,11 @@ const Configurator = () => {
                 <AnimatePresence mode="wait">
                     <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
                         <h2 style={{ fontSize: isMobile ? '2rem' : '3.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.04em' }}>{step.title}</h2>
-                        <p style={{ color: '#FF4D00', fontSize: isMobile ? '1rem' : '1.2rem', fontWeight: 700, marginBottom: '32px' }}>{step.subtitle}</p>
+                        <p style={{ color: '#7000FF', fontSize: isMobile ? '1rem' : '1.2rem', fontWeight: 700, marginBottom: '32px' }}>{step.subtitle}</p>
 
                         {/* Description Box */}
-                        <div style={{ background: 'rgba(255,77,0,0.03)', borderLeft: '4px solid #FF4D00', padding: '24px', borderRadius: '0 20px 20px 0', marginBottom: '20px', display: 'flex', gap: '20px', backdropFilter: 'blur(10px)' }}>
-                            <Info size={24} color="#FF4D00" style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <div style={{ background: 'rgba(112, 0, 255, 0.03)', borderLeft: '4px solid #7000FF', padding: '24px', borderRadius: '0 20px 20px 0', marginBottom: '20px', display: 'flex', gap: '20px', backdropFilter: 'blur(10px)' }}>
+                            <Info size={24} color="#7000FF" style={{ flexShrink: 0, marginTop: '2px' }} />
                             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1rem', lineHeight: 1.6 }}>{step.description}</p>
                         </div>
 
@@ -153,7 +153,7 @@ const Configurator = () => {
                                     style={{
                                         width: '100%',
                                         background: 'rgba(255,255,255,0.03)',
-                                        border: '2px solid rgba(255,77,0,0.2)',
+                                        border: '2px solid rgba(112, 0, 255, 0.2)',
                                         borderRadius: '20px',
                                         padding: '24px',
                                         color: 'white',
@@ -193,15 +193,15 @@ const Configurator = () => {
                                         gap: '15px',
                                         overflow: 'hidden'
                                     }}>
-                                        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '60px', height: '4px', background: customBudget ? '#FF4D00' : 'rgba(255,255,255,0.1)', borderRadius: '0 0 10px 10px' }} />
+                                        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '60px', height: '4px', background: customBudget ? '#7000FF' : 'rgba(255,255,255,0.1)', borderRadius: '0 0 10px 10px' }} />
 
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', opacity: customBudget ? 1 : 0.3 }}>
-                                            <Wallet size={18} color={customBudget ? '#FF4D00' : 'white'} />
+                                            <Wallet size={18} color={customBudget ? '#7000FF' : 'white'} />
                                             <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: 'white', letterSpacing: '2px', textTransform: 'uppercase' }}>СВІЙ БЮДЖЕТ</h4>
                                         </div>
 
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                                            <span style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 950, color: customBudget ? '#FF4D00' : 'rgba(255,255,255,0.05)', marginRight: '10px' }}>$</span>
+                                            <span style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 950, color: customBudget ? '#7000FF' : 'rgba(255,255,255,0.05)', marginRight: '10px' }}>$</span>
                                             <input
                                                 type="number"
                                                 placeholder="0.00"
@@ -217,7 +217,7 @@ const Configurator = () => {
                                                     textAlign: 'left',
                                                     outline: 'none',
                                                     letterSpacing: '-4px',
-                                                    caretColor: '#FF4D00'
+                                                    caretColor: '#7000FF'
                                                 }}
                                             />
                                         </div>
@@ -228,7 +228,7 @@ const Configurator = () => {
                                         {step.options?.map((option) => {
                                             const isSelected = selections[currentStep] === option.id;
                                             return (
-                                                <motion.div key={option.id} onClick={() => handleSelect(option.id)} whileHover={{ y: -5, background: isSelected ? 'rgba(255, 77, 0, 0.15)' : 'rgba(255,255,255,0.05)' }} whileTap={{ scale: 0.98 }} style={{ padding: '40px 24px', borderRadius: '32px', background: isSelected ? 'rgba(255, 77, 0, 0.1)' : 'rgba(255,255,255,0.03)', border: `2px solid ${isSelected ? '#FF4D00' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', textAlign: 'center', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                                                <motion.div key={option.id} onClick={() => handleSelect(option.id)} whileHover={{ y: -5, background: isSelected ? 'rgba(112, 0, 255, 0.15)' : 'rgba(255,255,255,0.05)' }} whileTap={{ scale: 0.98 }} style={{ padding: '40px 24px', borderRadius: '32px', background: isSelected ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255,255,255,0.03)', border: `2px solid ${isSelected ? '#7000FF' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', textAlign: 'center', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
                                                     <h4 style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '0' }}>{option.title}</h4>
                                                     {option.desc && <p style={{ fontSize: '0.85rem', color: isSelected ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginTop: '10px' }}>{option.desc}</p>}
                                                 </motion.div>

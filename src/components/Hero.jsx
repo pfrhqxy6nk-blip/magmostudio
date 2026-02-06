@@ -62,7 +62,7 @@ const Hero = () => {
             >
                 <span style={{ color: 'white' }}>Створюємо</span>
                 <span style={{
-                    background: 'linear-gradient(135deg, #FF4D00 0%, #FF9500 100%)',
+                    background: 'linear-gradient(135deg, #7000FF 0%, #BD00FF 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                 }}>
@@ -91,10 +91,10 @@ const Hero = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(255, 77, 0, 0.4)" }}
+                whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(112, 0, 255, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
                 style={{
-                    background: 'linear-gradient(90deg, #FF4D00 0%, #FF9500 100%)',
+                    background: 'linear-gradient(90deg, #7000FF 0%, #BD00FF 100%)',
                     color: 'black',
                     padding: isMobile ? '16px 32px' : '20px 40px',
                     fontSize: isMobile ? '1rem' : '1.2rem',

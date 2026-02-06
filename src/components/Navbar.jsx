@@ -54,7 +54,7 @@ const Navbar = () => {
                 <div style={{
                     width: '28px',
                     height: '28px',
-                    background: 'linear-gradient(135deg, #FF4D00 0%, #FF9500 100%)',
+                    background: 'linear-gradient(135deg, #7000FF 0%, #BD00FF 100%)',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -63,7 +63,7 @@ const Navbar = () => {
                     <span style={{ color: 'black', fontWeight: 900, fontSize: '1rem' }}>M</span>
                 </div>
                 <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white', letterSpacing: '1px' }}>
-                    magmostudio<span style={{ color: '#FF4D00' }}>.</span>
+                    magmostudio<span style={{ color: '#7000FF' }}>.</span>
                 </span>
             </Link>
 

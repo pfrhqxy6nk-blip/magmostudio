@@ -55,7 +55,7 @@ const BentoGrid = () => {
             }}>
                 <div className="bento-text-content" style={{ padding: isMobile ? '40px 20px 20px' : '60px', position: 'relative', zIndex: 10, maxWidth: isMobile ? '100%' : '450px' }}>
                     <div style={{
-                        background: 'linear-gradient(90deg, #FF4D00 0%, #FF9500 100%)',
+                        background: 'linear-gradient(90deg, #7000FF 0%, #BD00FF 100%)',
                         padding: '6px 14px',
                         borderRadius: '20px',
                         display: 'inline-block',
@@ -96,7 +96,7 @@ const BentoGrid = () => {
                             border: '10px solid #222',
                             position: 'relative',
                             overflow: 'hidden',
-                            boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 30px rgba(255, 77, 0, 0.2)',
+                            boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 30px rgba(112, 0, 255, 0.2)',
                             transform: isMobile ? 'scale(0.9)' : 'scale(1)'
                         }}
                     >
@@ -119,7 +119,7 @@ const BentoGrid = () => {
             <Card style={{ gridColumn: isMobile ? 'span 1' : 'span 4', gridRow: 'span 1' }}>
                 <div style={{ padding: '30px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <h4 style={{ fontSize: '2rem', fontWeight: 900, color: 'white', marginBottom: '5px' }}>Олександр</h4>
-                    <p style={{ color: '#FF4D00', fontWeight: '600', marginBottom: '10px' }}>Засновник & Розробник</p>
+                    <p style={{ color: '#7000FF', fontWeight: '600', marginBottom: '10px' }}>Засновник & Розробник</p>
                     <p style={{ color: '#888', fontSize: '0.9rem' }}>Створюю революційні цифрові продукти.</p>
                 </div>
             </Card>

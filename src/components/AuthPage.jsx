@@ -46,7 +46,7 @@ const AuthPage = () => {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: '100%', maxWidth: '480px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '40px', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '60px 40px', backdropFilter: 'blur(20px)', transition: '0.4s ease' }}>
 
                 {error && (
-                    <div style={{ padding: '15px', marginBottom: '20px', borderRadius: '12px', background: 'rgba(255, 77, 0, 0.1)', border: '1px solid rgba(255, 77, 0, 0.2)', color: '#FF4D00', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ padding: '15px', marginBottom: '20px', borderRadius: '12px', background: 'rgba(255, 50, 50, 0.1)', border: '1px solid rgba(255, 50, 50, 0.2)', color: '#FF3333', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <Info size={18} />
                         <p style={{ fontSize: '0.9rem', margin: 0 }}>{error}</p>
                     </div>
@@ -87,7 +87,7 @@ const AuthPage = () => {
                         </form>
                         <div style={{ marginTop: '30px', textAlign: 'center' }}>
                             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>{isLogin ? 'Ще немає акаунту?' : 'Вже маєте акаунт?'}
-                                <button onClick={() => setIsLogin(!isLogin)} style={{ color: '#FF4D00', fontWeight: 700, marginLeft: '8px', background: 'transparent' }}>{isLogin ? 'Зареєструватися' : 'Увійти'}</button>
+                                <button onClick={() => setIsLogin(!isLogin)} style={{ color: '#7000FF', fontWeight: 700, marginLeft: '8px', background: 'transparent' }}>{isLogin ? 'Зареєструватися' : 'Увійти'}</button>
                             </p>
                         </div>
                     </motion.div>

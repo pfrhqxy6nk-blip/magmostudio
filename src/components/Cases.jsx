@@ -29,7 +29,7 @@ const Cases = () => {
                     <h2 style={{ fontSize: '3.5rem', fontWeight: 900 }}>Вибрані кейси</h2>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.2rem', marginTop: '10px' }}>Проекти, якими ми пишаємося</p>
                 </div>
-                <button style={{ color: '#FF4D00', fontWeight: 700, fontSize: '1.1rem', background: 'transparent', borderBottom: '2px solid #FF4D00', paddingBottom: '5px' }}>
+                <button style={{ color: '#7000FF', fontWeight: 700, fontSize: '1.1rem', background: 'transparent', borderBottom: '2px solid #7000FF', paddingBottom: '5px' }}>
                     Всі проекти
                 </button>
             </div>
@@ -68,7 +68,7 @@ const Cases = () => {
                             flexDirection: 'column',
                             justifyContent: 'flex-end'
                         }}>
-                            <span style={{ color: '#FF4D00', fontWeight: 800, fontSize: '0.9rem', marginBottom: '10px', letterSpacing: '2px' }}>{project.category}</span>
+                            <span style={{ color: '#7000FF', fontWeight: 800, fontSize: '0.9rem', marginBottom: '10px', letterSpacing: '2px' }}>{project.category}</span>
                             <h3 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '10px' }}>{project.title}</h3>
                             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '20px', maxWidth: '400px' }}>{project.description}</p>
                             <div style={{ display: 'flex', gap: '10px' }}>
