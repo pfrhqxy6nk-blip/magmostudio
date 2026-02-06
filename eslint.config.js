@@ -5,7 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'node_modules', '.vercel']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
@@ -27,6 +27,7 @@ export default defineConfig([
       'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/rules-of-hooks': 'warn',
       'react-hooks/set-state-in-effect': 'warn',
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])

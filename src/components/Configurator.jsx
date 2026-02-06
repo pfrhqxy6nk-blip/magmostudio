@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Send, Info, DollarSign, Wallet } from 'lucide-react';
-import { useAuth } from '../App';
+import { useAuth } from '../auth/AuthContext';
 
 const steps = [
     {

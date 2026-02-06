@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../App';
+import { useAuth } from '../auth/AuthContext';
 import { Mail, Lock, User, Phone, ArrowRight, ChevronRight, ChevronLeft, Send, Info, Check, Wallet } from 'lucide-react';
 
 const AuthPage = () => {

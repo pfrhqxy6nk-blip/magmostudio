@@ -1,6 +1,6 @@
 import { useState, useEffect, Component } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
-import { useAuth } from '../App';
+import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../lib/supabase';
 import {
     Layout, Plus, Settings, LogOut, ChevronRight, Share2, Bell,
