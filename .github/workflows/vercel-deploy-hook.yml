@@ -21,7 +21,8 @@ jobs:
             exit 1
           fi
           echo "Triggering Vercel deploy hook..."
-          echo "(URL hidden)"
+          echo "Hook prefix:"
+          echo "$VERCEL_DEPLOY_HOOK_URL" | sed -E 's#(https?://[^/]+/v1/integrations/deploy/[^/]+).*#\\1/<redacted>#'
           http_code="$(
             curl -sS --location -X POST "$VERCEL_DEPLOY_HOOK_URL" \
               --retry 3 --retry-delay 2 \
