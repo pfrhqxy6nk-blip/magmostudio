@@ -6,10 +6,10 @@ const Card = ({ children, className, style }) => (
     <motion.div
         whileHover={{ y: -5 }}
         style={{
-            background: 'rgba(255, 255, 255, 0.03)',
+            background: 'var(--surface-1)',
             backdropFilter: 'blur(30px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '24px',
+            border: '1px solid var(--border-1)',
+            borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
             position: 'relative',
             ...style
@@ -55,7 +55,7 @@ const BentoGrid = () => {
             }}>
                 <div className="bento-text-content" style={{ padding: isMobile ? '40px 20px 20px' : '60px', position: 'relative', zIndex: 10, maxWidth: isMobile ? '100%' : '450px' }}>
                     <div style={{
-                        background: 'linear-gradient(90deg, #7000FF 0%, #BD00FF 100%)',
+                        background: 'linear-gradient(90deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)',
                         padding: '6px 14px',
                         borderRadius: '20px',
                         display: 'inline-block',
@@ -68,9 +68,9 @@ const BentoGrid = () => {
                         ФЛАГМАН
                     </div>
                     <h3 style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 950, marginBottom: '15px', lineHeight: 1, letterSpacing: '-0.02em' }}>xatko.com</h3>
-                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: isMobile ? '1rem' : '1.2rem', lineHeight: 1.5 }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: isMobile ? '1rem' : '1.2rem', lineHeight: 1.5 }}>
                         Перша AI платформа для оренди нерухомості.<br />
-                        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.9rem', fontWeight: 700 }}>Created by Founder</span>
+                        <span style={{ color: 'var(--text-subtle)', fontSize: '0.9rem', fontWeight: 700 }}>Created by Founder</span>
                     </p>
                 </div>
 
@@ -96,7 +96,7 @@ const BentoGrid = () => {
                             border: '10px solid #222',
                             position: 'relative',
                             overflow: 'hidden',
-                            boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 30px rgba(112, 0, 255, 0.2)',
+                            boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 30px rgba(var(--accent-rgb), 0.22)',
                             transform: isMobile ? 'scale(0.9)' : 'scale(1)'
                         }}
                     >
@@ -118,9 +118,9 @@ const BentoGrid = () => {
             {/* Example Item 2: Stat or Feature */}
             <Card style={{ gridColumn: isMobile ? 'span 1' : 'span 4', gridRow: 'span 1' }}>
                 <div style={{ padding: '30px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <h4 style={{ fontSize: '2rem', fontWeight: 900, color: 'white', marginBottom: '5px' }}>Олександр</h4>
-                    <p style={{ color: '#7000FF', fontWeight: '600', marginBottom: '10px' }}>Засновник & Розробник</p>
-                    <p style={{ color: '#888', fontSize: '0.9rem' }}>Створюю революційні цифрові продукти.</p>
+                    <h4 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-main)', marginBottom: '5px' }}>Олександр</h4>
+                    <p style={{ color: 'var(--accent-start)', fontWeight: '600', marginBottom: '10px' }}>Засновник & Розробник</p>
+                    <p style={{ color: 'var(--text-subtle)', fontSize: '0.9rem' }}>Створюю революційні цифрові продукти.</p>
                 </div>
             </Card>
 
@@ -128,7 +128,7 @@ const BentoGrid = () => {
             <Card style={{ gridColumn: isMobile ? 'span 1' : 'span 4', gridRow: 'span 1', overflow: 'visible' }}>
                 <div style={{ padding: '30px', position: 'relative', zIndex: 10 }}>
                     <h3>Дизайн</h3>
-                    <p style={{ color: '#888', marginTop: '10px' }}>UI/UX світового рівня</p>
+                    <p style={{ color: 'var(--text-subtle)', marginTop: '10px' }}>UI/UX світового рівня</p>
                 </div>
                 <motion.img
                     src={iphoneMockup}

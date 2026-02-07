@@ -2,15 +2,16 @@ import { useState, useEffect, Component } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../lib/supabase';
+import { PRESET_ACCENTS, applyAccent, clearAccent, deriveAccentFromStart, loadAccent, saveAccent } from '../theme/accent.js';
 import {
-    Layout, Plus, Settings, LogOut, ChevronRight, Share2, Bell,
-    Search, Filter, MoreHorizontal, ArrowUpRight, Folder,
-    MessageSquare, CheckCircle2, Clock, Shield, Zap, X,
-    ChevronDown, Play, Pause, Download, FileText, Image as ImageIcon,
-    ExternalLink, Trash2, Edit3, User, Mail, Phone, Lock, Eye,
-    CreditCard, Calendar, BarChart3, PieChart, Activity,
-    Briefcase, Users, LayoutDashboard, Wallet, Archive, ShieldCheck, Info,
-    ArrowLeft, Circle, Send, Smartphone
+	    Layout, Plus, Settings, LogOut, ChevronRight, Share2, Bell,
+	    Search, Filter, MoreHorizontal, ArrowUpRight, Folder,
+	    MessageSquare, CheckCircle2, Clock, Shield, Zap, X,
+	    ChevronDown, Play, Pause, Download, FileText, Image as ImageIcon,
+	    ExternalLink, Trash2, Edit3, User, Mail, Phone, Lock, Eye,
+	    CreditCard, Calendar, BarChart3, PieChart, Activity,
+	    Briefcase, Users, LayoutDashboard, Wallet, Archive, ShieldCheck, Info,
+	    ArrowLeft, Circle, Send, Smartphone, Palette
 } from 'lucide-react';
 
 // Error Boundary Component
@@ -57,11 +58,12 @@ const ADMIN_THEME = {
 };
 
 const getStatusDetails = (status, isAdmin = false) => {
-    const primary = isAdmin ? ADMIN_THEME.primary : '#7000FF';
+    const primary = isAdmin ? ADMIN_THEME.primary : 'var(--accent-start)';
+    const primaryBg = isAdmin ? ADMIN_THEME.accent : 'rgba(var(--accent-rgb), 0.1)';
     switch (status) {
         case 'ACTIVE': return { label: 'В РОБОТІ', color: '#4CAF50', bg: 'rgba(76, 175, 80, 0.1)' };
-        case 'PENDING': return { label: 'ОБРОБКА', color: isAdmin ? ADMIN_THEME.primary : '#BD00FF', bg: isAdmin ? 'rgba(0, 240, 255, 0.1)' : 'rgba(189, 0, 255, 0.1)' };
-        case 'PAYMENT': return { label: 'ОПЛАТА', color: primary, bg: `${primary}1a` };
+        case 'PENDING': return { label: 'ОБРОБКА', color: primary, bg: primaryBg };
+        case 'PAYMENT': return { label: 'ОПЛАТА', color: primary, bg: primaryBg };
         case 'COMPLETED': return { label: 'ГОТОВО', color: '#2196F3', bg: 'rgba(33, 150, 243, 0.1)' };
         default: return { label: 'СТАТУС', color: '#FFF', bg: 'rgba(255, 255, 255, 0.1)' };
     }
@@ -163,42 +165,42 @@ const AdminTeamView = ({ addAdmin, removeAdmin }) => {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <h2 style={{ fontSize: '2.5rem', fontWeight: 950, letterSpacing: '-0.03em', marginBottom: '40px' }}>Керування Командою</h2>
 
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '32px', padding: '40px', maxWidth: '800px' }}>
-                <div style={{ marginBottom: '40px' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#7000FF', marginBottom: '20px', letterSpacing: '1px' }}>ДОДАТИ РОЗРОБНИКА</h3>
-                    <form onSubmit={handleAdd} style={{ display: 'flex', gap: '16px' }}>
-                        <input
-                            name="email"
-                            type="email"
-                            placeholder="email@example.com"
-                            style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '16px', color: 'white', fontWeight: 600, outline: 'none' }}
-                            required
-                        />
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            type="submit"
-                            style={{ background: '#7000FF', color: 'white', border: 'none', borderRadius: '16px', padding: '0 32px', fontWeight: 900, cursor: 'pointer' }}
-                        >
-                            ДОДАТИ
-                        </motion.button>
-                    </form>
-                </div>
+	            <div style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '32px', padding: '40px', maxWidth: '800px' }}>
+	                <div style={{ marginBottom: '40px' }}>
+	                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: ADMIN_THEME.primary, marginBottom: '20px', letterSpacing: '1px' }}>ДОДАТИ РОЗРОБНИКА</h3>
+	                    <form onSubmit={handleAdd} style={{ display: 'flex', gap: '16px' }}>
+	                        <input
+	                            name="email"
+	                            type="email"
+	                            placeholder="email@example.com"
+	                            style={{ flex: 1, background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px', color: 'var(--text-main)', fontWeight: 600, outline: 'none' }}
+	                            required
+	                        />
+	                        <motion.button
+	                            whileHover={{ scale: 1.05 }}
+	                            whileTap={{ scale: 0.95 }}
+	                            type="submit"
+	                            style={{ background: ADMIN_THEME.primary, color: 'black', border: 'none', borderRadius: '16px', padding: '0 32px', fontWeight: 900, cursor: 'pointer' }}
+	                        >
+	                            ДОДАТИ
+	                        </motion.button>
+	                    </form>
+	                </div>
 
                 <div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', marginBottom: '20px', letterSpacing: '1px' }}>СПИСОК АДМІНІСТРАТОРІВ</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {team.map(member => (
-                            <div key={member.email} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '16px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <img src={member.avatar} style={{ width: '32px', height: '32px', borderRadius: '50%' }} alt="" />
-                                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{member.email}</span>
-                                    {member.is_root && <span style={{ fontSize: '0.6rem', fontWeight: 950, color: '#7000FF', background: 'rgba(112, 0, 255, 0.1)', padding: '4px 8px', borderRadius: '6px' }}>ROOT</span>}
-                                </div>
-                                {!member.is_root && (
-                                    <button
-                                        onClick={() => handleRemove(member.email)}
-                                        style={{ background: 'transparent', border: 'none', color: 'rgba(255,50,50,0.5)', fontWeight: 800, cursor: 'pointer', fontSize: '0.7rem' }}
+	                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-subtle)', marginBottom: '20px', letterSpacing: '1px' }}>СПИСОК АДМІНІСТРАТОРІВ</h3>
+	                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+	                        {team.map(member => (
+	                            <div key={member.email} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-1)', padding: '16px 24px', borderRadius: '16px', border: '1px solid var(--border-1)' }}>
+	                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+	                                    <img src={member.avatar} style={{ width: '32px', height: '32px', borderRadius: '50%' }} alt="" />
+	                                    <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{member.email}</span>
+	                                    {member.is_root && <span style={{ fontSize: '0.6rem', fontWeight: 950, color: ADMIN_THEME.primary, background: 'rgba(0, 240, 255, 0.12)', padding: '4px 8px', borderRadius: '6px' }}>ROOT</span>}
+	                                </div>
+	                                {!member.is_root && (
+	                                    <button
+	                                        onClick={() => handleRemove(member.email)}
+	                                        style={{ background: 'transparent', border: 'none', color: 'rgba(255,50,50,0.5)', fontWeight: 800, cursor: 'pointer', fontSize: '0.7rem' }}
                                     >
                                         ВИДАЛИТИ
                                     </button>
@@ -326,15 +328,21 @@ const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
 };
 
 const Dashboard = () => {
-    const { user, logout, projects, admins, addAdmin, removeAdmin, addProject, updateProjectStatus, updateProjectData, deleteProject, payForProject, updateUser, addComment, updateRoadmapStep, addRoadmapStep, deleteRoadmapStep, addResource } = useAuth();
-    const [activeTab, setActiveTab] = useState('projects');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProjectId, setSelectedProjectId] = useState(null);
-    const [isAdminMode, setIsAdminMode] = useState(false);
-    const [filterStatus, setFilterStatus] = useState(null);
-    // State for mobile detection
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	    const { user, logout, projects, admins, addAdmin, removeAdmin, addProject, updateProjectStatus, updateProjectData, deleteProject, payForProject, updateUser, addComment, updateRoadmapStep, addRoadmapStep, deleteRoadmapStep, addResource } = useAuth();
+	    const [activeTab, setActiveTab] = useState('projects');
+	    const [isModalOpen, setIsModalOpen] = useState(false);
+	    const [selectedProjectId, setSelectedProjectId] = useState(null);
+	    const [isAdminMode, setIsAdminMode] = useState(() => {
+	        try {
+	            return window.localStorage.getItem('adminMode') === '1';
+	        } catch {
+	            return false;
+	        }
+	    });
+	    const [filterStatus, setFilterStatus] = useState(null);
+	    // State for mobile detection
+	    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+	    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -342,11 +350,18 @@ const Dashboard = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Sync admin mode with user state
-    useEffect(() => {
-        if (user?.is_admin) setIsAdminMode(true);
-        else setIsAdminMode(false);
-    }, [user]);
+	    // Only admins can use admin mode; persist for admins.
+	    useEffect(() => {
+	        if (!user?.is_admin) setIsAdminMode(false);
+	    }, [user]);
+
+	    useEffect(() => {
+	        try {
+	            window.localStorage.setItem('adminMode', isAdminMode ? '1' : '0');
+	        } catch {
+	            // ignore
+	        }
+	    }, [isAdminMode]);
 
     // Reset selection when toggling admin mode
     useEffect(() => {
@@ -354,55 +369,76 @@ const Dashboard = () => {
         if (isAdminMode && activeTab !== 'team' && activeTab !== 'portfolio') setActiveTab('projects');
     }, [isAdminMode]);
 
-    const filteredProjects = isAdminMode
-        ? (filterStatus ? projects.filter(p => p.status === filterStatus) : projects)
-        : projects.filter(p => p.owner_email === user?.email);
-    const selectedProject = projects.find(p => p.id === selectedProjectId);
+	    const filteredProjects = isAdminMode
+	        ? (filterStatus ? projects.filter(p => p.status === filterStatus) : projects)
+	        : projects.filter(p => p.owner_email === user?.email);
+	    const selectedProject = projects.find(p => p.id === selectedProjectId);
+	    const adminSchemeVars = isAdminMode ? {
+	        '--bg': '#000810',
+	        '--text-main': '#FFFFFF',
+	        '--text-muted': 'rgba(255,255,255,0.58)',
+	        '--text-subtle': 'rgba(255,255,255,0.38)',
+	        '--text-invert': '#0b0b10',
+	        '--surface-1': 'rgba(255,255,255,0.04)',
+	        '--surface-2': 'rgba(255,255,255,0.07)',
+	        '--surface-3': 'rgba(255,255,255,0.10)',
+	        '--border-1': 'rgba(255,255,255,0.10)',
+	        '--border-2': 'rgba(255,255,255,0.14)',
+	        '--glass-bg': 'rgba(0, 0, 0, 0.35)',
+	        '--glass-bg-strong': 'rgba(0, 0, 0, 0.45)',
+	        '--border-glass': 'rgba(255,255,255,0.10)',
+	        '--shadow-soft': '0 22px 70px rgba(0,0,0,0.55)',
+	        '--shadow-accent': '0 26px 90px rgba(var(--accent-rgb), 0.22)',
+	    } : null;
 
-    if (selectedProject && activeTab === 'projects') {
-        return (
-            <ErrorBoundary>
-                <ProjectDetailsView
-                    project={selectedProject}
-                    onBack={() => setSelectedProjectId(null)}
-                    user={user}
-                />
-            </ErrorBoundary>
-        );
-    }
+	    if (selectedProject && activeTab === 'projects') {
+	        return (
+	            <ErrorBoundary>
+	                <div style={{ ...(adminSchemeVars || {}), color: 'var(--text-main)' }}>
+	                    <ProjectDetailsView
+	                        project={selectedProject}
+	                        onBack={() => setSelectedProjectId(null)}
+	                        user={user}
+	                    />
+	                </div>
+	            </ErrorBoundary>
+	        );
+	    }
 
-    return (
-        <section style={{
-            minHeight: '100vh',
-            padding: isMobile ? '80px 20px 100px' : '120px 40px 60px',
-            display: isMobile ? 'block' : 'grid',
-            gridTemplateColumns: '280px 1fr',
-            gap: isMobile ? '40px' : '60px',
-            maxWidth: '1600px',
-            margin: '0 auto',
-            position: 'relative',
-            background: isAdminMode ? '#000810' : '#000',
-            overflow: 'hidden',
-            transition: 'background 0.5s ease'
-        }}>
+	    return (
+		        <section style={{
+		            minHeight: '100vh',
+		            padding: isMobile ? '80px 20px 100px' : '120px 40px 60px',
+		            display: isMobile ? 'block' : 'grid',
+		            gridTemplateColumns: '280px 1fr',
+		            gap: isMobile ? '40px' : '60px',
+		            maxWidth: '1600px',
+		            margin: '0 auto',
+		            position: 'relative',
+		            background: 'var(--bg)',
+		            color: 'var(--text-main)',
+		            overflow: 'hidden',
+		            transition: 'background 0.5s ease',
+		            ...(adminSchemeVars || {})
+		        }}>
             {/* BACKGROUND DECORATIVE ORBS */}
-            <div style={{
-                position: 'absolute',
-                top: '-10%',
-                right: '-5%',
-                width: isMobile ? '300px' : '600px',
-                height: isMobile ? '300px' : '600px',
-                background: isAdminMode
-                    ? `radial-gradient(circle, ${ADMIN_THEME.primary}08 0%, transparent 70%)`
-                    : 'radial-gradient(circle, rgba(112, 0, 255, 0.05) 0%, transparent 70%)',
-                filter: 'blur(80px)',
-                pointerEvents: 'none',
-                transition: 'background 0.5s ease'
-            }} />
-            <div style={{ position: 'absolute', bottom: '10%', left: '-10%', width: isMobile ? '250px' : '500px', height: isMobile ? '250px' : '500px', background: 'radial-gradient(circle, rgba(112, 0, 255, 0.03) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+	            <div style={{
+	                position: 'absolute',
+	                top: '-10%',
+	                right: '-5%',
+	                width: isMobile ? '300px' : '600px',
+	                height: isMobile ? '300px' : '600px',
+	                background: isAdminMode
+	                    ? `radial-gradient(circle, ${ADMIN_THEME.primary}08 0%, transparent 70%)`
+	                    : 'radial-gradient(circle, rgba(var(--accent-rgb), 0.05) 0%, transparent 70%)',
+	                filter: 'blur(80px)',
+	                pointerEvents: 'none',
+	                transition: 'background 0.5s ease'
+	            }} />
+	            <div style={{ position: 'absolute', bottom: '10%', left: '-10%', width: isMobile ? '250px' : '500px', height: isMobile ? '250px' : '500px', background: 'radial-gradient(circle, rgba(var(--accent-rgb), 0.03) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
 
             {/* Sidebar / Bottom Nav */}
-            <aside style={{
+	            <aside style={{
                 display: 'flex',
                 flexDirection: isMobile ? 'row' : 'column',
                 gap: isMobile ? '0' : '40px',
@@ -410,27 +446,27 @@ const Dashboard = () => {
                 bottom: isMobile ? 0 : 'auto',
                 left: isMobile ? 0 : 'auto',
                 width: isMobile ? '100%' : 'auto',
-                background: isMobile ? '#111' : 'transparent',
-                zIndex: 100,
-                padding: isMobile ? '10px 20px' : '0',
-                justifyContent: isMobile ? 'space-around' : 'flex-start',
-                borderTop: isMobile ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                marginBottom: isMobile ? 0 : 0
-            }}>
+	                background: isMobile ? 'var(--glass-bg)' : 'transparent',
+	                zIndex: 100,
+	                padding: isMobile ? '10px 20px' : '0',
+	                justifyContent: isMobile ? 'space-around' : 'flex-start',
+	                borderTop: isMobile ? '1px solid var(--border-1)' : 'none',
+	                marginBottom: isMobile ? 0 : 0
+	            }}>
                 {!isMobile && (
                     <Magnetic>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '0 10px', cursor: 'pointer' }} onClick={() => setActiveTab('settings')}>
                             <div style={{ position: 'relative' }}>
                                 <img src={user?.avatar} alt="Avatar" style={{ width: '50px', height: '50px', borderRadius: '15px' }} />
-                                <div style={{ position: 'absolute', bottom: -5, right: -5, width: '18px', height: '18px', background: isAdminMode ? ADMIN_THEME.primary : '#4CAF50', border: '3px solid #000', borderRadius: '50%' }} />
-                            </div>
-                            <div>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{user?.name}</h3>
-                                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>{isAdminMode ? 'ADMIN MODE' : 'Клієнт'}</p>
-                            </div>
-                        </div>
-                    </Magnetic>
-                )}
+	                                <div style={{ position: 'absolute', bottom: -5, right: -5, width: '18px', height: '18px', background: isAdminMode ? ADMIN_THEME.primary : '#4CAF50', border: '3px solid var(--bg)', borderRadius: '50%' }} />
+	                            </div>
+	                            <div>
+	                                <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{user?.name}</h3>
+	                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{isAdminMode ? 'ADMIN MODE' : 'Клієнт'}</p>
+	                            </div>
+	                        </div>
+	                    </Magnetic>
+	                )}
 
                 <nav style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: isMobile ? '20px' : '10px', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-around' : 'flex-start', alignItems: 'center' }}>
                     <SidebarLink icon={<Layout size={24} />} label={isMobile ? "" : "Мої проекти"} active={activeTab === 'projects'} onClick={() => { setActiveTab('projects'); setSelectedProjectId(null); }} />
@@ -458,24 +494,24 @@ const Dashboard = () => {
                                     active={activeTab === 'portfolio'}
                                     onClick={() => setActiveTab('portfolio')}
                                 />
-                                <button
-                                    onClick={() => setIsAdminMode(!isAdminMode)}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '12px',
-                                        color: isAdminMode ? ADMIN_THEME.primary : 'rgba(255,255,255,0.3)',
-                                        padding: '12px 15px',
-                                        width: '100%',
-                                        background: 'rgba(255,255,255,0.02)',
-                                        fontWeight: 700,
-                                        borderRadius: '12px',
-                                        border: isAdminMode ? `1px solid ${ADMIN_THEME.primary}` : '1px solid transparent',
-                                        transition: '0.3s'
-                                    }}
-                                >
-                                    <Shield size={20} /> {isAdminMode ? 'ВИЙТИ З АДМІНКИ' : 'АДМІН-ПАНЕЛЬ'}
-                                </button>
+	                                <button
+	                                    onClick={() => setIsAdminMode((v) => !v)}
+	                                    style={{
+	                                        display: 'flex',
+	                                        alignItems: 'center',
+	                                        gap: '12px',
+	                                        color: isAdminMode ? ADMIN_THEME.primary : 'rgba(255,255,255,0.3)',
+	                                        padding: '12px 15px',
+	                                        width: '100%',
+	                                        background: 'rgba(255,255,255,0.02)',
+	                                        fontWeight: 700,
+	                                        borderRadius: '12px',
+	                                        border: isAdminMode ? `1px solid ${ADMIN_THEME.primary}` : '1px solid transparent',
+	                                        transition: '0.3s'
+	                                    }}
+	                                >
+	                                    <Shield size={20} /> {isAdminMode ? 'ВИЙТИ З АДМІНКИ' : 'АДМІН-ПАНЕЛЬ'}
+	                                </button>
                             </div>
                         )
                     )}
@@ -502,19 +538,19 @@ const Dashboard = () => {
                     {activeTab === 'projects' ? (
                         <motion.div key="projects" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                                <h2 style={{ fontSize: '2.5rem', fontWeight: 950, letterSpacing: '-0.03em', textShadow: '0 0 20px rgba(255,255,255,0.1)' }}>
-                                    {isAdminMode ? 'Центр Керування' : 'Ваші Проекти'}
-                                </h2>
+	                                <h2 style={{ fontSize: '2.5rem', fontWeight: 950, letterSpacing: '-0.03em' }}>
+	                                    {isAdminMode ? 'Центр Керування' : 'Ваші Проекти'}
+	                                </h2>
                                 {!isAdminMode && (
-                                    <motion.button
-                                        whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(255,255,255,0.2)' }}
-                                        onClick={() => setIsModalOpen(true)}
-                                        style={{ background: 'white', color: 'black', padding: '15px 30px', borderRadius: '50px', fontWeight: 950, fontSize: '0.8rem', letterSpacing: '1px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
-                                    >
-                                        <Plus size={18} strokeWidth={3} /> НОВИЙ ПРОЕКТ
-                                    </motion.button>
-                                )}
-                            </div>
+	                                    <motion.button
+	                                        whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(255,255,255,0.2)' }}
+	                                        onClick={() => setIsModalOpen(true)}
+	                                        style={{ background: 'var(--text-main)', color: 'var(--text-invert)', padding: '15px 30px', borderRadius: '50px', fontWeight: 950, fontSize: '0.8rem', letterSpacing: '1px', border: '1px solid var(--border-1)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: 'var(--shadow-soft)' }}
+	                                    >
+	                                        <Plus size={18} strokeWidth={3} /> НОВИЙ ПРОЕКТ
+	                                    </motion.button>
+	                                )}
+	                            </div>
 
                             {isAdminMode && <AdminOverview projects={projects} onFilter={setFilterStatus} isMobile={isMobile} />}
 
@@ -726,9 +762,9 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                                     style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#4CAF50', padding: '4px 12px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 900, outline: 'none', width: '100px' }}
                                 />
                             </div>
-                        ) : (
-                            <span style={{ color: '#7000FF', fontWeight: 900, fontSize: '0.75rem', letterSpacing: '2px' }}>{project.category?.toUpperCase() || 'SAAS / WEB APP'}</span>
-                        )}
+	                        ) : (
+	                            <span style={{ color: 'var(--accent-start)', fontWeight: 900, fontSize: '0.75rem', letterSpacing: '2px' }}>{project.category?.toUpperCase() || 'SAAS / WEB APP'}</span>
+	                        )}
                         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             {isAdmin && project.status === 'PENDING' && (
                                 <motion.button
@@ -855,12 +891,12 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                                                 }}
                                             />
                                             <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button
-                                                    onClick={handleAddStep}
-                                                    style={{ background: '#7000FF', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer', flex: 1 }}
-                                                >
-                                                    ЗБЕРЕГТИ
-                                                </button>
+	                                                <button
+	                                                    onClick={handleAddStep}
+	                                                    style={{ background: 'var(--accent-start)', color: 'black', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer', flex: 1 }}
+	                                                >
+	                                                    ЗБЕРЕГТИ
+	                                                </button>
                                                 <button
                                                     onClick={() => { setIsAddingStep(false); setNewStepTitle(''); }}
                                                     style={{ background: 'rgba(255,255,255,0.05)', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer' }}
@@ -875,9 +911,9 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                             {roadmap.map((s, idx) => (
                                 <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        {s.status === 'completed' ? <CheckCircle2 size={18} color="#4CAF50" strokeWidth={3} /> : s.status === 'current' ? <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: '10px', height: '10px', background: '#7000FF', borderRadius: '50%', boxShadow: '0 0 15px #7000FF' }} /> : <Circle size={18} color="rgba(255,255,255,0.1)" strokeWidth={2} />}
-                                        <span style={{ fontWeight: 800, fontSize: '0.85rem', color: s.status === 'upcoming' ? 'rgba(255,255,255,0.2)' : 'white' }}>{s.title}</span>
-                                    </div>
+	                                        {s.status === 'completed' ? <CheckCircle2 size={18} color="#4CAF50" strokeWidth={3} /> : s.status === 'current' ? <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} style={{ width: '10px', height: '10px', background: 'var(--accent-start)', borderRadius: '50%', boxShadow: '0 0 15px var(--accent-start)' }} /> : <Circle size={18} color="rgba(255,255,255,0.1)" strokeWidth={2} />}
+	                                        <span style={{ fontWeight: 800, fontSize: '0.85rem', color: s.status === 'upcoming' ? 'rgba(255,255,255,0.2)' : 'white' }}>{s.title}</span>
+	                                    </div>
                                     {isAdmin && (
                                         <div style={{ display: 'flex', gap: '4px' }}>
                                             <select
@@ -927,7 +963,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                                             <img src={currentVisual.url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         )
                                     ) : (
-                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem', fontWeight: 800 }}>
+	                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', color: 'var(--text-subtle)', fontSize: '0.7rem', fontWeight: 800 }}>
                                             NO LAPTOP VIEW
                                         </div>
                                     )}
@@ -941,7 +977,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                                             <img src={currentVisual.url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         )
                                     ) : (
-                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000', color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem', fontWeight: 800 }}>
+	                                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', color: 'var(--text-subtle)', fontSize: '0.7rem', fontWeight: 800 }}>
                                             {visuals.length > 0 ? 'SWITCH TO LAPTOP' : 'NO PREVIEW'}
                                         </div>
                                     )}
@@ -1055,47 +1091,47 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                         {comments.length === 0 ? (
                             <div style={{ padding: '20px', textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>Поки що немає коментарів</div>
                         ) : comments.map((c) => (
-                            <div key={c.id} style={{ padding: '12px', borderRadius: '16px', background: c.author?.includes('(Admin)') ? 'rgba(112, 0, 255, 0.08)' : 'rgba(255,255,255,0.03)', alignSelf: c.author === user?.name || c.author?.includes('(Admin)') && user?.isAdmin ? 'flex-end' : 'flex-start', maxWidth: '90%', border: c.author?.includes('(Admin)') ? '1px solid rgba(112, 0, 255, 0.1)' : '1px solid transparent' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '2px' }}>
-                                    <span style={{ fontWeight: 900, fontSize: '0.6rem', color: c.author?.includes('(Admin)') ? '#7000FF' : 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{c.author}</span>
-                                    <span style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.2)' }}>{new Date(c.date).toLocaleDateString()}</span>
-                                </div>
-                                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.4 }}>{c.text}</p>
-                            </div>
+	                            <div key={c.id} style={{ padding: '12px', borderRadius: '16px', background: c.author?.includes('(Admin)') ? 'rgba(var(--accent-rgb), 0.08)' : 'rgba(255,255,255,0.03)', alignSelf: c.author === user?.name || c.author?.includes('(Admin)') && user?.isAdmin ? 'flex-end' : 'flex-start', maxWidth: '90%', border: c.author?.includes('(Admin)') ? '1px solid rgba(var(--accent-rgb), 0.1)' : '1px solid transparent' }}>
+	                                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginBottom: '2px' }}>
+	                                    <span style={{ fontWeight: 900, fontSize: '0.6rem', color: c.author?.includes('(Admin)') ? 'var(--accent-start)' : 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>{c.author}</span>
+	                                    <span style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.2)' }}>{new Date(c.date).toLocaleDateString()}</span>
+	                                </div>
+	                                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)', lineHeight: 1.4 }}>{c.text}</p>
+	                            </div>
                         ))}
                     </div>
                     <form onSubmit={handleCommentSubmit} style={{ display: 'flex', gap: '8px' }}>
-                        <input type="text" placeholder="Напишіть повідомлення..." value={commentText} onChange={e => setCommentText(e.target.value)} style={{ flex: 1, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '10px 14px', color: 'white', fontSize: '0.8rem', outline: 'none' }} />
-                        <motion.button whileHover={{ scale: 1.05 }} disabled={isSendingComment} type="submit" style={{ background: '#7000FF', color: 'white', width: '40px', height: '40px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', opacity: isSendingComment ? 0.7 : 1 }}>
-                            {isSendingComment ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} style={{ width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.5)', borderTop: '2px solid white', borderRadius: '50%' }} /> : <Send size={16} strokeWidth={3} />}
-                        </motion.button>
+	                        <input type="text" placeholder="Напишіть повідомлення..." value={commentText} onChange={e => setCommentText(e.target.value)} style={{ flex: 1, background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '14px', padding: '10px 14px', color: 'var(--text-main)', fontSize: '0.8rem', outline: 'none' }} />
+	                        <motion.button whileHover={{ scale: 1.05 }} disabled={isSendingComment} type="submit" style={{ background: 'var(--accent-start)', color: 'black', width: '40px', height: '40px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', opacity: isSendingComment ? 0.7 : 1 }}>
+	                            {isSendingComment ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} style={{ width: '12px', height: '12px', border: '2px solid rgba(255,255,255,0.5)', borderTop: '2px solid white', borderRadius: '50%' }} /> : <Send size={16} strokeWidth={3} />}
+	                        </motion.button>
                     </form>
                 </div>
 
                 {/* RESOURCES CARD - BENTO SPAN 12 */}
-                <div style={{
-                    gridColumn: 'span 12',
-                    background: 'rgba(255,255,255,0.01)',
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    borderRadius: '24px',
-                    padding: '24px'
-                }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                        <h4 style={{ fontSize: '0.7rem', fontWeight: 900, color: 'white', letterSpacing: '4px' }}>МАТЕРІАЛИ ПРОЕКТУ</h4>
-                        {isAdmin && (
-                            <button onClick={() => {/* Toggle Resource Add */ }} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: 'white', padding: '6px 16px', borderRadius: '10px', fontWeight: 800, fontSize: '0.65rem', cursor: 'pointer' }}>+ ДОДАТИ</button>
-                        )}
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-                        {resources.map((r) => (<ResourceLink key={r.id} icon={r.type === 'Figma' ? <Figma size={18} /> : <FileText size={18} />} label={r.label} />))}
-                        {resources.length === 0 && (
-                            <div style={{ gridColumn: 'span 4', textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.1)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '24px' }}>
-                                <Clock size={20} style={{ marginBottom: '10px' }} />
-                                <p style={{ fontSize: '0.8rem', fontWeight: 600 }}>Матеріали синхронізуються...</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+	                <div style={{
+	                    gridColumn: 'span 12',
+	                    background: 'var(--surface-1)',
+	                    border: '1px solid var(--border-1)',
+	                    borderRadius: '24px',
+	                    padding: '24px'
+	                }}>
+	                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+	                        <h4 style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '4px' }}>МАТЕРІАЛИ ПРОЕКТУ</h4>
+	                        {isAdmin && (
+	                            <button onClick={() => {/* Toggle Resource Add */ }} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', color: 'var(--text-main)', padding: '6px 16px', borderRadius: '10px', fontWeight: 800, fontSize: '0.65rem', cursor: 'pointer' }}>+ ДОДАТИ</button>
+	                        )}
+	                    </div>
+	                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+	                        {resources.map((r) => (<ResourceLink key={r.id} icon={r.type === 'Figma' ? <Figma size={18} /> : <FileText size={18} />} label={r.label} />))}
+	                        {resources.length === 0 && (
+	                            <div style={{ gridColumn: 'span 4', textAlign: 'center', padding: '30px', color: 'var(--text-subtle)', border: '1px dashed var(--border-1)', borderRadius: '24px' }}>
+	                                <Clock size={20} style={{ marginBottom: '10px' }} />
+	                                <p style={{ fontSize: '0.8rem', fontWeight: 600 }}>Матеріали синхронізуються...</p>
+	                            </div>
+	                        )}
+	                    </div>
+	                </div>
             </div>
         </motion.section>
     );
@@ -1103,39 +1139,39 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
 
 // --- UTILITIES ---
 const ResourceLink = ({ icon, label }) => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', cursor: 'pointer' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ color: '#7000FF' }}>{icon}</span>
-            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{label}</span>
-        </div>
-        <ExternalLink size={14} color="rgba(255,255,255,0.2)" />
-    </div>
+		    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', cursor: 'pointer' }}>
+		        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+		            <span style={{ color: 'var(--accent-start)' }}>{icon}</span>
+		            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{label}</span>
+		        </div>
+		        <ExternalLink size={14} color="rgba(255,255,255,0.2)" />
+		    </div>
 );
 
 const SidebarLink = ({ icon, label, active, onClick }) => (
     <motion.button
-        whileHover={{ x: 5, background: 'rgba(255,255,255,0.03)' }}
+        whileHover={{ x: 5, background: 'var(--surface-1)' }}
         whileTap={{ scale: 0.98 }}
         onClick={onClick}
-        style={{
+		        style={{
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
             padding: '16px 20px',
             width: '100%',
             borderRadius: '16px',
-            background: active ? 'rgba(112, 0, 255, 0.1)' : 'transparent',
-            color: active ? '#7000FF' : 'rgba(255,255,255,0.4)',
-            transition: '0.3s cubic-bezier(0.2, 0, 0.2, 1)',
-            fontWeight: 800,
-            fontSize: '0.9rem',
-            border: active ? '1px solid rgba(112, 0, 255, 0.1)' : '1px solid transparent',
-            cursor: 'pointer'
-        }}
-    >
-        <span style={{ color: active ? '#7000FF' : 'inherit' }}>{icon}</span>
-        {label}
-    </motion.button>
+		            background: active ? 'rgba(var(--accent-rgb), 0.1)' : 'transparent',
+		            color: active ? 'var(--accent-start)' : 'var(--text-muted)',
+		            transition: '0.3s cubic-bezier(0.2, 0, 0.2, 1)',
+		            fontWeight: 800,
+		            fontSize: '0.9rem',
+		            border: active ? '1px solid rgba(var(--accent-rgb), 0.1)' : '1px solid transparent',
+		            cursor: 'pointer'
+		        }}
+		    >
+		        <span style={{ color: active ? 'var(--accent-start)' : 'inherit' }}>{icon}</span>
+		        {label}
+		    </motion.button>
 );
 
 const ProjectCard = ({ project, onClick, adminMode }) => {
@@ -1193,7 +1229,7 @@ const ProjectCard = ({ project, onClick, adminMode }) => {
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                             <span style={{ fontSize: '0.65rem', fontWeight: 900, color: status.color, letterSpacing: '2px', textTransform: 'uppercase' }}>{status.label}</span>
-                            {adminMode && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#7000FF', background: 'rgba(112, 0, 255, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{project.owner_email}</span>}
+	                            {adminMode && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: ADMIN_THEME.primary, background: ADMIN_THEME.accent, padding: '2px 8px', borderRadius: '6px' }}>{project.owner_email}</span>}
                         </div>
                         <h3 style={{ fontSize: '1.8rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{project.title}</h3>
                     </div>
@@ -1229,46 +1265,46 @@ const RequestCard = ({ project, onMockDiscuss, adminMode }) => (
 );
 
 const PaymentCard = ({ project, onPay, adminMode }) => (
-    <motion.div
-        whileHover={{ scale: 1.02 }}
-        style={{ background: 'linear-gradient(135deg, rgba(112, 0, 255, 0.1) 0%, rgba(112, 0, 255, 0.05) 100%)', border: '1px solid rgba(112, 0, 255, 0.3)', borderRadius: '40px', padding: '40px' }}
-    >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
-            <h3 style={{ fontSize: '1.6rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{project.title}</h3>
-            {adminMode && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#7000FF', background: 'rgba(112, 0, 255, 0.1)', padding: '4px 10px', borderRadius: '6px' }}>{project.owner_email}</span>}
-        </div>
-        <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.5)', marginBottom: '32px', lineHeight: 1.5 }}>Перевірка завершена. Бюджет: {project.budget}. Необхідна оплата для початку робіт.</p>
-        <motion.button
-            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(112, 0, 255, 0.3)' }}
-            onClick={onPay}
-            style={{ width: '100%', background: '#7000FF', color: 'white', padding: '18px', borderRadius: '20px', fontWeight: 900, fontSize: '0.85rem', letterSpacing: '1px', border: 'none', cursor: 'pointer' }}
-        >
-            ПІДТВЕРДИТИ ОПЛАТУ
-        </motion.button>
-    </motion.div>
+	    <motion.div
+	        whileHover={{ scale: 1.02 }}
+	        style={{ background: 'linear-gradient(135deg, rgba(var(--accent-rgb), 0.1) 0%, rgba(var(--accent-rgb), 0.05) 100%)', border: '1px solid rgba(var(--accent-rgb), 0.3)', borderRadius: '40px', padding: '40px' }}
+	    >
+	        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
+	            <h3 style={{ fontSize: '1.6rem', fontWeight: 950, letterSpacing: '-0.02em' }}>{project.title}</h3>
+	            {adminMode && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: ADMIN_THEME.primary, background: ADMIN_THEME.accent, padding: '4px 10px', borderRadius: '6px' }}>{project.owner_email}</span>}
+	        </div>
+	        <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.5)', marginBottom: '32px', lineHeight: 1.5 }}>Перевірка завершена. Бюджет: {project.budget}. Необхідна оплата для початку робіт.</p>
+	        <motion.button
+	            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(var(--accent-rgb), 0.35)' }}
+	            onClick={onPay}
+	            style={{ width: '100%', background: 'var(--accent-start)', color: 'black', padding: '18px', borderRadius: '20px', fontWeight: 900, fontSize: '0.85rem', letterSpacing: '1px', border: 'none', cursor: 'pointer' }}
+	        >
+	            ПІДТВЕРДИТИ ОПЛАТУ
+	        </motion.button>
+	    </motion.div>
 );
 
 const Section = ({ title, icon: Icon, children }) => (
-    <div style={{ marginBottom: '40px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(112, 0, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon size={20} color="#7000FF" />
-            </div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white' }}>{title}</h3>
-        </div>
-        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '24px' }}>
-            {children}
-        </div>
-    </div>
+	    <div style={{ marginBottom: '40px' }}>
+	        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+	            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(var(--accent-rgb), 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+	                <Icon size={20} color="var(--accent-start)" />
+	            </div>
+	            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)' }}>{title}</h3>
+	        </div>
+	        <div style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '24px', padding: '24px' }}>
+	            {children}
+	        </div>
+	    </div>
 );
 
 const Toggle = ({ active, onToggle, label }) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{label}</span>
-        <div onClick={onToggle} style={{ width: '44px', height: '24px', background: active ? '#7000FF' : 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '2px', cursor: 'pointer', transition: '0.3s' }}>
-            <div style={{ width: '20px', height: '20px', background: 'white', borderRadius: '50%', transform: active ? 'translateX(20px)' : 'translateX(0)', transition: '0.3s' }} />
-        </div>
-    </div>
+	    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+	        <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{label}</span>
+	        <div onClick={onToggle} style={{ width: '44px', height: '24px', background: active ? 'var(--accent-start)' : 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '2px', cursor: 'pointer', transition: '0.3s' }}>
+	            <div style={{ width: '20px', height: '20px', background: 'white', borderRadius: '50%', transform: active ? 'translateX(20px)' : 'translateX(0)', transition: '0.3s' }} />
+	        </div>
+	    </div>
 );
 
 const SettingsView = ({ user, updateUser }) => {
@@ -1277,10 +1313,16 @@ const SettingsView = ({ user, updateUser }) => {
     const [phone, setPhone] = useState(user?.phone || '');
     const [company, setCompany] = useState(user?.company || '');
     const [role, setRole] = useState(user?.role || '');
-    const [avatarStyle, setAvatarStyle] = useState('avataaars');
-    const [avatarSeed, setAvatarSeed] = useState(user?.email || 'seed');
-    const [showPassword, setShowPassword] = useState(false);
-    const [passwordData, setPasswordData] = useState({ current: '', next: '' });
+	    const [avatarStyle, setAvatarStyle] = useState('avataaars');
+	    const [avatarSeed, setAvatarSeed] = useState(user?.email || 'seed');
+	    const [showPassword, setShowPassword] = useState(false);
+	    const [passwordData, setPasswordData] = useState({ current: '', next: '' });
+	    const [accentStart, setAccentStart] = useState(() => loadAccent().start);
+	    const [accentPresetId, setAccentPresetId] = useState(() => {
+	        const current = loadAccent();
+	        const match = PRESET_ACCENTS.find(p => (p.accent?.start || '').toUpperCase() === (current?.start || '').toUpperCase());
+	        return match ? match.id : 'custom';
+	    });
 
     const handleSave = () => {
         const avatar = `https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`;
@@ -1303,40 +1345,65 @@ const SettingsView = ({ user, updateUser }) => {
         alert('Пароль успішно змінено');
     };
 
-    const avatarStyles = [
+	    const avatarStyles = [
         { id: 'avataaars', label: 'Classic' },
         { id: 'pixel-art', label: 'Pixel' },
         { id: 'bottts', label: 'Robot' },
         { id: 'identicon', label: 'Abstract' },
         { id: 'micah', label: 'Staged' },
         { id: 'lorelei', label: 'Modern' }
-    ];
+	    ];
 
-    return (
-        <div style={{ maxWidth: '800px' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 950, marginBottom: '48px', letterSpacing: '-0.04em' }}>Налаштування</h2>
+	    const handlePresetAccent = (preset) => {
+	        const next = preset?.accent;
+	        if (!next?.start) return;
+	        applyAccent(next);
+	        saveAccent(next);
+	        setAccentStart(next.start);
+	        setAccentPresetId(preset.id);
+	    };
+
+	    const handleCustomAccent = (hex) => {
+	        setAccentStart(hex);
+	        const next = deriveAccentFromStart(hex);
+	        applyAccent(next);
+	        saveAccent(next);
+	        setAccentPresetId('custom');
+	    };
+
+	    const handleResetAccent = () => {
+	        clearAccent();
+	        const current = loadAccent();
+	        setAccentStart(current.start);
+	        const match = PRESET_ACCENTS.find(p => (p.accent?.start || '').toUpperCase() === (current?.start || '').toUpperCase());
+	        setAccentPresetId(match ? match.id : 'custom');
+	    };
+
+	    return (
+	        <div style={{ maxWidth: '800px' }}>
+	            <h2 style={{ fontSize: '2.5rem', fontWeight: 950, marginBottom: '48px', letterSpacing: '-0.04em' }}>Налаштування</h2>
 
             <Section title="Профіль" icon={User}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: 'span 2' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>ПОВНЕ ІМ'Я</label>
-                        <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', color: 'white', outline: 'none' }} />
+                        <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ padding: '16px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', color: 'var(--text-main)', outline: 'none' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>EMAIL</label>
-                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', color: 'white', outline: 'none' }} />
+                        <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ padding: '16px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', color: 'var(--text-main)', outline: 'none' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>ТЕЛЕФОН</label>
-                        <input type="tel" value={phone} placeholder="+380..." onChange={e => setPhone(e.target.value)} style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', color: 'white', outline: 'none' }} />
+                        <input type="tel" value={phone} placeholder="+380..." onChange={e => setPhone(e.target.value)} style={{ padding: '16px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', color: 'var(--text-main)', outline: 'none' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>КОМПАНІЯ</label>
-                        <input type="text" value={company} onChange={e => setCompany(e.target.value)} style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', color: 'white', outline: 'none' }} />
+                        <input type="text" value={company} onChange={e => setCompany(e.target.value)} style={{ padding: '16px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', color: 'var(--text-main)', outline: 'none' }} />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>ПОСАДА</label>
-                        <input type="text" value={role} onChange={e => setRole(e.target.value)} style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', color: 'white', outline: 'none' }} />
+                        <input type="text" value={role} onChange={e => setRole(e.target.value)} style={{ padding: '16px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', color: 'var(--text-main)', outline: 'none' }} />
                     </div>
                 </div>
             </Section>
@@ -1344,18 +1411,18 @@ const SettingsView = ({ user, updateUser }) => {
             <Section title="Профільний Аватар" icon={User}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
                     <div style={{ position: 'relative' }}>
-                        <img
-                            src={`https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`}
-                            style={{ width: '100px', height: '100px', borderRadius: '30px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(112, 0, 255, 0.2)' }}
-                            alt="Avatar Preview"
-                        />
-                        <motion.button
-                            whileTap={{ rotate: 180 }}
-                            onClick={() => setAvatarSeed(Math.random().toString(36).substring(7))}
-                            style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '36px', height: '36px', borderRadius: '12px', background: '#7000FF', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(112, 0, 255, 0.3)' }}
-                        >
-                            <Zap size={16} fill="white" />
-                        </motion.button>
+	                        <img
+	                            src={`https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${avatarSeed}`}
+	                            style={{ width: '100px', height: '100px', borderRadius: '30px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(var(--accent-rgb), 0.2)' }}
+	                            alt="Avatar Preview"
+	                        />
+	                        <motion.button
+	                            whileTap={{ rotate: 180 }}
+	                            onClick={() => setAvatarSeed(Math.random().toString(36).substring(7))}
+	                            style={{ position: 'absolute', bottom: '-10px', right: '-10px', width: '36px', height: '36px', borderRadius: '12px', background: 'var(--accent-start)', color: 'black', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(var(--accent-rgb), 0.3)' }}
+	                        >
+	                            <Zap size={16} fill="white" />
+	                        </motion.button>
                     </div>
                     <div style={{ flex: 1 }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px', marginBottom: '12px', display: 'block' }}>ОБЕРІТЬ СТИЛЬ</label>
@@ -1364,17 +1431,17 @@ const SettingsView = ({ user, updateUser }) => {
                                 <button
                                     key={s.id}
                                     onClick={() => setAvatarStyle(s.id)}
-                                    style={{
-                                        padding: '10px',
-                                        borderRadius: '12px',
-                                        background: avatarStyle === s.id ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255,255,255,0.03)',
-                                        border: `1px solid ${avatarStyle === s.id ? '#7000FF' : 'transparent'}`,
-                                        color: avatarStyle === s.id ? '#7000FF' : 'rgba(255,255,255,0.6)',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 800,
-                                        cursor: 'pointer'
-                                    }}
-                                >
+	                                    style={{
+	                                        padding: '10px',
+	                                        borderRadius: '12px',
+	                                        background: avatarStyle === s.id ? 'rgba(var(--accent-rgb), 0.1)' : 'rgba(255,255,255,0.03)',
+	                                        border: `1px solid ${avatarStyle === s.id ? 'var(--accent-start)' : 'transparent'}`,
+	                                        color: avatarStyle === s.id ? 'var(--accent-start)' : 'rgba(255,255,255,0.6)',
+	                                        fontSize: '0.75rem',
+	                                        fontWeight: 800,
+	                                        cursor: 'pointer'
+	                                    }}
+	                                >
                                     {s.label}
                                 </button>
                             ))}
@@ -1383,8 +1450,8 @@ const SettingsView = ({ user, updateUser }) => {
                 </div>
             </Section>
 
-            <Section title="Безпека" icon={Lock}>
-                <button onClick={() => setShowPassword(!showPassword)} style={{ background: 'rgba(255,255,255,0.05)', color: 'white', padding: '12px 24px', borderRadius: '12px', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>
+	            <Section title="Безпека" icon={Lock}>
+                <button onClick={() => setShowPassword(!showPassword)} style={{ background: 'var(--surface-1)', color: 'var(--text-main)', padding: '12px 24px', borderRadius: '12px', border: '1px solid var(--border-1)', fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}>
                     ЗМІНИТИ ПАРОЛЬ
                 </button>
                 {showPassword && (
@@ -1394,28 +1461,103 @@ const SettingsView = ({ user, updateUser }) => {
                             placeholder="Поточний пароль"
                             value={passwordData.current}
                             onChange={e => setPasswordData({ ...passwordData, current: e.target.value })}
-                            style={{ padding: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white', outline: 'none' }}
+                            style={{ padding: '14px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '12px', color: 'var(--text-main)', outline: 'none' }}
                         />
                         <input
                             type="password"
                             placeholder="Новий пароль"
                             value={passwordData.next}
                             onChange={e => setPasswordData({ ...passwordData, next: e.target.value })}
-                            style={{ padding: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: 'white', outline: 'none' }}
+                            style={{ padding: '14px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '12px', color: 'var(--text-main)', outline: 'none' }}
                         />
-                        <button
-                            onClick={handlePasswordUpdate}
-                            style={{ background: '#7000FF', color: 'white', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 900, cursor: 'pointer' }}
-                        >
-                            ПІДТВЕРДИТИ
-                        </button>
+	                        <button
+	                            onClick={handlePasswordUpdate}
+	                            style={{ background: 'var(--accent-start)', color: 'black', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: 900, cursor: 'pointer' }}
+	                        >
+	                            ПІДТВЕРДИТИ
+	                        </button>
                     </motion.div>
                 )}
-            </Section>
+	            </Section>
 
-            <button onClick={handleSave} style={{ background: 'white', color: 'black', padding: '18px 60px', borderRadius: '50px', fontWeight: 950, fontSize: '0.9rem', letterSpacing: '1px', boxShadow: '0 20px 40px rgba(255,255,255,0.1)', cursor: 'pointer', border: 'none' }}>ЗБЕРЕГТИ ВСЕ</button>
-        </div>
-    );
+	            <Section title="Вигляд" icon={Palette}>
+	                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+	                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+	                        <div>
+		                            <div style={{ fontWeight: 900, letterSpacing: '0.02em' }}>Акцентний колiр сайту</div>
+		                            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+		                                Обери пресет або свiй колiр. Змiни застосовуються одразу.
+		                            </div>
+		                        </div>
+		                        <button
+		                            onClick={handleResetAccent}
+		                            style={{ background: 'var(--surface-1)', color: 'var(--text-main)', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--border-1)', fontWeight: 800, cursor: 'pointer' }}
+		                        >
+		                            Скинути
+		                        </button>
+	                    </div>
+
+	                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px' }}>
+	                        {PRESET_ACCENTS.map((p) => {
+	                            const active = accentPresetId === p.id;
+	                            return (
+	                                <button
+	                                    key={p.id}
+	                                    onClick={() => handlePresetAccent(p)}
+	                                    style={{
+	                                        display: 'flex',
+	                                        alignItems: 'center',
+	                                        gap: '12px',
+		                                        padding: '12px',
+		                                        borderRadius: '16px',
+		                                        background: active ? 'rgba(var(--accent-rgb), 0.10)' : 'var(--surface-1)',
+		                                        border: active ? '1px solid rgba(var(--accent-rgb), 0.22)' : '1px solid var(--border-1)',
+		                                        color: 'var(--text-main)',
+		                                        cursor: 'pointer',
+		                                        transition: '0.2s',
+		                                        textAlign: 'left'
+		                                    }}
+	                                >
+	                                    <div style={{
+	                                        width: '34px',
+	                                        height: '34px',
+	                                        borderRadius: '12px',
+	                                        background: `linear-gradient(135deg, ${p.accent.start} 0%, ${p.accent.mid} 55%, ${p.accent.end} 100%)`,
+		                                        boxShadow: '0 10px 24px rgba(0,0,0,0.35)',
+		                                        border: '1px solid var(--border-1)',
+		                                        flexShrink: 0
+		                                    }} />
+		                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+		                                        <div style={{ fontWeight: 900 }}>{p.name}</div>
+		                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-subtle)', letterSpacing: '0.02em' }}>{p.accent.start}</div>
+		                                    </div>
+		                                </button>
+	                            );
+	                        })}
+	                    </div>
+
+		                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '14px 16px', borderRadius: '16px', border: '1px solid var(--border-1)', background: 'var(--surface-1)' }}>
+		                        <div>
+		                            <div style={{ fontWeight: 900 }}>Свiй колiр</div>
+		                            <div style={{ fontSize: '0.8rem', color: 'var(--text-subtle)' }}>Вибери базовий акцент (градієнт згенерується автоматично)</div>
+		                        </div>
+		                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+		                            <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'linear-gradient(135deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)', border: '1px solid var(--border-1)', boxShadow: '0 12px 30px rgba(var(--accent-rgb), 0.18)' }} />
+		                            <input
+		                                aria-label="Accent color"
+		                                type="color"
+		                                value={accentStart}
+		                                onChange={(e) => handleCustomAccent(e.target.value)}
+		                                style={{ width: '44px', height: '36px', borderRadius: '12px', border: '1px solid var(--border-1)', background: 'transparent', padding: 0, cursor: 'pointer' }}
+		                            />
+		                        </div>
+		                    </div>
+	                </div>
+	            </Section>
+
+		            <button onClick={handleSave} style={{ background: 'var(--text-main)', color: 'var(--text-invert)', padding: '18px 60px', borderRadius: '50px', fontWeight: 950, fontSize: '0.9rem', letterSpacing: '1px', boxShadow: 'var(--shadow-soft)', cursor: 'pointer', border: '1px solid var(--border-1)' }}>ЗБЕРЕГТИ ВСЕ</button>
+		        </div>
+		    );
 };
 
 const ProjectCreatorModal = ({ onClose, onAdd }) => {
@@ -1455,9 +1597,9 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
 
     return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(40px)', zIndex: 2000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ background: '#050505', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '32px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '40px 30px', position: 'relative', boxShadow: '0 50px 100px rgba(0,0,0,0.9)' }}>
+	            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ background: 'var(--bg)', border: '1px solid var(--border-1)', borderRadius: '32px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '40px 30px', position: 'relative', boxShadow: 'var(--shadow-soft)' }}>
                 <button onClick={onClose} style={{ position: 'absolute', right: '20px', top: '20px', color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}><X size={18} /></button>
-                {!isSuccess && <div style={{ display: 'flex', gap: '6px', marginBottom: '30px', marginTop: '10px' }}>{[1, 2, 3].map(i => (<div key={i} style={{ height: '3px', flex: 1, background: i <= step ? 'linear-gradient(90deg, #7000FF, #BD00FF)' : 'rgba(255,255,255,0.05)', borderRadius: '10px', boxShadow: i <= step ? '0 0 10px rgba(112, 0, 255, 0.3)' : 'none' }} />))}</div>}
+	                {!isSuccess && <div style={{ display: 'flex', gap: '6px', marginBottom: '30px', marginTop: '10px' }}>{[1, 2, 3].map(i => (<div key={i} style={{ height: '3px', flex: 1, background: i <= step ? 'linear-gradient(90deg, var(--accent-start), var(--accent-mid), var(--accent-end))' : 'rgba(255,255,255,0.05)', borderRadius: '10px', boxShadow: i <= step ? '0 0 10px rgba(var(--accent-rgb), 0.3)' : 'none' }} />))}</div>}
 
                 <AnimatePresence mode="wait">
                     {isSuccess ? (
@@ -1473,21 +1615,21 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                         step === 1 && (
                             <motion.div key="s1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                                 <h3 style={{ fontSize: '1.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.03em' }}>Тематика</h3>
-                                <div style={{ background: 'rgba(112, 0, 255, 0.04)', borderLeft: '3px solid #7000FF', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                    <Info size={16} color="#7000FF" style={{ flexShrink: 0 }} />
-                                    <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Оберіть категорію проекту.</p>
-                                </div>
+	                                <div style={{ background: 'rgba(var(--accent-rgb), 0.04)', borderLeft: '3px solid var(--accent-start)', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+	                                    <Info size={16} color="var(--accent-start)" style={{ flexShrink: 0 }} />
+	                                    <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Оберіть категорію проекту.</p>
+	                                </div>
                                 <input type="text" placeholder="Назва вашого проекту" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px', color: 'white', width: '100%', marginBottom: '20px', fontSize: '0.95rem', outline: 'none', transition: '0.3s' }} value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                                     {categories.map(cat => {
                                         const isSelected = formData.category === cat.id;
                                         return (
-                                            <motion.div whileHover={{ scale: 1.01 }} key={cat.id} onClick={() => setFormData({ ...formData, category: cat.id })} style={{ padding: '12px', borderRadius: '16px', border: `1px solid ${isSelected ? '#7000FF' : 'rgba(255,255,255,0.05)'}`, background: isSelected ? 'rgba(112, 0, 255, 0.08)' : 'rgba(255,255,255,0.01)', cursor: 'pointer', transition: '0.2s' }}>
-                                                <h4 style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: '2px', color: isSelected ? '#7000FF' : 'white', letterSpacing: '-0.01em' }}>{cat.title}</h4>
-                                                <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', lineHeight: 1.2 }}>{cat.desc}</p>
-                                            </motion.div>
-                                        );
+	                                            <motion.div whileHover={{ scale: 1.01 }} key={cat.id} onClick={() => setFormData({ ...formData, category: cat.id })} style={{ padding: '12px', borderRadius: '16px', border: `1px solid ${isSelected ? 'var(--accent-start)' : 'rgba(255,255,255,0.05)'}`, background: isSelected ? 'rgba(var(--accent-rgb), 0.08)' : 'rgba(255,255,255,0.01)', cursor: 'pointer', transition: '0.2s' }}>
+	                                                <h4 style={{ fontSize: '0.85rem', fontWeight: 900, marginBottom: '2px', color: isSelected ? 'var(--accent-start)' : 'white', letterSpacing: '-0.01em' }}>{cat.title}</h4>
+	                                                <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.3)', lineHeight: 1.2 }}>{cat.desc}</p>
+	                                            </motion.div>
+	                                        );
                                     })}
                                 </div>
                             </motion.div>
@@ -1496,31 +1638,31 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                     {!isSuccess && step === 2 && (
                         <motion.div key="s2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                             <h3 style={{ fontSize: '1.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.03em' }}>Інвестиції</h3>
-                            <div style={{ background: 'rgba(112, 0, 255, 0.04)', borderLeft: '3px solid #7000FF', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                <Info size={16} color="#7000FF" style={{ flexShrink: 0 }} />
-                                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Вкажіть ваш бюджет.</p>
-                            </div>
+	                            <div style={{ background: 'rgba(var(--accent-rgb), 0.04)', borderLeft: '3px solid var(--accent-start)', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+	                                <Info size={16} color="var(--accent-start)" style={{ flexShrink: 0 }} />
+	                                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Вкажіть ваш бюджет.</p>
+	                            </div>
 
 
                             <div style={{ padding: '20px', background: 'rgba(255,255,255,0.01)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: formData.customBudget ? 1 : 0.4 }}>
-                                    <Shield size={14} color={formData.customBudget ? '#7000FF' : 'white'} />
-                                    <span style={{ fontSize: '0.6rem', fontWeight: 800, letterSpacing: '1px' }}>ВЛАСНИЙ БЮДЖЕТ</span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <span style={{ fontWeight: 900, color: formData.customBudget ? '#7000FF' : 'rgba(255,255,255,0.1)', fontSize: '1.8rem' }}>$</span>
-                                    <input type="number" placeholder="0" value={formData.customBudget} onChange={e => setFormData({ ...formData, customBudget: e.target.value, budget: '' })} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '2rem', fontWeight: 900, outline: 'none', width: '180px', textAlign: 'left', letterSpacing: '-1px' }} />
-                                </div>
-                            </div>
+	                                    <Shield size={14} color={formData.customBudget ? 'var(--accent-start)' : 'white'} />
+	                                    <span style={{ fontSize: '0.6rem', fontWeight: 800, letterSpacing: '1px' }}>ВЛАСНИЙ БЮДЖЕТ</span>
+	                                </div>
+	                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+	                                    <span style={{ fontWeight: 900, color: formData.customBudget ? 'var(--accent-start)' : 'rgba(255,255,255,0.1)', fontSize: '1.8rem' }}>$</span>
+	                                    <input type="number" placeholder="0" value={formData.customBudget} onChange={e => setFormData({ ...formData, customBudget: e.target.value, budget: '' })} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '2rem', fontWeight: 900, outline: 'none', width: '180px', textAlign: 'left', letterSpacing: '-1px' }} />
+	                                </div>
+	                            </div>
                         </motion.div>
                     )}
                     {!isSuccess && step === 3 && (
                         <motion.div key="s3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                             <h3 style={{ fontSize: '1.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.03em' }}>Деталі</h3>
-                            <div style={{ background: 'rgba(112, 0, 255, 0.04)', borderLeft: '3px solid #7000FF', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                <Info size={16} color="#7000FF" style={{ flexShrink: 0 }} />
-                                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Коротко опишіть задачу.</p>
-                            </div>
+	                            <div style={{ background: 'rgba(var(--accent-rgb), 0.04)', borderLeft: '3px solid var(--accent-start)', padding: '12px', borderRadius: '0 10px 10px 0', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+	                                <Info size={16} color="var(--accent-start)" style={{ flexShrink: 0 }} />
+	                                <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Коротко опишіть задачу.</p>
+	                            </div>
                             <textarea placeholder="Опишіть суть вашого продукту..." style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px', color: 'white', width: '100%', height: '140px', resize: 'none', fontSize: '0.9rem', lineHeight: 1.5, outline: 'none' }} value={formData.details} onChange={e => setFormData({ ...formData, details: e.target.value })} />
                         </motion.div>
                     )}
@@ -1539,15 +1681,15 @@ const ProjectCreatorModal = ({ onClose, onAdd }) => {
                                 ДАЛІ
                             </motion.button>
                         ) : (
-                            <motion.button
-                                whileHover={{ scale: 1.02, boxShadow: '0 0 30px rgba(112, 0, 255, 0.3)' }}
-                                onClick={handleSubmit}
-                                disabled={!isStepComplete()}
-                                style={{ background: '#7000FF', color: 'white', padding: '14px 32px', borderRadius: '40px', fontWeight: 950, fontSize: '0.75rem', letterSpacing: '1px', transition: '0.2s', border: 'none', cursor: isStepComplete() ? 'pointer' : 'not-allowed' }}
-                            >
-                                СТВОРИТИ
-                            </motion.button>
-                        )}
+	                            <motion.button
+	                                whileHover={{ scale: 1.02, boxShadow: '0 0 30px rgba(var(--accent-rgb), 0.35)' }}
+	                                onClick={handleSubmit}
+	                                disabled={!isStepComplete()}
+	                                style={{ background: 'var(--accent-start)', color: 'black', padding: '14px 32px', borderRadius: '40px', fontWeight: 950, fontSize: '0.75rem', letterSpacing: '1px', transition: '0.2s', border: 'none', cursor: isStepComplete() ? 'pointer' : 'not-allowed' }}
+	                            >
+	                                СТВОРИТИ
+	                            </motion.button>
+	                        )}
                     </div>
                 )}
             </motion.div>

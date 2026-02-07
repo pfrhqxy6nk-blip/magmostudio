@@ -103,14 +103,14 @@ const Configurator = () => {
         return (
             <section id="configurator" style={{ padding: '120px 20px', minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', maxWidth: '500px' }}>
-                    <div style={{ width: '60px', height: '60px', background: '#7000FF', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                    <div style={{ width: '60px', height: '60px', background: 'var(--accent-start)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
                         <Check size={32} color="black" strokeWidth={3} />
                     </div>
                     <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '16px' }}>Заявку прийнято!</h2>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: '32px' }}>
+                    <p style={{ color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '32px' }}>
                         Ми вже почали аналізувати ваш проект. Очікуйте повідомлення у вказаному вікні найближчим часом.
                     </p>
-                    <button onClick={() => { setIsSubmitted(false); setCurrentStep(0); setSelections({}); setContact({ name: '', email: '', telegram: '' }); setDetails(''); setCustomBudget(''); }} style={{ color: 'white', background: 'rgba(255,255,255,0.05)', padding: '12px 24px', borderRadius: '50px', fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)' }}>Створити ще один</button>
+                    <button onClick={() => { setIsSubmitted(false); setCurrentStep(0); setSelections({}); setContact({ name: '', email: '', telegram: '' }); setDetails(''); setCustomBudget(''); }} style={{ color: 'var(--text-main)', background: 'var(--surface-1)', padding: '12px 24px', borderRadius: '50px', fontWeight: 600, border: '1px solid var(--border-1)' }}>Створити ще один</button>
                 </motion.div>
             </section>
         );
@@ -126,7 +126,7 @@ const Configurator = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
                         {steps.map((_, i) => (
-                            <div key={i} style={{ width: isMobile ? '20px' : '40px', height: '4px', borderRadius: '2px', background: i <= currentStep ? '#7000FF' : 'rgba(255,255,255,0.1)', transition: '0.4s' }} />
+                            <div key={i} style={{ width: isMobile ? '20px' : '40px', height: '4px', borderRadius: '2px', background: i <= currentStep ? 'var(--accent-start)' : 'var(--surface-2)', transition: '0.4s' }} />
                         ))}
                     </div>
                     <span style={{ fontSize: '0.8rem', fontWeight: 900, opacity: 0.4, letterSpacing: '1px' }}>КРОК {currentStep + 1} / {steps.length}</span>
@@ -135,12 +135,12 @@ const Configurator = () => {
                 <AnimatePresence mode="wait">
                     <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
                         <h2 style={{ fontSize: isMobile ? '2rem' : '3.5rem', fontWeight: 950, marginBottom: '8px', letterSpacing: '-0.04em' }}>{step.title}</h2>
-                        <p style={{ color: '#7000FF', fontSize: isMobile ? '1rem' : '1.2rem', fontWeight: 700, marginBottom: '32px' }}>{step.subtitle}</p>
+                        <p style={{ color: 'var(--accent-start)', fontSize: isMobile ? '1rem' : '1.2rem', fontWeight: 700, marginBottom: '32px' }}>{step.subtitle}</p>
 
                         {/* Description Box */}
-                        <div style={{ background: 'rgba(112, 0, 255, 0.03)', borderLeft: '4px solid #7000FF', padding: '24px', borderRadius: '0 20px 20px 0', marginBottom: '20px', display: 'flex', gap: '20px', backdropFilter: 'blur(10px)' }}>
-                            <Info size={24} color="#7000FF" style={{ flexShrink: 0, marginTop: '2px' }} />
-                            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1rem', lineHeight: 1.6 }}>{step.description}</p>
+                        <div style={{ background: 'rgba(var(--accent-rgb), 0.03)', borderLeft: '4px solid var(--accent-start)', padding: '24px', borderRadius: '0 20px 20px 0', marginBottom: '20px', display: 'flex', gap: '20px', backdropFilter: 'blur(10px)' }}>
+                            <Info size={24} color="var(--accent-start)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                            <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>{step.description}</p>
                         </div>
 
                         {currentStep === 0 && (
@@ -152,11 +152,11 @@ const Configurator = () => {
                                     onChange={(e) => setProjectTitle(e.target.value)}
                                     style={{
                                         width: '100%',
-                                        background: 'rgba(255,255,255,0.03)',
-                                        border: '2px solid rgba(112, 0, 255, 0.2)',
+                                        background: 'var(--surface-1)',
+                                        border: '2px solid rgba(var(--accent-rgb), 0.2)',
                                         borderRadius: '20px',
                                         padding: '24px',
-                                        color: 'white',
+                                        color: 'var(--text-main)',
                                         fontSize: isMobile ? '1rem' : '1.2rem',
                                         fontWeight: 800,
                                         outline: 'none',
@@ -169,14 +169,14 @@ const Configurator = () => {
 
                         {step.isContact ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                <input type="text" placeholder="Ваше ім'я" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px', color: 'white', fontSize: '1.1rem', width: '100%', outline: 'none' }} />
+                                <input type="text" placeholder="Ваше ім'я" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '20px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', width: '100%', outline: 'none' }} />
                                 <div style={{ display: isMobile ? 'flex' : 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                    <input type="email" placeholder="Email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px', color: 'white', fontSize: '1.1rem', outline: 'none' }} />
-                                    <input type="text" placeholder="Telegram @username" value={contact.telegram} onChange={(e) => setContact({ ...contact, telegram: e.target.value })} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px', padding: '24px', color: 'white', fontSize: '1.1rem', outline: 'none' }} />
+                                    <input type="email" placeholder="Email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '20px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', outline: 'none' }} />
+                                    <input type="text" placeholder="Telegram @username" value={contact.telegram} onChange={(e) => setContact({ ...contact, telegram: e.target.value })} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '20px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', outline: 'none' }} />
                                 </div>
                             </div>
                         ) : step.isDetails ? (
-                            <textarea placeholder="Опишіть основні функції вашого майбутнього продукту..." value={details} onChange={(e) => setDetails(e.target.value)} style={{ width: '100%', height: '240px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', padding: '24px', color: 'white', fontSize: '1.1rem', resize: 'none', lineHeight: 1.6, outline: 'none' }} />
+                            <textarea placeholder="Опишіть основні функції вашого майбутнього продукту..." value={details} onChange={(e) => setDetails(e.target.value)} style={{ width: '100%', height: '240px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '24px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', resize: 'none', lineHeight: 1.6, outline: 'none' }} />
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                 {step.isBudget ? (
@@ -184,24 +184,24 @@ const Configurator = () => {
                                         position: 'relative',
                                         marginTop: '10px',
                                         padding: isMobile ? '30px 20px' : '40px',
-                                        background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+                                        background: 'linear-gradient(180deg, var(--surface-2) 0%, rgba(0,0,0,0) 100%)',
                                         borderRadius: '40px',
-                                        border: '2px solid rgba(255,255,255,0.05)',
+                                        border: '2px solid var(--border-glass)',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
                                         gap: '15px',
                                         overflow: 'hidden'
                                     }}>
-                                        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '60px', height: '4px', background: customBudget ? '#7000FF' : 'rgba(255,255,255,0.1)', borderRadius: '0 0 10px 10px' }} />
+                                        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '60px', height: '4px', background: customBudget ? 'var(--accent-start)' : 'var(--surface-2)', borderRadius: '0 0 10px 10px' }} />
 
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', opacity: customBudget ? 1 : 0.3 }}>
-                                            <Wallet size={18} color={customBudget ? '#7000FF' : 'white'} />
-                                            <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: 'white', letterSpacing: '2px', textTransform: 'uppercase' }}>СВІЙ БЮДЖЕТ</h4>
+                                            <Wallet size={18} color={customBudget ? 'var(--accent-start)' : 'var(--text-main)'} />
+                                            <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '2px', textTransform: 'uppercase' }}>СВІЙ БЮДЖЕТ</h4>
                                         </div>
 
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                                            <span style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 950, color: customBudget ? '#7000FF' : 'rgba(255,255,255,0.05)', marginRight: '10px' }}>$</span>
+                                            <span style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 950, color: customBudget ? 'var(--accent-start)' : 'var(--text-subtle)', marginRight: '10px' }}>$</span>
                                             <input
                                                 type="number"
                                                 placeholder="0.00"
@@ -210,27 +210,27 @@ const Configurator = () => {
                                                 style={{
                                                     background: 'transparent',
                                                     border: 'none',
-                                                    color: 'white',
+                                                    color: 'var(--text-main)',
                                                     fontSize: isMobile ? '3rem' : '4.5rem',
                                                     fontWeight: 950,
                                                     width: isMobile ? '200px' : '280px',
                                                     textAlign: 'left',
                                                     outline: 'none',
                                                     letterSpacing: '-4px',
-                                                    caretColor: '#7000FF'
+                                                    caretColor: 'var(--accent-start)'
                                                 }}
                                             />
                                         </div>
-                                        <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textAlign: 'center' }}>Введіть суму, на яку ви орієнтуєтесь</p>
+                                        <p style={{ fontSize: '0.9rem', color: 'var(--text-subtle)', fontWeight: 600, textAlign: 'center' }}>Введіть суму, на яку ви орієнтуєтесь</p>
                                     </div>
                                 ) : (
                                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
                                         {step.options?.map((option) => {
                                             const isSelected = selections[currentStep] === option.id;
                                             return (
-                                                <motion.div key={option.id} onClick={() => handleSelect(option.id)} whileHover={{ y: -5, background: isSelected ? 'rgba(112, 0, 255, 0.15)' : 'rgba(255,255,255,0.05)' }} whileTap={{ scale: 0.98 }} style={{ padding: '40px 24px', borderRadius: '32px', background: isSelected ? 'rgba(112, 0, 255, 0.1)' : 'rgba(255,255,255,0.03)', border: `2px solid ${isSelected ? '#7000FF' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', textAlign: 'center', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+                                                <motion.div key={option.id} onClick={() => handleSelect(option.id)} whileHover={{ y: -5, background: isSelected ? 'rgba(var(--accent-rgb), 0.15)' : 'var(--surface-2)' }} whileTap={{ scale: 0.98 }} style={{ padding: '40px 24px', borderRadius: '32px', background: isSelected ? 'rgba(var(--accent-rgb), 0.10)' : 'var(--surface-1)', border: `2px solid ${isSelected ? 'var(--accent-start)' : 'var(--border-1)'}`, cursor: 'pointer', textAlign: 'center', transition: '0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
                                                     <h4 style={{ fontSize: '1.75rem', fontWeight: 950, marginBottom: '0' }}>{option.title}</h4>
-                                                    {option.desc && <p style={{ fontSize: '0.85rem', color: isSelected ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginTop: '10px' }}>{option.desc}</p>}
+                                                    {option.desc && <p style={{ fontSize: '0.85rem', color: isSelected ? 'var(--text-main)' : 'var(--text-muted)', lineHeight: 1.5, marginTop: '10px' }}>{option.desc}</p>}
                                                 </motion.div>
                                             );
                                         })}
@@ -242,10 +242,10 @@ const Configurator = () => {
                 </AnimatePresence>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '60px', alignItems: 'center' }}>
-                    <button onClick={prevStep} disabled={currentStep === 0} style={{ background: 'transparent', color: currentStep === 0 ? 'transparent' : 'rgba(255,255,255,0.4)', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button onClick={prevStep} disabled={currentStep === 0} style={{ background: 'transparent', color: currentStep === 0 ? 'transparent' : 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ChevronLeft size={20} /> НАЗАД
                     </button>
-                    <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'white' : 'rgba(255,255,255,0.05)', color: isStepComplete() ? 'black' : 'rgba(255,255,255,0.2)', padding: isMobile ? '20px 32px' : '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s' }}>
+                    <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'var(--text-main)' : 'var(--surface-1)', color: isStepComplete() ? 'var(--text-invert)' : 'var(--text-subtle)', padding: isMobile ? '20px 32px' : '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s', border: '1px solid var(--border-1)' }}>
                         {currentStep === steps.length - 1 ? 'СТВОРИТИ ПРОЕКТ' : 'ДАЛІ'}
                         {currentStep === steps.length - 1 ? <Send size={20} /> : <ChevronRight size={20} />}
                     </motion.button>

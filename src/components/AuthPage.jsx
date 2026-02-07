@@ -43,7 +43,7 @@ const AuthPage = () => {
 
     return (
         <section style={{ minHeight: '90vh', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '100px 20px' }}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: '100%', maxWidth: '480px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '40px', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '60px 40px', backdropFilter: 'blur(20px)', transition: '0.4s ease' }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ width: '100%', maxWidth: '480px', background: 'var(--glass-bg)', borderRadius: '40px', border: '1px solid var(--border-glass)', padding: '60px 40px', backdropFilter: 'blur(20px)', transition: '0.4s ease', boxShadow: 'var(--shadow-soft)' }}>
 
                 {error && (
                     <div style={{ padding: '15px', marginBottom: '20px', borderRadius: '12px', background: 'rgba(255, 50, 50, 0.1)', border: '1px solid rgba(255, 50, 50, 0.2)', color: '#FF3333', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -56,38 +56,38 @@ const AuthPage = () => {
                     <motion.div key="auth" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                             <h2 style={{ fontSize: '2.5rem', fontWeight: 950, marginBottom: '10px', letterSpacing: '-0.03em' }}>{isLogin ? 'З поверненням' : 'Створити акаунт'}</h2>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '1rem' }}>{isLogin ? 'Увійдіть у свій цифровий кабінет' : 'Приєднуйтесь до майбутнього розробки'}</p>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>{isLogin ? 'Увійдіть у свій цифровий кабінет' : 'Приєднуйтесь до майбутнього розробки'}</p>
                         </div>
 
                         <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             {!isLogin && (
                                 <>
                                     <div style={{ position: 'relative' }}>
-                                        <User size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
-                                        <input type="text" placeholder="Ваше ім'я" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'white', fontSize: '1rem' }} />
+                                        <User size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+                                        <input type="text" placeholder="Ваше ім'я" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} style={{ width: '100%', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'var(--text-main)', fontSize: '1rem' }} />
                                     </div>
                                     <div style={{ position: 'relative' }}>
-                                        <Phone size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
-                                        <input type="tel" placeholder="Номер телефону" required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'white', fontSize: '1rem' }} />
+                                        <Phone size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+                                        <input type="tel" placeholder="Номер телефону" required value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} style={{ width: '100%', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'var(--text-main)', fontSize: '1rem' }} />
                                     </div>
                                 </>
                             )}
                             <div style={{ position: 'relative' }}>
-                                <Mail size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
-                                <input type="email" placeholder="Email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'white', fontSize: '1rem' }} />
+                                <Mail size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+                                <input type="email" placeholder="Email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} style={{ width: '100%', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'var(--text-main)', fontSize: '1rem' }} />
                             </div>
                             <div style={{ position: 'relative' }}>
-                                <Lock size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)' }} />
-                                <input type="password" placeholder="Пароль" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'white', fontSize: '1rem' }} />
+                                <Lock size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
+                                <input type="password" placeholder="Пароль" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} style={{ width: '100%', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'var(--text-main)', fontSize: '1rem' }} />
                             </div>
-                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" style={{ background: 'white', color: 'black', padding: '18px', borderRadius: '16px', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
+                            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" style={{ background: 'linear-gradient(90deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)', color: 'var(--text-invert)', padding: '18px', borderRadius: '16px', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginTop: '10px', boxShadow: 'var(--shadow-accent)' }}>
                                 {isLogin ? 'Увійдіть' : 'Продовжити'}
                                 <ArrowRight size={20} />
                             </motion.button>
                         </form>
                         <div style={{ marginTop: '30px', textAlign: 'center' }}>
-                            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>{isLogin ? 'Ще немає акаунту?' : 'Вже маєте акаунт?'}
-                                <button onClick={() => setIsLogin(!isLogin)} style={{ color: '#7000FF', fontWeight: 700, marginLeft: '8px', background: 'transparent' }}>{isLogin ? 'Зареєструватися' : 'Увійти'}</button>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{isLogin ? 'Ще немає акаунту?' : 'Вже маєте акаунт?'}
+                                <button onClick={() => setIsLogin(!isLogin)} style={{ color: 'var(--accent-start)', fontWeight: 700, marginLeft: '8px', background: 'transparent' }}>{isLogin ? 'Зареєструватися' : 'Увійти'}</button>
                             </p>
                         </div>
                     </motion.div>

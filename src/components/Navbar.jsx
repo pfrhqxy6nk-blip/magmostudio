@@ -47,25 +47,29 @@ const Navbar = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 zIndex: 1000,
-                background: 'rgba(0, 0, 0, 0.8)',
-                backdropFilter: 'blur(12px)',
-                borderBottom: '1px solid var(--border-glass)'
+                background: 'rgba(15, 15, 18, 0.72)',
+                backdropFilter: 'blur(14px)',
+                WebkitBackdropFilter: 'blur(14px)',
+                borderBottom: '1px solid var(--border-glass)',
+                boxShadow: '0 1px 0 rgba(255,255,255,0.06)'
             }}
         >
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', zIndex: 1001 }}>
                 <div style={{
                     width: '28px',
                     height: '28px',
-                    background: 'linear-gradient(135deg, #7000FF 0%, #BD00FF 100%)',
-                    borderRadius: '6px',
+                    background: 'linear-gradient(135deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)',
+                    borderRadius: '9px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    boxShadow: '0 10px 24px rgba(var(--accent-rgb), 0.22)',
+                    border: '1px solid rgba(255,255,255,0.12)'
                 }}>
                     <span style={{ color: 'black', fontWeight: 900, fontSize: '1rem' }}>M</span>
                 </div>
-                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white', letterSpacing: '1px' }}>
-                    magmostudio<span style={{ color: '#7000FF' }}>.</span>
+                <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '0.5px' }}>
+                    magmostudio<span style={{ color: 'var(--accent-start)' }}>.</span>
                 </span>
             </Link>
 
@@ -79,7 +83,7 @@ const Navbar = () => {
                                 key={index}
                                 href={`#${sectionId}`}
                                 onClick={(e) => scrollToSection(e, sectionId)}
-                                style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '1px', transition: '0.3s' }}
+                                style={{ color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.8rem', letterSpacing: '0.08em', transition: '0.3s' }}
                             >
                                 {item}
                             </a>
@@ -90,32 +94,37 @@ const Navbar = () => {
 
             {/* Profile Button (Desktop) */}
             {!isMobile && !isProfile && (
-                <Link to="/profile">
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        style={{
-                            backgroundColor: 'white',
-                            color: 'black',
-                            padding: '10px 24px',
-                            borderRadius: '50px',
-                            fontWeight: 800,
-                            fontSize: '0.8rem',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Профіль
-                    </motion.button>
-                </Link>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Link to="/profile">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            style={{
+                                background: 'linear-gradient(90deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)',
+                                color: 'black',
+                                padding: '10px 24px',
+                                borderRadius: '50px',
+                                fontWeight: 800,
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                boxShadow: '0 18px 50px rgba(var(--accent-rgb), 0.18), 0 16px 50px rgba(0,0,0,0.35)'
+                            }}
+                        >
+                            Профіль
+                        </motion.button>
+                    </Link>
+                </div>
             )}
 
-            {/* Mobile Hamburger */}
+            {/* Mobile Actions */}
             {isMobile && !isProfile && (
-                <div
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    style={{ cursor: 'pointer', zIndex: 1001, color: 'white' }}
-                >
-                    {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', zIndex: 1001 }}>
+                    <div
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        style={{ cursor: 'pointer', color: 'var(--text-main)', display: 'flex', alignItems: 'center' }}
+                    >
+                        {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                    </div>
                 </div>
             )}
 
@@ -132,7 +141,9 @@ const Navbar = () => {
                             left: 0,
                             width: '100vw',
                             height: '100vh',
-                            background: '#000',
+                            background: 'rgba(11, 11, 16, 0.96)',
+                            backdropFilter: 'blur(18px)',
+                            WebkitBackdropFilter: 'blur(18px)',
                             padding: '100px 20px',
                             display: 'flex',
                             flexDirection: 'column',
@@ -148,7 +159,7 @@ const Navbar = () => {
                                     key={index}
                                     href={`#${sectionId}`}
                                     onClick={(e) => scrollToSection(e, sectionId)}
-                                    style={{ color: 'white', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '2px' }}
+                                    style={{ color: 'var(--text-main)', fontWeight: 800, fontSize: '1.5rem', letterSpacing: '2px' }}
                                 >
                                     {item}
                                 </a>
@@ -157,13 +168,14 @@ const Navbar = () => {
                         <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)}>
                             <div
                                 style={{
-                                    backgroundColor: 'white',
-                                    color: 'black',
+                                    backgroundColor: 'var(--text-main)',
+                                    color: 'var(--text-invert)',
                                     padding: '15px 40px',
                                     borderRadius: '50px',
                                     fontWeight: 900,
                                     fontSize: '1rem',
-                                    marginTop: '20px'
+                                    marginTop: '20px',
+                                    boxShadow: '0 22px 70px rgba(0,0,0,0.45)'
                                 }}
                             >
                                 Профіль

@@ -11,7 +11,7 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 
 // Layout Component
 const MainLayout = ({ children }) => (
-  <div style={{ position: 'relative', width: '100%', overflow: 'hidden', backgroundColor: '#000' }}>
+  <div style={{ position: 'relative', width: '100%', overflow: 'hidden', backgroundColor: 'var(--bg)' }}>
     <BackgroundEffects />
     <Navbar />
     <main style={{ position: 'relative', zIndex: 10 }}>

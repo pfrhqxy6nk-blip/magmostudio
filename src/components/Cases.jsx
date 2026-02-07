@@ -27,9 +27,9 @@ const Cases = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '60px' }}>
                 <div>
                     <h2 style={{ fontSize: '3.5rem', fontWeight: 900 }}>Вибрані кейси</h2>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.2rem', marginTop: '10px' }}>Проекти, якими ми пишаємося</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginTop: '10px' }}>Проекти, якими ми пишаємося</p>
                 </div>
-                <button style={{ color: '#7000FF', fontWeight: 700, fontSize: '1.1rem', background: 'transparent', borderBottom: '2px solid #7000FF', paddingBottom: '5px' }}>
+                <button style={{ color: 'var(--accent-start)', fontWeight: 700, fontSize: '1.1rem', background: 'transparent', borderBottom: '2px solid var(--accent-start)', paddingBottom: '5px' }}>
                     Всі проекти
                 </button>
             </div>
@@ -68,12 +68,12 @@ const Cases = () => {
                             flexDirection: 'column',
                             justifyContent: 'flex-end'
                         }}>
-                            <span style={{ color: '#7000FF', fontWeight: 800, fontSize: '0.9rem', marginBottom: '10px', letterSpacing: '2px' }}>{project.category}</span>
+                            <span style={{ color: 'var(--accent-start)', fontWeight: 800, fontSize: '0.9rem', marginBottom: '10px', letterSpacing: '2px' }}>{project.category}</span>
                             <h3 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '10px' }}>{project.title}</h3>
-                            <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '20px', maxWidth: '400px' }}>{project.description}</p>
+                            <p style={{ color: 'var(--text-muted)', marginBottom: '20px', maxWidth: '400px' }}>{project.description}</p>
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 {project.tags?.map(tag => (
-                                    <span key={tag} style={{ background: 'rgba(255,255,255,0.08)', padding: '8px 20px', borderRadius: '50px', fontSize: '0.8rem', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)' }}>{tag}</span>
+                                    <span key={tag} style={{ background: 'var(--surface-2)', padding: '8px 20px', borderRadius: '50px', fontSize: '0.8rem', backdropFilter: 'blur(10px)', border: '1px solid var(--border-1)', color: 'var(--text-main)' }}>{tag}</span>
                                 ))}
                             </div>
                         </div>

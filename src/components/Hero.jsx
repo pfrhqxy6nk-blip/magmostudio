@@ -31,14 +31,14 @@ const Hero = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
+                    background: 'var(--glass-bg-strong)',
                     padding: '8px 20px',
                     borderRadius: '50px',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    border: '1px solid var(--border-glass)',
                     fontSize: '0.75rem',
                     fontWeight: 800,
                     letterSpacing: '0.1em',
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    color: 'var(--text-muted)',
                     marginBottom: isMobile ? '1.5rem' : '2.5rem',
                     textTransform: 'uppercase'
                 }}
@@ -62,15 +62,15 @@ const Hero = () => {
                     alignItems: 'center'
                 }}
             >
-                <span style={{ color: 'white' }}>Створюємо</span>
+                <span style={{ color: 'var(--text-main)' }}>Створюємо</span>
                 <span style={{
-                    background: 'linear-gradient(135deg, #7000FF 0%, #BD00FF 100%)',
+                    background: 'linear-gradient(135deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                 }}>
                     цифрове
                 </span>
-                <span style={{ color: 'white' }}>майбутнє.</span>
+                <span style={{ color: 'var(--text-main)' }}>майбутнє.</span>
             </motion.h1>
 
             <motion.p
@@ -78,7 +78,7 @@ const Hero = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
                 style={{
-                    color: 'rgba(255, 255, 255, 0.6)',
+                    color: 'var(--text-muted)',
                     fontSize: isMobile ? '1rem' : '1.2rem',
                     maxWidth: '600px',
                     lineHeight: 1.6,
@@ -93,10 +93,10 @@ const Hero = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                whileHover={{ scale: 1.05, boxShadow: "0 0 40px rgba(112, 0, 255, 0.4)" }}
+                whileHover={{ scale: 1.04, boxShadow: "0 28px 80px rgba(0,0,0,0.45), 0 24px 90px rgba(var(--accent-rgb), 0.22)" }}
                 whileTap={{ scale: 0.95 }}
                 style={{
-                    background: 'linear-gradient(90deg, #7000FF 0%, #BD00FF 100%)',
+                    background: 'linear-gradient(90deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)',
                     color: 'black',
                     padding: isMobile ? '16px 32px' : '20px 40px',
                     fontSize: isMobile ? '1rem' : '1.2rem',
@@ -108,7 +108,8 @@ const Hero = () => {
                     textDecoration: 'none',
                     marginTop: '20px',
                     width: isMobile ? '100%' : 'auto',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    boxShadow: "0 22px 70px rgba(0,0,0,0.4), 0 20px 80px rgba(var(--accent-rgb), 0.18)"
                 }}
             >
                 Запустити проект
