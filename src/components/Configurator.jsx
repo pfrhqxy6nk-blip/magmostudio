@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Send, Info, DollarSign, Wallet } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
+import { safeGetItem, safeRemoveItem } from '../utils/storage.js';
 
 const BUDGET_PLANS = [
     {
@@ -76,6 +77,7 @@ const Configurator = () => {
     const [selections, setSelections] = useState({});
     const [contact, setContact] = useState({ name: '', email: '', telegram: '' });
     const [details, setDetails] = useState('');
+    const [subscriptionPlan, setSubscriptionPlan] = useState(() => safeGetItem('magmo_subscription_plan') || '');
     const [projectTitle, setProjectTitle] = useState('');
     const [customBudget, setCustomBudget] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -99,11 +101,12 @@ const Configurator = () => {
             const finalBudget = customBudget ? `$${customBudget}` :
                 steps[1].options.find(o => o.id === selections[1])?.title || 'N/A';
 
+            const subscriptionLine = subscriptionPlan ? `\n\nПiдписка: ${subscriptionPlan.toUpperCase()}` : '';
             const projectData = {
                 title: projectTitle || `${steps[0].options.find(o => o.id === selections[0])?.title || 'New Project'} Request`,
                 category: steps[0].options.find(o => o.id === selections[0])?.title || 'Web Project',
                 budget: finalBudget,
-                details: details,
+                details: `${details}${subscriptionLine}`,
                 owner_email: contact.email,
                 owner_name: contact.name,
                 telegram: contact.telegram,
@@ -173,6 +176,29 @@ const Configurator = () => {
                             <Info size={24} color="var(--accent-start)" style={{ flexShrink: 0, marginTop: '2px' }} />
                             <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>{step.description}</p>
                         </div>
+
+                        {subscriptionPlan && (
+                            <div style={{ marginBottom: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '14px 16px', borderRadius: '18px', border: '1px solid rgba(var(--accent-rgb), 0.20)', background: 'rgba(var(--accent-rgb), 0.08)' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <div style={{ fontWeight: 950, letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--accent-start)' }}>
+                                        Обрана пiдписка
+                                    </div>
+                                    <div style={{ fontWeight: 950, fontSize: '1.05rem' }}>
+                                        {subscriptionPlan.toUpperCase()}
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        safeRemoveItem('magmo_subscription_plan');
+                                        setSubscriptionPlan('');
+                                    }}
+                                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: '14px', fontWeight: 900, cursor: 'pointer' }}
+                                >
+                                    Скинути
+                                </button>
+                            </div>
+                        )}
 
                         {currentStep === 0 && (
                             <div style={{ marginBottom: '32px' }}>
