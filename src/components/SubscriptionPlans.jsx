@@ -83,8 +83,8 @@ export default function SubscriptionPlans({ onChoose }) {
               position: 'absolute',
               inset: -1,
               pointerEvents: 'none',
-              background: 'radial-gradient(900px 420px at 50% 0%, rgba(var(--accent-rgb), 0.12), transparent 60%)',
-              opacity: plan.badge ? 1 : 0.55,
+              background: 'radial-gradient(900px 420px at 50% 0%, rgba(255,255,255,0.08), transparent 60%)',
+              opacity: 0.6,
             }}
           />
 
@@ -99,9 +99,9 @@ export default function SubscriptionPlans({ onChoose }) {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--accent-start)',
-                    background: 'rgba(var(--accent-rgb), 0.10)',
-                    border: '1px solid rgba(var(--accent-rgb), 0.14)',
+                    color: 'rgba(255,255,255,0.85)',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.12)',
                     flexShrink: 0,
                   }}
                 >
@@ -142,9 +142,9 @@ export default function SubscriptionPlans({ onChoose }) {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'var(--accent-start)',
-                      background: 'rgba(var(--accent-rgb), 0.10)',
-                      border: '1px solid rgba(var(--accent-rgb), 0.14)',
+                      color: 'rgba(255,255,255,0.85)',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.12)',
                       flexShrink: 0,
                       marginTop: 1,
                     }}

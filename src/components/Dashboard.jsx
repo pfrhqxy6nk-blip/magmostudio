@@ -470,7 +470,7 @@ const Dashboard = () => {
 	    return (
 		        <section style={{
 		            minHeight: '100vh',
-		            padding: isMobile ? '80px 16px calc(140px + env(safe-area-inset-bottom))' : '120px 40px 60px',
+		            padding: isMobile ? '80px 16px calc(180px + env(safe-area-inset-bottom))' : '120px 40px 60px',
 		            display: isMobile ? 'block' : 'grid',
 		            gridTemplateColumns: '280px 1fr',
 		            gap: isMobile ? '40px' : '60px',
@@ -508,13 +508,13 @@ const Dashboard = () => {
                 bottom: isMobile ? 0 : 'auto',
                 left: isMobile ? 0 : 'auto',
                 width: isMobile ? '100%' : 'auto',
-	                background: isMobile ? 'rgba(11, 11, 16, 0.86)' : 'transparent',
+	                background: isMobile ? 'linear-gradient(180deg, rgba(11, 11, 16, 0.92) 0%, rgba(11, 11, 16, 0.98) 70%)' : 'transparent',
 	                zIndex: 100,
 	                padding: isMobile ? '10px 16px calc(10px + env(safe-area-inset-bottom))' : '0',
 	                justifyContent: isMobile ? 'space-around' : 'flex-start',
 	                borderTop: isMobile ? '1px solid var(--border-1)' : 'none',
 	                marginBottom: isMobile ? 0 : 0,
-	                boxShadow: isMobile ? '0 -22px 70px rgba(0,0,0,0.70)' : 'none',
+	                boxShadow: isMobile ? '0 -22px 70px rgba(0,0,0,0.78)' : 'none',
 	                backdropFilter: isMobile ? 'blur(16px) saturate(140%)' : 'none',
 	                WebkitBackdropFilter: isMobile ? 'blur(16px) saturate(140%)' : 'none'
 	            }}>
@@ -785,7 +785,20 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
 
     return (
         <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: '100vh', padding: containerPadding, maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(255,100,0,0.03) 0%, transparent 70%)', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 0 }} />
+            <div
+                style={{
+                    position: 'absolute',
+                    top: '10%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '600px',
+                    height: '600px',
+                    background: 'radial-gradient(circle, rgba(var(--accent-rgb), 0.03) 0%, transparent 70%)',
+                    filter: 'blur(100px)',
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                }}
+            />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '14px' : 0, marginBottom: '24px', position: 'relative', zIndex: 10 }}>
                 <motion.button whileHover={{ x: -10 }} onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.4)', background: 'transparent', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '1px', border: 'none', cursor: 'pointer' }}>
@@ -1319,7 +1332,7 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
                                 <div>
-                                    <div style={{ color: 'var(--accent-start)', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', fontSize: '0.72rem' }}>
+                                    <div style={{ color: 'var(--text-subtle)', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', fontSize: '0.72rem' }}>
                                         Обслуговування сайту
                                     </div>
                                     <div style={{ marginTop: 6, fontSize: isMobile ? '1.35rem' : '1.7rem', fontWeight: 980, letterSpacing: '-0.03em' }}>
@@ -1348,7 +1361,7 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                             </div>
 
                             {maintenancePlan?.id ? (
-                                <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 18, border: '1px solid rgba(var(--accent-rgb), 0.22)', background: 'rgba(var(--accent-rgb), 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 18, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                                     <div style={{ fontWeight: 950 }}>
                                         Поточний план: {String(maintenancePlan.name || maintenancePlan.id).toUpperCase()} ({maintenancePlan.price}/мiс)
                                     </div>
@@ -1368,8 +1381,6 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                             <SubscriptionPlans
                                 onChoose={async (plan) => {
                                     if (!project?.id) return;
-                                    const ok = window.confirm(`Пiдключити ${plan.name} (${plan.price}/мiс)?`);
-                                    if (!ok) return;
                                     const next = { id: plan.id, name: plan.name, price: plan.price, startedAt: new Date().toISOString() };
                                     safeSetItem('magmo_maintenance_plan', JSON.stringify(next));
                                     setMaintenancePlan(next);
@@ -1637,9 +1648,9 @@ const SettingsView = ({ user, updateUser, isMobile = false }) => {
 
             <Section title="Профіль" icon={User}>
                 {maintenance?.id ? (
-                    <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '14px 16px', borderRadius: 18, border: '1px solid rgba(var(--accent-rgb), 0.20)', background: 'rgba(var(--accent-rgb), 0.08)' }}>
+                    <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '14px 16px', borderRadius: 18, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--accent-start)' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--text-subtle)' }}>
                                 План обслуговування
                             </div>
                             <div style={{ fontWeight: 980, fontSize: '1.05rem' }}>

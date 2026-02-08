@@ -1,12 +1,13 @@
 const Footer = () => {
     const telegramUrl = import.meta.env.VITE_CONTACT_TG_URL || '';
     const instagramUrl = import.meta.env.VITE_CONTACT_IG_URL || '';
+    const buildSha = typeof __BUILD_SHA__ === 'string' ? __BUILD_SHA__ : 'dev';
 
     return (
         <footer className="site-footer">
             <div className="footer-inner">
                 <p className="footer-brand">
-                    &copy; 2024 magmostudio (v1.2). All rights reserved.
+                    &copy; 2024 magmostudio (v1.2, {buildSha}). All rights reserved.
                 </p>
 
                 <div className="footer-contacts">
