@@ -8,11 +8,46 @@ import {
 	    Search, Filter, MoreHorizontal, ArrowUpRight, Folder,
 	    MessageSquare, CheckCircle2, Clock, Shield, Zap, X,
 	    ChevronDown, Play, Pause, Download, FileText, Image as ImageIcon,
-	    ExternalLink, Trash2, Edit3, User, Mail, Phone, Lock, Eye,
+	    Figma, ExternalLink, Trash2, Edit3, User, Mail, Phone, Lock, Eye,
 	    CreditCard, Calendar, BarChart3, PieChart, Activity,
 	    Briefcase, Users, LayoutDashboard, Wallet, Archive, ShieldCheck, Info,
 	    ArrowLeft, Circle, Send, Smartphone, Palette
 } from 'lucide-react';
+
+const MOBILE_BREAKPOINT_PX = 1024;
+
+const getIsMobileLayout = () => {
+    if (typeof window === 'undefined') return false;
+    try {
+        const visualViewportWidth = window.visualViewport?.width;
+        const clientWidth = document?.documentElement?.clientWidth;
+        const innerWidth = window.innerWidth;
+        const widthCandidates = [innerWidth, clientWidth, visualViewportWidth].filter(
+            (v) => typeof v === 'number' && Number.isFinite(v) && v > 0
+        );
+        const viewportWidth = widthCandidates.length > 0 ? Math.min(...widthCandidates) : innerWidth;
+
+        const isViewportNarrow = viewportWidth < MOBILE_BREAKPOINT_PX;
+
+        const hasMatchMedia = typeof window.matchMedia === 'function';
+        const isCoarsePointer = hasMatchMedia ? window.matchMedia('(pointer: coarse)').matches : false;
+        const isNoHover = hasMatchMedia ? window.matchMedia('(hover: none)').matches : false;
+        const hasTouch = isCoarsePointer || isNoHover || (navigator?.maxTouchPoints || 0) > 0;
+
+        const screenWidth = window.screen?.width;
+        const screenHeight = window.screen?.height;
+        const smallestScreenSide = Math.min(
+            typeof screenWidth === 'number' ? screenWidth : Infinity,
+            typeof screenHeight === 'number' ? screenHeight : Infinity
+        );
+        const isSmallScreen = smallestScreenSide <= MOBILE_BREAKPOINT_PX;
+
+        // Fallback for iOS/Telegram WebViews that report a "desktop" viewport width on phones.
+        return isViewportNarrow || (hasTouch && isSmallScreen);
+    } catch {
+        return window.innerWidth < MOBILE_BREAKPOINT_PX;
+    }
+};
 
 // Error Boundary Component
 class ErrorBoundary extends Component {
@@ -328,26 +363,48 @@ const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
 };
 
 const Dashboard = () => {
-	    const { user, logout, projects, admins, addAdmin, removeAdmin, addProject, updateProjectStatus, updateProjectData, deleteProject, payForProject, updateUser, addComment, updateRoadmapStep, addRoadmapStep, deleteRoadmapStep, addResource } = useAuth();
-	    const [activeTab, setActiveTab] = useState('projects');
-	    const [isModalOpen, setIsModalOpen] = useState(false);
-	    const [selectedProjectId, setSelectedProjectId] = useState(null);
+		    const { user, logout, projects, admins, addAdmin, removeAdmin, addProject, updateProjectStatus, updateProjectData, deleteProject, payForProject, updateUser, addComment, updateRoadmapStep, addRoadmapStep, deleteRoadmapStep, addResource } = useAuth();
+		    const [activeTab, setActiveTab] = useState('projects');
+		    const [isModalOpen, setIsModalOpen] = useState(false);
+		    const [selectedProjectId, setSelectedProjectId] = useState(null);
 	    const [isAdminMode, setIsAdminMode] = useState(() => {
 	        try {
 	            return window.localStorage.getItem('adminMode') === '1';
 	        } catch {
 	            return false;
 	        }
-	    });
-	    const [filterStatus, setFilterStatus] = useState(null);
-	    // State for mobile detection
-	    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-	    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+		    });
+		    const [filterStatus, setFilterStatus] = useState(null);
+		    // State for mobile detection
+		    const [isMobile, setIsMobile] = useState(() => getIsMobileLayout());
+		    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 1024);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        const update = () => setIsMobile(getIsMobileLayout());
+
+        update();
+        window.addEventListener('resize', update);
+        window.addEventListener('orientationchange', update);
+
+        const vv = window.visualViewport;
+        vv?.addEventListener('resize', update);
+
+        let mq;
+        if (typeof window.matchMedia === 'function') {
+            mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`);
+            if (typeof mq.addEventListener === 'function') mq.addEventListener('change', update);
+            else if (typeof mq.addListener === 'function') mq.addListener(update);
+        }
+
+        return () => {
+            window.removeEventListener('resize', update);
+            window.removeEventListener('orientationchange', update);
+            vv?.removeEventListener('resize', update);
+            if (mq) {
+                if (typeof mq.removeEventListener === 'function') mq.removeEventListener('change', update);
+                else if (typeof mq.removeListener === 'function') mq.removeListener(update);
+            }
+        };
     }, []);
 
 	    // Only admins can use admin mode; persist for admins.
@@ -399,6 +456,7 @@ const Dashboard = () => {
 	                        project={selectedProject}
 	                        onBack={() => setSelectedProjectId(null)}
 	                        user={user}
+	                        isMobile={isMobile}
 	                    />
 	                </div>
 	            </ErrorBoundary>
@@ -408,7 +466,7 @@ const Dashboard = () => {
 	    return (
 		        <section style={{
 		            minHeight: '100vh',
-		            padding: isMobile ? '80px 20px 100px' : '120px 40px 60px',
+		            padding: isMobile ? '80px 16px calc(140px + env(safe-area-inset-bottom))' : '120px 40px 60px',
 		            display: isMobile ? 'block' : 'grid',
 		            gridTemplateColumns: '280px 1fr',
 		            gap: isMobile ? '40px' : '60px',
@@ -446,12 +504,15 @@ const Dashboard = () => {
                 bottom: isMobile ? 0 : 'auto',
                 left: isMobile ? 0 : 'auto',
                 width: isMobile ? '100%' : 'auto',
-	                background: isMobile ? 'var(--glass-bg)' : 'transparent',
+	                background: isMobile ? 'rgba(11, 11, 16, 0.86)' : 'transparent',
 	                zIndex: 100,
-	                padding: isMobile ? '10px 20px' : '0',
+	                padding: isMobile ? '10px 16px calc(10px + env(safe-area-inset-bottom))' : '0',
 	                justifyContent: isMobile ? 'space-around' : 'flex-start',
 	                borderTop: isMobile ? '1px solid var(--border-1)' : 'none',
-	                marginBottom: isMobile ? 0 : 0
+	                marginBottom: isMobile ? 0 : 0,
+	                boxShadow: isMobile ? '0 -22px 70px rgba(0,0,0,0.70)' : 'none',
+	                backdropFilter: isMobile ? 'blur(16px) saturate(140%)' : 'none',
+	                WebkitBackdropFilter: isMobile ? 'blur(16px) saturate(140%)' : 'none'
 	            }}>
                 {!isMobile && (
                     <Magnetic>
@@ -576,12 +637,12 @@ const Dashboard = () => {
                                     }}
                                 />
                             ) : (
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '30px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: isMobile ? '16px' : '30px' }}>
                                     {filteredProjects.map(p => (
                                         <ProjectCard key={p.id} project={p} onClick={() => setSelectedProjectId(p.id)} adminMode={isAdminMode} />
                                     ))}
                                     {filteredProjects.length === 0 && (
-                                        <div style={{ gridColumn: 'span 2', padding: '100px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '2px dashed rgba(255,255,255,0.05)', borderRadius: '40px' }}>
+                                        <div style={{ gridColumn: isMobile ? 'span 1' : 'span 2', padding: isMobile ? '60px 20px' : '100px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '2px dashed rgba(255,255,255,0.05)', borderRadius: '40px' }}>
                                             <Plus size={40} color="rgba(255,255,255,0.1)" style={{ marginBottom: '20px' }} />
                                             <h3 style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 800 }}>У вас поки немає проектів</h3>
                                         </div>
@@ -594,7 +655,7 @@ const Dashboard = () => {
                     ) : activeTab === 'portfolio' ? (
                         <AdminPortfolioCMS />
                     ) : (
-                        <SettingsView user={user} updateUser={updateUser} />
+                        <SettingsView user={user} updateUser={updateUser} isMobile={isMobile} />
                     )}
                 </AnimatePresence>
             </main>
@@ -646,18 +707,28 @@ const LaptopFrame = ({ children }) => (
 
 // --- PROJECT DETAILS VIEW ---
 
-const ProjectDetailsView = ({ project, onBack, user }) => {
+const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const { updateProjectStatus, updateProjectData, deleteProject, payForProject, addComment, addRoadmapStep, updateRoadmapStep, deleteRoadmapStep, addResource, approveProject, uploadFile } = useAuth();
     const [commentText, setCommentText] = useState('');
     const [newResource, setNewResource] = useState({ label: '', link: '', type: 'Figma' });
     const [isUploading, setIsUploading] = useState(false);
     const [isSendingComment, setIsSendingComment] = useState(false);
+    const [isApprovingVersion, setIsApprovingVersion] = useState(false);
     const [activeDevice, setActiveDevice] = useState('phone'); // 'phone' | 'laptop'
     const [isAddingStep, setIsAddingStep] = useState(false);
     const [newStepTitle, setNewStepTitle] = useState('');
     const isAdmin = user?.is_admin;
 
     if (!project) return null;
+
+    // Layout helpers (ProjectDetails is rendered without Dashboard sidebar, so handle mobile here too).
+    const gridColumnSpan = (span) => (isMobile ? '1 / -1' : `span ${span}`);
+    const containerPadding = isMobile ? '72px 16px 32px' : '80px 30px 40px';
+
+    // Prevent laptop preview on small screens (LaptopFrame is intentionally wide).
+    useEffect(() => {
+        if (isMobile && activeDevice === 'laptop') setActiveDevice('phone');
+    }, [isMobile, activeDevice]);
 
     // Safety defaults
     const roadmap = project.roadmap || [];
@@ -669,6 +740,11 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
     const resources = project.resources || [];
 
     const status = getStatusDetails(project.status, isAdmin);
+
+    const approvalRegex = /^✅\s*(Підтверджую|Підтверждаю)\s+актуальн(у|ую)\s+верс(і|и)ю/i;
+    const lastClientApproval = [...comments]
+        .reverse()
+        .find((c) => (c?.author === user?.name || c?.author === user?.email) && approvalRegex.test(String(c?.text || '')));
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
@@ -697,10 +773,10 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
     };
 
     return (
-        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: '100vh', padding: '80px 30px 40px', maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
+        <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: '100vh', padding: containerPadding, maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
             <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(255,100,0,0.03) 0%, transparent 70%)', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 0 }} />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', position: 'relative', zIndex: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '14px' : 0, marginBottom: '24px', position: 'relative', zIndex: 10 }}>
                 <motion.button whileHover={{ x: -10 }} onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255,255,255,0.4)', background: 'transparent', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '1px', border: 'none', cursor: 'pointer' }}>
                     <ArrowLeft size={16} strokeWidth={3} /> НАЗАД
                 </motion.button>
@@ -729,7 +805,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(12, 1fr)', gap: '16px' }}>
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -741,7 +817,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                         padding: '24px',
                         position: 'relative',
                         overflow: 'hidden',
-                        gridColumn: 'span 8',
+                        gridColumn: gridColumnSpan(8),
                         minHeight: '220px',
                         display: 'flex',
                         flexDirection: 'column',
@@ -839,7 +915,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
 
                 {/* PROGRESS CARD - BENTO SPAN 4 */}
                 <div style={{
-                    gridColumn: 'span 4',
+                    gridColumn: gridColumnSpan(4),
                     background: 'rgba(255,255,255,0.03)',
                     border: '1px solid rgba(255,255,255,0.05)',
                     borderRadius: '24px',
@@ -936,7 +1012,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
 
                 {/* VISUALS CARD - BENTO SPAN 8 */}
                 <div style={{
-                    gridColumn: 'span 8',
+                    gridColumn: gridColumnSpan(8),
                     background: 'rgba(255,255,255,0.02)',
                     border: '1px solid rgba(255,255,255,0.05)',
                     borderRadius: '24px',
@@ -945,11 +1021,47 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                     flexDirection: 'column',
                     gap: '20px'
                 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                         <h3 style={{ fontSize: '1.4rem', fontWeight: 950, display: 'flex', alignItems: 'center', gap: '12px', letterSpacing: '-0.02em' }}>
                             Live Preview
                         </h3>
-                        <span style={{ background: 'rgba(76, 175, 80, 0.1)', color: '#4CAF50', padding: '6px 14px', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, letterSpacing: '1px' }}>АКТУАЛЬНА ВЕРСІЯ</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                            <span style={{ background: 'rgba(76, 175, 80, 0.1)', color: '#4CAF50', padding: '6px 14px', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, letterSpacing: '1px' }}>АКТУАЛЬНА ВЕРСІЯ</span>
+                            {!isAdmin && (
+                                lastClientApproval ? (
+                                    <span style={{ background: 'rgba(var(--accent-rgb), 0.10)', color: 'var(--accent-start)', padding: '6px 14px', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 900, letterSpacing: '1px' }}>
+                                        ПIДТВЕРДЖЕНО
+                                    </span>
+                                ) : (
+                                    <motion.button
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        disabled={isApprovingVersion}
+                                        onClick={async () => {
+                                            const ok = window.confirm("Підтвердити актуальну версію? Після цього ми переходимо до наступної.");
+                                            if (!ok) return;
+                                            setIsApprovingVersion(true);
+                                            const stamp = new Date().toLocaleString();
+                                            await addComment(project.id, `✅ Підтверджую актуальну версію (${stamp}).`);
+                                            setIsApprovingVersion(false);
+                                        }}
+                                        style={{
+                                            background: isApprovingVersion ? 'rgba(255,255,255,0.12)' : 'var(--accent-start)',
+                                            color: 'black',
+                                            padding: '8px 14px',
+                                            borderRadius: '12px',
+                                            fontSize: '0.65rem',
+                                            fontWeight: 950,
+                                            letterSpacing: '1px',
+                                            cursor: isApprovingVersion ? 'wait' : 'pointer',
+                                            opacity: isApprovingVersion ? 0.75 : 1
+                                        }}
+                                    >
+                                        {isApprovingVersion ? '...' : 'ПIДТВЕРДИТИ'}
+                                    </motion.button>
+                                )
+                            )}
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', gap: '30px', alignItems: 'center', background: 'rgba(0,0,0,0.2)', borderRadius: '24px', padding: '24px', border: '1px solid rgba(255,255,255,0.02)', flexDirection: 'column' }}>
@@ -989,7 +1101,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                                 Тут з'явиться відео-прев'ю вашого інтерфейсу, коли ми його завантажимо.
                             </p>
 
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '16px', flexWrap: 'wrap' }}>
                                 {isAdmin ? (
                                     <>
                                         <input
@@ -1052,24 +1164,26 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
                                     <button onClick={() => window.open(currentVisual?.url || '#', '_blank')} style={{ background: 'rgba(255,255,255,0.05)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 800, border: 'none', cursor: 'pointer', fontSize: '0.75rem', flex: 1 }}>ВІДКРИТИ ПОВНІСТЮ</button>
                                 )}
 
-                                <button
-                                    onClick={() => setActiveDevice(activeDevice === 'laptop' ? 'phone' : 'laptop')}
-                                    style={{
-                                        background: 'rgba(255,255,255,0.1)',
-                                        color: 'white',
-                                        padding: '12px',
-                                        borderRadius: '12px',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        minWidth: '44px'
-                                    }}
-                                    title="Змінити пристрій"
-                                >
-                                    {activeDevice === 'laptop' ? <Layout size={20} /> : <Smartphone size={20} />}
-                                </button>
+                                {!isMobile && (
+                                    <button
+                                        onClick={() => setActiveDevice(activeDevice === 'laptop' ? 'phone' : 'laptop')}
+                                        style={{
+                                            background: 'rgba(255,255,255,0.1)',
+                                            color: 'white',
+                                            padding: '12px',
+                                            borderRadius: '12px',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            minWidth: '44px'
+                                        }}
+                                        title="Змінити пристрій"
+                                    >
+                                        {activeDevice === 'laptop' ? <Layout size={20} /> : <Smartphone size={20} />}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -1077,7 +1191,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
 
                 {/* DISCUSSION - BENTO SPAN 4 */}
                 <div style={{
-                    gridColumn: 'span 4',
+                    gridColumn: gridColumnSpan(4),
                     alignSelf: 'start',
                     background: 'rgba(255,255,255,0.02)',
                     border: '1px solid rgba(255,255,255,0.05)',
@@ -1110,7 +1224,7 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
 
                 {/* RESOURCES CARD - BENTO SPAN 12 */}
 	                <div style={{
-	                    gridColumn: 'span 12',
+	                    gridColumn: gridColumnSpan(12),
 	                    background: 'var(--surface-1)',
 	                    border: '1px solid var(--border-1)',
 	                    borderRadius: '24px',
@@ -1122,10 +1236,10 @@ const ProjectDetailsView = ({ project, onBack, user }) => {
 	                            <button onClick={() => {/* Toggle Resource Add */ }} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', color: 'var(--text-main)', padding: '6px 16px', borderRadius: '10px', fontWeight: 800, fontSize: '0.65rem', cursor: 'pointer' }}>+ ДОДАТИ</button>
 	                        )}
 	                    </div>
-	                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+	                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, 1fr)', gap: '16px' }}>
 	                        {resources.map((r) => (<ResourceLink key={r.id} icon={r.type === 'Figma' ? <Figma size={18} /> : <FileText size={18} />} label={r.label} />))}
 	                        {resources.length === 0 && (
-	                            <div style={{ gridColumn: 'span 4', textAlign: 'center', padding: '30px', color: 'var(--text-subtle)', border: '1px dashed var(--border-1)', borderRadius: '24px' }}>
+	                            <div style={{ gridColumn: isMobile ? '1 / -1' : 'span 4', textAlign: 'center', padding: '30px', color: 'var(--text-subtle)', border: '1px dashed var(--border-1)', borderRadius: '24px' }}>
 	                                <Clock size={20} style={{ marginBottom: '10px' }} />
 	                                <p style={{ fontSize: '0.8rem', fontWeight: 600 }}>Матеріали синхронізуються...</p>
 	                            </div>
@@ -1307,7 +1421,7 @@ const Toggle = ({ active, onToggle, label }) => (
 	    </div>
 );
 
-const SettingsView = ({ user, updateUser }) => {
+const SettingsView = ({ user, updateUser, isMobile = false }) => {
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [phone, setPhone] = useState(user?.phone || '');
@@ -1384,8 +1498,8 @@ const SettingsView = ({ user, updateUser }) => {
 	            <h2 style={{ fontSize: '2.5rem', fontWeight: 950, marginBottom: '48px', letterSpacing: '-0.04em' }}>Налаштування</h2>
 
             <Section title="Профіль" icon={User}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: 'span 2' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: isMobile ? 'span 1' : 'span 2' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>ПОВНЕ ІМ'Я</label>
                         <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ padding: '16px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', color: 'var(--text-main)', outline: 'none' }} />
                     </div>
