@@ -1,12 +1,19 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Shield, RefreshCw, Lock, Database, PencilLine, Zap, Search, TrendingUp, Crown } from 'lucide-react';
+import { ArrowRight, Shield, RefreshCw, Lock, Database, PencilLine, Zap, Search, TrendingUp, Crown, Info } from 'lucide-react';
 import { safeSetItem } from '../utils/storage.js';
+
+const SUB_PRICES = {
+  basic: import.meta.env.VITE_SUB_BASIC_PRICE || 'За запитом',
+  business: import.meta.env.VITE_SUB_BUSINESS_PRICE || 'За запитом',
+  pro: import.meta.env.VITE_SUB_PRO_PRICE || 'За запитом',
+};
 
 const PLANS = [
   {
     id: 'basic',
     name: 'Basic',
     eyebrow: 'Технiчна стабiльнiсть',
+    price: SUB_PRICES.basic,
     highlights: [
       { icon: <Database size={18} />, label: 'Хостинг включено' },
       { icon: <RefreshCw size={18} />, label: 'Авто-оновлення' },
@@ -23,6 +30,7 @@ const PLANS = [
     name: 'Business',
     eyebrow: 'Для росту без хаосу',
     badge: 'Popular',
+    price: SUB_PRICES.business,
     highlights: [
       { icon: <Shield size={18} />, label: 'Все з Basic' },
       { icon: <PencilLine size={18} />, label: 'Дрiбнi правки: до 1 год/мiс' },
@@ -38,6 +46,7 @@ const PLANS = [
     id: 'pro',
     name: 'Pro',
     eyebrow: 'Премiум супровiд',
+    price: SUB_PRICES.pro,
     highlights: [
       { icon: <Crown size={18} />, label: 'Все з Business' },
       { icon: <Search size={18} />, label: 'Базовi SEO-покращення' },
@@ -72,13 +81,13 @@ export default function Subscriptions() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px', flexWrap: 'wrap' }}>
         <div>
           <div style={{ color: 'var(--accent-start)', fontWeight: 900, letterSpacing: '0.18em', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-            Пiдписки
+            Пiдписки (супровiд)
           </div>
           <h2 style={{ marginTop: 12, fontSize: 'clamp(2.2rem, 4vw, 3.4rem)', letterSpacing: '-0.04em', fontWeight: 950, lineHeight: 1.05 }}>
-            Пiдтримка, яка тримає продукт у формi.
+            Пiсля запуску: стабiльнiсть або керованi покращення.
           </h2>
           <p style={{ marginTop: 14, maxWidth: 720, color: 'var(--text-muted)', fontSize: '1.05rem', lineHeight: 1.6 }}>
-            Обери рiвень супроводу: вiд стабiльностi до регулярних покращень. Без “зникаючих” домовленостей — усе прозоро.
+            Це не пакети розробки. Це супровiд сайту/продукту пiсля релiзу: оновлення, безпека, бекапи та дрiбнi правки (за планом).
           </p>
         </div>
 
@@ -102,6 +111,13 @@ export default function Subscriptions() {
         >
           Пiдiбрати пiдписку <ArrowRight size={18} />
         </motion.a>
+      </div>
+
+      <div style={{ marginTop: 18, display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', borderRadius: 22, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.03)' }}>
+        <Info size={18} color="var(--accent-start)" style={{ marginTop: 2, flexShrink: 0 }} />
+        <div style={{ color: 'var(--text-muted)', fontWeight: 750, lineHeight: 1.5 }}>
+          Натисни <b style={{ color: 'var(--text-main)' }}>“Додати до заявки”</b>, якщо хочеш зафiксувати план супроводу одразу. Iнакше просто обери пакет розробки в конфiгураторi нижче.
+        </div>
       </div>
 
       <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
@@ -134,6 +150,15 @@ export default function Subscriptions() {
 
               <div style={{ marginTop: 6, color: 'var(--text-subtle)', fontWeight: 900, letterSpacing: '0.14em', textTransform: 'uppercase', fontSize: '0.72rem' }}>
                 {plan.eyebrow}
+              </div>
+
+              <div style={{ marginTop: 12, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 14 }}>
+                <div style={{ fontWeight: 980, fontSize: '1.6rem', letterSpacing: '-0.03em' }}>
+                  {plan.price}
+                </div>
+                <div style={{ color: 'var(--text-subtle)', fontWeight: 900, letterSpacing: '0.12em', textTransform: 'uppercase', fontSize: '0.72rem' }}>
+                  / мiс
+                </div>
               </div>
 
               <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -178,7 +203,7 @@ export default function Subscriptions() {
                   boxShadow: plan.badge ? '0 22px 70px rgba(var(--accent-rgb), 0.16)' : 'none',
                 }}
               >
-                Обрати
+                Додати до заявки
               </motion.button>
             </div>
           </motion.div>
@@ -193,4 +218,3 @@ export default function Subscriptions() {
     </section>
   );
 }
-

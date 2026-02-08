@@ -114,6 +114,8 @@ const Configurator = () => {
                 created_at: new Date().toISOString()
             };
             addProject(projectData);
+            safeRemoveItem('magmo_subscription_plan');
+            setSubscriptionPlan('');
             setIsSubmitted(true);
         }
     };
@@ -177,7 +179,7 @@ const Configurator = () => {
                             <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>{step.description}</p>
                         </div>
 
-                        {subscriptionPlan && (
+                        {currentStep === 1 && subscriptionPlan && (
                             <div style={{ marginBottom: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '14px 16px', borderRadius: '18px', border: '1px solid rgba(var(--accent-rgb), 0.20)', background: 'rgba(var(--accent-rgb), 0.08)' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                     <div style={{ fontWeight: 950, letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--accent-start)' }}>
