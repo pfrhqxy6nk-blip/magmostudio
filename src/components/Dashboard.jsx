@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionV
 import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../lib/supabase';
 import { PRESET_ACCENTS, applyAccent, clearAccent, deriveAccentFromStart, loadAccent, saveAccent } from '../theme/accent.js';
+import SubscriptionPlans from './SubscriptionPlans.jsx';
 import {
 	    Layout, Plus, Settings, LogOut, ChevronRight, Share2, Bell,
 	    Search, Filter, MoreHorizontal, ArrowUpRight, Folder,
@@ -720,6 +721,7 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const [isAddingStep, setIsAddingStep] = useState(false);
     const [newStepTitle, setNewStepTitle] = useState('');
     const isAdmin = user?.is_admin;
+    const canSeeSubscriptions = !isAdmin && (project?.status === 'ACTIVE' || project?.status === 'COMPLETED');
 
     // Layout helpers (ProjectDetails is rendered without Dashboard sidebar, so handle mobile here too).
     const gridColumnSpan = (span) => (isMobile ? '1 / -1' : `span ${span}`);
@@ -1250,6 +1252,39 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
 	                        )}
 	                    </div>
 	                </div>
+
+                {canSeeSubscriptions && (
+                    <div style={{
+                        gridColumn: gridColumnSpan(12),
+                        background: 'rgba(255,255,255,0.02)',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                        borderRadius: '24px',
+                        padding: '24px'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '18px' }}>
+                            <div>
+                                <div style={{ fontSize: '0.72rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--accent-start)' }}>
+                                    Супровiд (пiдписка)
+                                </div>
+                                <div style={{ marginTop: 6, fontSize: '1.6rem', fontWeight: 980, letterSpacing: '-0.03em' }}>
+                                    Пiсля релiзу: підтримка i оновлення
+                                </div>
+                                <div style={{ marginTop: 8, color: 'var(--text-muted)', maxWidth: 780, lineHeight: 1.5 }}>
+                                    Доступно пiсля здачi сайту. Обери план — ми зафiксуємо це в обговореннi i стартуємо супровiд.
+                                </div>
+                            </div>
+                        </div>
+
+                        <SubscriptionPlans
+                            onChoose={async (plan) => {
+                                if (!project?.id) return;
+                                const ok = window.confirm(`Пiдключити ${plan.name} (${plan.price}/мiс)?`);
+                                if (!ok) return;
+                                await addComment(project.id, `✅ Хочу пiдключити супровiд: ${plan.name} — ${plan.price}/мiс.`);
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </motion.section>
     );

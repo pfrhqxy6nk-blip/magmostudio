@@ -4,7 +4,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
 import BentoGrid from './components/BentoGrid';
-import Subscriptions from './components/Subscriptions';
 import Configurator from './components/Configurator';
 import AuthPage from './components/AuthPage';
 import Dashboard from './components/Dashboard';
@@ -25,7 +24,7 @@ const MainLayout = ({ children }) => (
 const LandingPage = () => (
   <>
     <Hero />
-    <Subscriptions />
+    <div id="services" />
     <BentoGrid />
     <Configurator />
   </>
