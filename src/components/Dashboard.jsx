@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../lib/supabase';
 import { PRESET_ACCENTS, applyAccent, clearAccent, deriveAccentFromStart, loadAccent, saveAccent } from '../theme/accent.js';
 import SubscriptionPlans from './SubscriptionPlans.jsx';
+import { safeGetItem, safeJsonParse, safeRemoveItem, safeSetItem } from '../utils/storage.js';
 import {
 	    Layout, Plus, Settings, LogOut, ChevronRight, Share2, Bell,
 	    Search, Filter, MoreHorizontal, ArrowUpRight, Folder,
@@ -717,11 +718,12 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [isSendingComment, setIsSendingComment] = useState(false);
     const [isApprovingVersion, setIsApprovingVersion] = useState(false);
+    const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
     const [activeDevice, setActiveDevice] = useState('phone'); // 'phone' | 'laptop'
     const [isAddingStep, setIsAddingStep] = useState(false);
     const [newStepTitle, setNewStepTitle] = useState('');
     const isAdmin = user?.is_admin;
-    const canSeeSubscriptions = !isAdmin && (project?.status === 'ACTIVE' || project?.status === 'COMPLETED');
+    const canBuyMaintenance = !isAdmin && (project?.status === 'ACTIVE' || project?.status === 'COMPLETED');
 
     // Layout helpers (ProjectDetails is rendered without Dashboard sidebar, so handle mobile here too).
     const gridColumnSpan = (span) => (isMobile ? '1 / -1' : `span ${span}`);
@@ -778,6 +780,8 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
 
     if (!project) return null;
 
+    const savedMaintenance = safeJsonParse(safeGetItem('magmo_maintenance_plan') || '');
+
     return (
         <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: '100vh', padding: containerPadding, maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
             <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(255,100,0,0.03) 0%, transparent 70%)', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 0 }} />
@@ -787,6 +791,27 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                     <ArrowLeft size={16} strokeWidth={3} /> НАЗАД
                 </motion.button>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {canBuyMaintenance && (
+                        <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setIsMaintenanceModalOpen(true)}
+                            style={{
+                                background: 'rgba(255,255,255,0.06)',
+                                border: '1px solid rgba(255,255,255,0.14)',
+                                color: 'var(--text-main)',
+                                padding: '10px 14px',
+                                borderRadius: '999px',
+                                fontWeight: 950,
+                                letterSpacing: '0.08em',
+                                textTransform: 'uppercase',
+                                fontSize: '0.72rem',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Купити обслуговування
+                        </motion.button>
+                    )}
                     {isAdmin && (
                         <motion.button
                             whileHover={{ scale: 1.05, background: 'rgba(255,50,50,0.2)' }}
@@ -1252,40 +1277,104 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
 	                        )}
 	                    </div>
 	                </div>
-
-                {canSeeSubscriptions && (
-                    <div style={{
-                        gridColumn: gridColumnSpan(12),
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid rgba(255,255,255,0.05)',
-                        borderRadius: '24px',
-                        padding: '24px'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '18px' }}>
-                            <div>
-                                <div style={{ fontSize: '0.72rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--accent-start)' }}>
-                                    Супровiд (пiдписка)
-                                </div>
-                                <div style={{ marginTop: 6, fontSize: '1.6rem', fontWeight: 980, letterSpacing: '-0.03em' }}>
-                                    Пiсля релiзу: підтримка i оновлення
-                                </div>
-                                <div style={{ marginTop: 8, color: 'var(--text-muted)', maxWidth: 780, lineHeight: 1.5 }}>
-                                    Доступно пiсля здачi сайту. Обери план — ми зафiксуємо це в обговореннi i стартуємо супровiд.
-                                </div>
-                            </div>
-                        </div>
-
-                        <SubscriptionPlans
-                            onChoose={async (plan) => {
-                                if (!project?.id) return;
-                                const ok = window.confirm(`Пiдключити ${plan.name} (${plan.price}/мiс)?`);
-                                if (!ok) return;
-                                await addComment(project.id, `✅ Хочу пiдключити супровiд: ${plan.name} — ${plan.price}/мiс.`);
-                            }}
-                        />
-                    </div>
-                )}
             </div>
+
+            <AnimatePresence>
+                {isMaintenanceModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed',
+                            inset: 0,
+                            background: 'rgba(0,0,0,0.72)',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                            zIndex: 2000,
+                            padding: isMobile ? '16px' : '26px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        onClick={() => setIsMaintenanceModalOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, y: 14, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 14, scale: 0.98 }}
+                            transition={{ duration: 0.18 }}
+                            style={{
+                                width: 'min(1100px, 100%)',
+                                maxHeight: 'min(86vh, 860px)',
+                                overflow: 'auto',
+                                background: 'rgba(15, 15, 18, 0.92)',
+                                border: '1px solid rgba(255,255,255,0.10)',
+                                borderRadius: 28,
+                                padding: isMobile ? 16 : 20,
+                                boxShadow: '0 40px 120px rgba(0,0,0,0.65)',
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14, marginBottom: 14 }}>
+                                <div>
+                                    <div style={{ color: 'var(--accent-start)', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', fontSize: '0.72rem' }}>
+                                        Обслуговування сайту
+                                    </div>
+                                    <div style={{ marginTop: 6, fontSize: isMobile ? '1.35rem' : '1.7rem', fontWeight: 980, letterSpacing: '-0.03em' }}>
+                                        Обери план супроводу
+                                    </div>
+                                    <div style={{ marginTop: 8, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                                        Це не нав'язується. Якщо потрiбно — підключай. Якщо нi — iгноруй.
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => setIsMaintenanceModalOpen(false)}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.06)',
+                                        border: '1px solid rgba(255,255,255,0.12)',
+                                        color: 'var(--text-main)',
+                                        padding: '10px 12px',
+                                        borderRadius: 14,
+                                        fontWeight: 950,
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            {savedMaintenance?.id ? (
+                                <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 18, border: '1px solid rgba(var(--accent-rgb), 0.22)', background: 'rgba(var(--accent-rgb), 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                    <div style={{ fontWeight: 950 }}>
+                                        Поточний план: {String(savedMaintenance.name || savedMaintenance.id).toUpperCase()} ({savedMaintenance.price}/мiс)
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => safeRemoveItem('magmo_maintenance_plan')}
+                                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: 14, fontWeight: 900, cursor: 'pointer' }}
+                                    >
+                                        Скинути
+                                    </button>
+                                </div>
+                            ) : null}
+
+                            <SubscriptionPlans
+                                onChoose={async (plan) => {
+                                    if (!project?.id) return;
+                                    const ok = window.confirm(`Пiдключити ${plan.name} (${plan.price}/мiс)?`);
+                                    if (!ok) return;
+                                    safeSetItem('magmo_maintenance_plan', JSON.stringify({ id: plan.id, name: plan.name, price: plan.price, startedAt: new Date().toISOString() }));
+                                    await addComment(project.id, `✅ Хочу пiдключити обслуговування: ${plan.name} — ${plan.price}/мiс.`);
+                                    setIsMaintenanceModalOpen(false);
+                                }}
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.section>
     );
 };
@@ -1470,7 +1559,7 @@ const SettingsView = ({ user, updateUser, isMobile = false }) => {
 	    const [avatarSeed, setAvatarSeed] = useState(user?.email || 'seed');
 	    const [showPassword, setShowPassword] = useState(false);
 	    const [passwordData, setPasswordData] = useState({ current: '', next: '' });
-	    const [accentStart, setAccentStart] = useState(() => loadAccent().start);
+    const [accentStart, setAccentStart] = useState(() => loadAccent().start);
 	    const [accentPresetId, setAccentPresetId] = useState(() => {
 	        const current = loadAccent();
 	        const match = PRESET_ACCENTS.find(p => (p.accent?.start || '').toUpperCase() === (current?.start || '').toUpperCase());
@@ -1482,6 +1571,8 @@ const SettingsView = ({ user, updateUser, isMobile = false }) => {
         updateUser({ name, email, phone, company, role, avatar });
         alert('Збережено успішно');
     };
+
+    const maintenance = safeJsonParse(safeGetItem('magmo_maintenance_plan') || '');
 
     const handlePasswordUpdate = () => {
         if (passwordData.current !== user.password) {
@@ -1537,6 +1628,26 @@ const SettingsView = ({ user, updateUser, isMobile = false }) => {
 	            <h2 style={{ fontSize: '2.5rem', fontWeight: 950, marginBottom: '48px', letterSpacing: '-0.04em' }}>Налаштування</h2>
 
             <Section title="Профіль" icon={User}>
+                {maintenance?.id ? (
+                    <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '14px 16px', borderRadius: 18, border: '1px solid rgba(var(--accent-rgb), 0.20)', background: 'rgba(var(--accent-rgb), 0.08)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--accent-start)' }}>
+                                План обслуговування
+                            </div>
+                            <div style={{ fontWeight: 980, fontSize: '1.05rem' }}>
+                                {String(maintenance.name || maintenance.id).toUpperCase()} ({maintenance.price}/мiс)
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => safeRemoveItem('magmo_maintenance_plan')}
+                            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: 14, fontWeight: 950, cursor: 'pointer' }}
+                        >
+                            Скинути
+                        </button>
+                    </div>
+                ) : null}
+
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: isMobile ? 'span 1' : 'span 2' }}>
                         <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '1px' }}>ПОВНЕ ІМ'Я</label>
