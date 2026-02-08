@@ -3,6 +3,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Send, Info, DollarSign, Wallet } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 
+const BUDGET_PLANS = [
+    {
+        id: 'start',
+        product: 'Start',
+        price: '$300',
+        forWhom: 'Малий бізнес / старт',
+        inside: '1 сторінка, адаптив, форма, базовий SEO',
+        title: '$300',
+        desc: '1 сторінка + базовий SEO',
+    },
+    {
+        id: 'business',
+        product: 'Business',
+        price: '$600',
+        forWhom: 'Основний сегмент',
+        inside: 'До 5 сторінок, інтеграції, UX, готовність до реклами',
+        title: '$600',
+        desc: 'До 5 сторінок + інтеграції',
+    },
+    {
+        id: 'pro',
+        product: 'Pro',
+        price: '$900',
+        forWhom: 'Складніші кейси',
+        inside: 'До 10 сторінок, логіка, пріоритет',
+        title: '$900',
+        desc: 'До 10 сторінок + пріоритет',
+    },
+];
+
 const steps = [
     {
         id: 1,
@@ -21,7 +51,8 @@ const steps = [
         title: "Інвестиції",
         subtitle: "Оберіть бюджетний діапазон або вкажіть свій",
         description: "Важливо вказати реалістичний бюджет. Це впливає на складність дизайну, кількість ітерацій та швидкість виходу продукту на ринок.",
-        isBudget: true
+        isBudget: true,
+        options: BUDGET_PLANS,
     },
     {
         id: 3,
@@ -180,48 +211,121 @@ const Configurator = () => {
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                 {step.isBudget ? (
-                                    <div style={{
-                                        position: 'relative',
-                                        marginTop: '10px',
-                                        padding: isMobile ? '30px 20px' : '40px',
-                                        background: 'linear-gradient(180deg, var(--surface-2) 0%, rgba(0,0,0,0) 100%)',
-                                        borderRadius: '40px',
-                                        border: '2px solid var(--border-glass)',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        gap: '15px',
-                                        overflow: 'hidden'
-                                    }}>
-                                        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '60px', height: '4px', background: customBudget ? 'var(--accent-start)' : 'var(--surface-2)', borderRadius: '0 0 10px 10px' }} />
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+                                        <div style={{
+                                            background: 'linear-gradient(180deg, var(--surface-2) 0%, rgba(0,0,0,0) 100%)',
+                                            borderRadius: '32px',
+                                            border: '1px solid var(--border-1)',
+                                            padding: isMobile ? '18px' : '22px',
+                                        }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                                                <Info size={18} color="var(--accent-start)" />
+                                                <div style={{ fontWeight: 950, letterSpacing: '0.04em', textTransform: 'uppercase', fontSize: '0.8rem' }}>
+                                                    Пакети
+                                                </div>
+                                            </div>
 
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', opacity: customBudget ? 1 : 0.3 }}>
-                                            <Wallet size={18} color={customBudget ? 'var(--accent-start)' : 'var(--text-main)'} />
-                                            <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '2px', textTransform: 'uppercase' }}>СВІЙ БЮДЖЕТ</h4>
+                                            <div style={{
+                                                display: 'grid',
+                                                gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr 1.2fr 2fr',
+                                                gap: isMobile ? '10px' : '14px',
+                                                alignItems: 'stretch',
+                                            }}>
+                                                {!isMobile && (
+                                                    <>
+                                                        <div style={{ color: 'var(--text-subtle)', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Продукт</div>
+                                                        <div style={{ color: 'var(--text-subtle)', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Цiна</div>
+                                                        <div style={{ color: 'var(--text-subtle)', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Для кого</div>
+                                                        <div style={{ color: 'var(--text-subtle)', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Що всерединi</div>
+                                                    </>
+                                                )}
+
+                                                {BUDGET_PLANS.map((plan) => {
+                                                    const isSelected = selections[currentStep] === plan.id && !customBudget;
+                                                    return (
+                                                        <motion.button
+                                                            key={plan.id}
+                                                            type="button"
+                                                            onClick={() => handleSelect(plan.id)}
+                                                            whileHover={{ y: -2 }}
+                                                            whileTap={{ scale: 0.99 }}
+                                                            style={{
+                                                                gridColumn: isMobile ? '1 / -1' : 'auto',
+                                                                display: 'grid',
+                                                                gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr 1.2fr 2fr',
+                                                                gap: isMobile ? '8px' : '14px',
+                                                                padding: isMobile ? '16px' : '14px 16px',
+                                                                borderRadius: '20px',
+                                                                border: isSelected ? '1px solid rgba(var(--accent-rgb), 0.55)' : '1px solid var(--border-1)',
+                                                                background: isSelected ? 'rgba(var(--accent-rgb), 0.10)' : 'rgba(255,255,255,0.02)',
+                                                                color: 'var(--text-main)',
+                                                                textAlign: 'left',
+                                                            }}
+                                                        >
+                                                            <div style={{ fontWeight: 950, letterSpacing: '-0.02em', fontSize: '1.05rem' }}>
+                                                                {plan.product}
+                                                            </div>
+                                                            <div style={{ fontWeight: 950, color: 'var(--accent-start)', fontSize: '1.05rem' }}>
+                                                                {plan.price}
+                                                            </div>
+                                                            <div style={{ color: 'var(--text-muted)', fontWeight: 750 }}>
+                                                                {plan.forWhom}
+                                                            </div>
+                                                            <div style={{ color: 'var(--text-muted)', fontWeight: 750, lineHeight: 1.4 }}>
+                                                                {plan.inside}
+                                                            </div>
+                                                        </motion.button>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
 
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                                            <span style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 950, color: customBudget ? 'var(--accent-start)' : 'var(--text-subtle)', marginRight: '10px' }}>$</span>
-                                            <input
-                                                type="number"
-                                                placeholder="0.00"
-                                                value={customBudget}
-                                                onChange={(e) => setCustomBudget(e.target.value)}
-                                                style={{
-                                                    background: 'transparent',
-                                                    border: 'none',
-                                                    color: 'var(--text-main)',
-                                                    fontSize: isMobile ? '3rem' : '4.5rem',
-                                                    fontWeight: 950,
-                                                    width: isMobile ? '200px' : '280px',
-                                                    textAlign: 'left',
-                                                    outline: 'none',
-                                                    letterSpacing: '-4px',
-                                                    caretColor: 'var(--accent-start)'
-                                                }}
-                                            />
+                                        <div style={{
+                                            position: 'relative',
+                                            marginTop: '2px',
+                                            padding: isMobile ? '26px 18px' : '34px',
+                                            background: 'linear-gradient(180deg, var(--surface-2) 0%, rgba(0,0,0,0) 100%)',
+                                            borderRadius: '32px',
+                                            border: `2px solid ${customBudget ? 'rgba(var(--accent-rgb), 0.45)' : 'var(--border-glass)'}`,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            gap: '14px',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '60px', height: '4px', background: customBudget ? 'var(--accent-start)' : 'var(--surface-2)', borderRadius: '0 0 10px 10px' }} />
+
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', opacity: customBudget ? 1 : 0.75 }}>
+                                                <Wallet size={18} color={customBudget ? 'var(--accent-start)' : 'var(--text-main)'} />
+                                                <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '2px', textTransform: 'uppercase' }}>Свiй бюджет</h4>
+                                            </div>
+
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                                                <span style={{ fontSize: isMobile ? '2.2rem' : '3.2rem', fontWeight: 950, color: customBudget ? 'var(--accent-start)' : 'var(--text-subtle)', marginRight: '10px' }}>$</span>
+                                                <input
+                                                    type="number"
+                                                    placeholder="0.00"
+                                                    value={customBudget}
+                                                    onChange={(e) => {
+                                                        setCustomBudget(e.target.value);
+                                                        setSelections((prev) => (prev[currentStep] === undefined ? prev : { ...prev, [currentStep]: null }));
+                                                    }}
+                                                    style={{
+                                                        background: 'transparent',
+                                                        border: 'none',
+                                                        color: 'var(--text-main)',
+                                                        fontSize: isMobile ? '2.8rem' : '4.0rem',
+                                                        fontWeight: 950,
+                                                        width: isMobile ? '200px' : '280px',
+                                                        textAlign: 'left',
+                                                        outline: 'none',
+                                                        letterSpacing: '-3px',
+                                                        caretColor: 'var(--accent-start)'
+                                                    }}
+                                                />
+                                            </div>
+                                            <p style={{ fontSize: '0.9rem', color: 'var(--text-subtle)', fontWeight: 600, textAlign: 'center' }}>Введiть суму, на яку ви орiєнтуєтесь</p>
                                         </div>
-                                        <p style={{ fontSize: '0.9rem', color: 'var(--text-subtle)', fontWeight: 600, textAlign: 'center' }}>Введіть суму, на яку ви орієнтуєтесь</p>
                                     </div>
                                 ) : (
                                     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
