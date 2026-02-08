@@ -227,19 +227,10 @@ const Configurator = () => {
 
                                             <div style={{
                                                 display: 'grid',
-                                                gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr 1.2fr 2fr',
-                                                gap: isMobile ? '10px' : '14px',
+                                                gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, minmax(0, 1fr))',
+                                                gap: isMobile ? '12px' : '14px',
                                                 alignItems: 'stretch',
                                             }}>
-                                                {!isMobile && (
-                                                    <>
-                                                        <div style={{ color: 'var(--text-subtle)', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Продукт</div>
-                                                        <div style={{ color: 'var(--text-subtle)', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Цiна</div>
-                                                        <div style={{ color: 'var(--text-subtle)', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Для кого</div>
-                                                        <div style={{ color: 'var(--text-subtle)', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Що всерединi</div>
-                                                    </>
-                                                )}
-
                                                 {BUDGET_PLANS.map((plan) => {
                                                     const isSelected = selections[currentStep] === plan.id && !customBudget;
                                                     return (
@@ -247,32 +238,55 @@ const Configurator = () => {
                                                             key={plan.id}
                                                             type="button"
                                                             onClick={() => handleSelect(plan.id)}
-                                                            whileHover={{ y: -2 }}
+                                                            whileHover={{ y: -3 }}
                                                             whileTap={{ scale: 0.99 }}
                                                             style={{
-                                                                gridColumn: isMobile ? '1 / -1' : 'auto',
-                                                                display: 'grid',
-                                                                gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr 1.2fr 2fr',
-                                                                gap: isMobile ? '8px' : '14px',
-                                                                padding: isMobile ? '16px' : '14px 16px',
-                                                                borderRadius: '20px',
-                                                                border: isSelected ? '1px solid rgba(var(--accent-rgb), 0.55)' : '1px solid var(--border-1)',
-                                                                background: isSelected ? 'rgba(var(--accent-rgb), 0.10)' : 'rgba(255,255,255,0.02)',
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                justifyContent: 'space-between',
+                                                                gap: '12px',
+                                                                padding: isMobile ? '18px' : '18px 18px 16px',
+                                                                borderRadius: '24px',
+                                                                border: isSelected ? '1px solid rgba(var(--accent-rgb), 0.60)' : '1px solid var(--border-1)',
+                                                                background: isSelected ? 'rgba(var(--accent-rgb), 0.12)' : 'rgba(255,255,255,0.03)',
                                                                 color: 'var(--text-main)',
                                                                 textAlign: 'left',
+                                                                minHeight: isMobile ? 'auto' : '170px',
                                                             }}
                                                         >
-                                                            <div style={{ fontWeight: 950, letterSpacing: '-0.02em', fontSize: '1.05rem' }}>
-                                                                {plan.product}
+                                                            <div>
+                                                                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px' }}>
+                                                                    <div style={{ fontWeight: 950, letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
+                                                                        {plan.product}
+                                                                    </div>
+                                                                    <div style={{ fontWeight: 950, color: 'var(--accent-start)', fontSize: '1.25rem' }}>
+                                                                        {plan.price}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div style={{ marginTop: '6px', color: 'var(--text-subtle)', fontWeight: 850, letterSpacing: '0.10em', textTransform: 'uppercase', fontSize: '0.72rem' }}>
+                                                                    {plan.forWhom}
+                                                                </div>
+
+                                                                <div style={{ marginTop: '10px', color: 'var(--text-muted)', fontWeight: 750, lineHeight: 1.45, fontSize: '0.95rem' }}>
+                                                                    {plan.inside}
+                                                                </div>
                                                             </div>
-                                                            <div style={{ fontWeight: 950, color: 'var(--accent-start)', fontSize: '1.05rem' }}>
-                                                                {plan.price}
-                                                            </div>
-                                                            <div style={{ color: 'var(--text-muted)', fontWeight: 750 }}>
-                                                                {plan.forWhom}
-                                                            </div>
-                                                            <div style={{ color: 'var(--text-muted)', fontWeight: 750, lineHeight: 1.4 }}>
-                                                                {plan.inside}
+
+                                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                                <div style={{
+                                                                    padding: '8px 12px',
+                                                                    borderRadius: '999px',
+                                                                    fontWeight: 950,
+                                                                    letterSpacing: '0.08em',
+                                                                    textTransform: 'uppercase',
+                                                                    fontSize: '0.72rem',
+                                                                    color: isSelected ? 'black' : 'rgba(255,255,255,0.70)',
+                                                                    background: isSelected ? 'var(--accent-start)' : 'rgba(255,255,255,0.06)',
+                                                                    border: isSelected ? '1px solid rgba(var(--accent-rgb), 0.25)' : '1px solid rgba(255,255,255,0.10)',
+                                                                }}>
+                                                                    Обрати
+                                                                </div>
                                                             </div>
                                                         </motion.button>
                                                     );
