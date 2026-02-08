@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { safeGetItem, safeRemoveItem, safeSetItem, safeJsonParse } from '../utils/storage.js';
 
 const AuthContext = createContext(null);
 
@@ -24,10 +25,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const savedUser = localStorage.getItem('user');
+        const savedUser = safeGetItem('user');
         if (!savedUser) return;
 
-        let userData = JSON.parse(savedUser);
+        const parsed = safeJsonParse(savedUser);
+        if (!parsed) {
+          safeRemoveItem('user');
+          return;
+        }
+
+        let userData = parsed;
 
         const { data: profile, error } = await supabase
           .from('profiles')
@@ -39,13 +46,13 @@ export const AuthProvider = ({ children }) => {
 
         if (profile) {
           userData = { ...userData, ...profile };
-          localStorage.setItem('user', JSON.stringify(userData));
+          safeSetItem('user', JSON.stringify(userData));
         }
 
         setUser(userData);
       } catch (error) {
         console.error('Auth init failed:', error);
-        localStorage.removeItem('user');
+        safeRemoveItem('user');
         setUser(null);
       } finally {
         setLoading(false);
@@ -88,7 +95,7 @@ export const AuthProvider = ({ children }) => {
       isCancelled = true;
       supabase.removeChannel(channel);
     };
-  }, [user?.email, user?.is_admin]);
+  }, [user]);
 
   const login = useCallback(async (email, password) => {
     const { data: profile, error } = await supabase
@@ -103,7 +110,7 @@ export const AuthProvider = ({ children }) => {
       return null;
     }
 
-    localStorage.setItem('user', JSON.stringify(profile));
+    safeSetItem('user', JSON.stringify(profile));
     setUser(profile);
     return profile;
   }, []);
@@ -135,7 +142,7 @@ export const AuthProvider = ({ children }) => {
 
     if (!data) throw new Error('Registration failed: empty response');
 
-    localStorage.setItem('user', JSON.stringify(data));
+    safeSetItem('user', JSON.stringify(data));
     setUser(data);
     return data;
   }, []);
@@ -155,7 +162,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('user');
+    safeRemoveItem('user');
     setUser(null);
     setProjects([]);
   }, []);
@@ -220,7 +227,7 @@ export const AuthProvider = ({ children }) => {
 
     const newComment = {
       id: Date.now(),
-      author: user.is_admin ? `${user.name} (Admin)` : user.name,
+      author: user.is_admin ? `${user.name || user.email} (Admin)` : (user.name || user.email),
       text: commentText,
       date: new Date().toISOString(),
     };
@@ -250,7 +257,7 @@ export const AuthProvider = ({ children }) => {
     const newRoadmap = [...targetProject.roadmap];
     newRoadmap[stepIdx] = { ...newRoadmap[stepIdx], status: newStatus };
     const completed = newRoadmap.filter((s) => s.status === 'completed').length;
-    const progress = Math.round((completed / newRoadmap.length) * 100);
+    const progress = newRoadmap.length > 0 ? Math.round((completed / newRoadmap.length) * 100) : 0;
 
     const { error } = await supabase
       .from('projects')
@@ -405,7 +412,7 @@ export const AuthProvider = ({ children }) => {
 
     const updatedUser = { ...user, ...newUserData };
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    safeSetItem('user', JSON.stringify(updatedUser));
   }, [user]);
 
   const uploadFile = useCallback(async (file) => {

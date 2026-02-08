@@ -420,10 +420,12 @@ const Dashboard = () => {
 	        }
 	    }, [isAdminMode]);
 
-    // Reset selection when toggling admin mode
+    // Reset selection when toggling admin mode.
+    // Keep deps minimal to avoid loops; use functional update for activeTab.
     useEffect(() => {
         setSelectedProjectId(null);
-        if (isAdminMode && activeTab !== 'team' && activeTab !== 'portfolio') setActiveTab('projects');
+        if (!isAdminMode) return;
+        setActiveTab((prev) => (prev === 'team' || prev === 'portfolio' ? prev : 'projects'));
     }, [isAdminMode]);
 
 	    const filteredProjects = isAdminMode
@@ -719,8 +721,6 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const [newStepTitle, setNewStepTitle] = useState('');
     const isAdmin = user?.is_admin;
 
-    if (!project) return null;
-
     // Layout helpers (ProjectDetails is rendered without Dashboard sidebar, so handle mobile here too).
     const gridColumnSpan = (span) => (isMobile ? '1 / -1' : `span ${span}`);
     const containerPadding = isMobile ? '72px 16px 32px' : '80px 30px 40px';
@@ -731,15 +731,15 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     }, [isMobile, activeDevice]);
 
     // Safety defaults
-    const roadmap = project.roadmap || [];
-    const comments = project.comments || [];
-    const visuals = project.visuals || [];
+    const roadmap = project?.roadmap || [];
+    const comments = project?.comments || [];
+    const visuals = project?.visuals || [];
 
     // Find visual for active device
     const currentVisual = visuals.find(v => v.device === activeDevice);
-    const resources = project.resources || [];
+    const resources = project?.resources || [];
 
-    const status = getStatusDetails(project.status, isAdmin);
+    const status = getStatusDetails(project?.status, isAdmin);
 
     const approvalRegex = /^✅\s*(Підтверджую|Підтверждаю)\s+актуальн(у|ую)\s+верс(і|и)ю/i;
     const lastClientApproval = [...comments]
@@ -759,6 +759,7 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const handleAddStep = () => {
         const titles = newStepTitle.split('\n').map(t => t.trim()).filter(t => t !== '');
         if (titles.length > 0) {
+            if (!project?.id) return;
             addRoadmapStep(project.id, titles);
             setNewStepTitle('');
             setIsAddingStep(false);
@@ -767,10 +768,13 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
 
     const handleAddResource = () => {
         if (newResource.label && newResource.link) {
+            if (!project?.id) return;
             addResource(project.id, newResource);
             setNewResource({ label: '', link: '', type: 'Figma' });
         }
     };
+
+    if (!project) return null;
 
     return (
         <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: '100vh', padding: containerPadding, maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>

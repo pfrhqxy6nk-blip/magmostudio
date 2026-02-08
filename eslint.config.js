@@ -23,10 +23,13 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': 'warn',
+      // Without eslint-plugin-react we can't mark JSX identifiers as "used",
+      // so this rule creates noisy false positives across .jsx files.
+      'no-unused-vars': 'off',
       'react-hooks/exhaustive-deps': 'warn',
       'react-hooks/rules-of-hooks': 'warn',
-      'react-hooks/set-state-in-effect': 'warn',
+      // This rule fires on common patterns like data-fetching effects (false positives).
+      'react-hooks/set-state-in-effect': 'off',
       'react-refresh/only-export-components': 'off',
     },
   },
