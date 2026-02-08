@@ -719,6 +719,9 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const [isSendingComment, setIsSendingComment] = useState(false);
     const [isApprovingVersion, setIsApprovingVersion] = useState(false);
     const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+    const [maintenancePlan, setMaintenancePlan] = useState(() =>
+        safeJsonParse(safeGetItem('magmo_maintenance_plan') || ''),
+    );
     const [activeDevice, setActiveDevice] = useState('phone'); // 'phone' | 'laptop'
     const [isAddingStep, setIsAddingStep] = useState(false);
     const [newStepTitle, setNewStepTitle] = useState('');
@@ -779,8 +782,6 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     };
 
     if (!project) return null;
-
-    const savedMaintenance = safeJsonParse(safeGetItem('magmo_maintenance_plan') || '');
 
     return (
         <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ minHeight: '100vh', padding: containerPadding, maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
@@ -1325,7 +1326,7 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                                         Обери план супроводу
                                     </div>
                                     <div style={{ marginTop: 8, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                                        Це не нав'язується. Якщо потрiбно — підключай. Якщо нi — iгноруй.
+                                        Обери план або закрий це вiкно.
                                     </div>
                                 </div>
 
@@ -1346,14 +1347,17 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                                 </button>
                             </div>
 
-                            {savedMaintenance?.id ? (
+                            {maintenancePlan?.id ? (
                                 <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 18, border: '1px solid rgba(var(--accent-rgb), 0.22)', background: 'rgba(var(--accent-rgb), 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                                     <div style={{ fontWeight: 950 }}>
-                                        Поточний план: {String(savedMaintenance.name || savedMaintenance.id).toUpperCase()} ({savedMaintenance.price}/мiс)
+                                        Поточний план: {String(maintenancePlan.name || maintenancePlan.id).toUpperCase()} ({maintenancePlan.price}/мiс)
                                     </div>
                                     <button
                                         type="button"
-                                        onClick={() => safeRemoveItem('magmo_maintenance_plan')}
+                                        onClick={() => {
+                                            safeRemoveItem('magmo_maintenance_plan');
+                                            setMaintenancePlan(null);
+                                        }}
                                         style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: 14, fontWeight: 900, cursor: 'pointer' }}
                                     >
                                         Скинути
@@ -1366,7 +1370,9 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                                     if (!project?.id) return;
                                     const ok = window.confirm(`Пiдключити ${plan.name} (${plan.price}/мiс)?`);
                                     if (!ok) return;
-                                    safeSetItem('magmo_maintenance_plan', JSON.stringify({ id: plan.id, name: plan.name, price: plan.price, startedAt: new Date().toISOString() }));
+                                    const next = { id: plan.id, name: plan.name, price: plan.price, startedAt: new Date().toISOString() };
+                                    safeSetItem('magmo_maintenance_plan', JSON.stringify(next));
+                                    setMaintenancePlan(next);
                                     await addComment(project.id, `✅ Хочу пiдключити обслуговування: ${plan.name} — ${plan.price}/мiс.`);
                                     setIsMaintenanceModalOpen(false);
                                 }}
@@ -1572,7 +1578,9 @@ const SettingsView = ({ user, updateUser, isMobile = false }) => {
         alert('Збережено успішно');
     };
 
-    const maintenance = safeJsonParse(safeGetItem('magmo_maintenance_plan') || '');
+    const [maintenance, setMaintenance] = useState(() =>
+        safeJsonParse(safeGetItem('magmo_maintenance_plan') || ''),
+    );
 
     const handlePasswordUpdate = () => {
         if (passwordData.current !== user.password) {
@@ -1640,7 +1648,10 @@ const SettingsView = ({ user, updateUser, isMobile = false }) => {
                         </div>
                         <button
                             type="button"
-                            onClick={() => safeRemoveItem('magmo_maintenance_plan')}
+                            onClick={() => {
+                                safeRemoveItem('magmo_maintenance_plan');
+                                setMaintenance(null);
+                            }}
                             style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: 14, fontWeight: 950, cursor: 'pointer' }}
                         >
                             Скинути

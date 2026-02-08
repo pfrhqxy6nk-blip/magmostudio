@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Crown, Shield, Zap } from 'lucide-react';
 
@@ -22,7 +23,6 @@ const PLANS = [
     name: 'Business',
     price: '$50',
     tagline: 'Дрiбнi правки щомiсяця',
-    badge: 'Popular',
     items: [
       'Все з Basic',
       'Дрiбнi правки: до 1 години/мiс',
@@ -51,8 +51,18 @@ const PLANS = [
 ];
 
 export default function SubscriptionPlans({ onChoose }) {
+  const [isNarrow, setIsNarrow] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 900 : false,
+  );
+
+  useEffect(() => {
+    const onResize = () => setIsNarrow(window.innerWidth < 900);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: isNarrow ? '1fr' : 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
       {PLANS.map((plan) => (
         <motion.div
           key={plan.id}
@@ -62,11 +72,9 @@ export default function SubscriptionPlans({ onChoose }) {
             position: 'relative',
             borderRadius: 28,
             padding: 18,
-            border: plan.badge ? '1px solid rgba(var(--accent-rgb), 0.30)' : '1px solid var(--border-1)',
-            background: plan.badge
-              ? 'linear-gradient(180deg, rgba(var(--accent-rgb), 0.10) 0%, rgba(255,255,255,0.03) 100%)'
-              : 'rgba(255,255,255,0.03)',
-            boxShadow: plan.badge ? '0 26px 90px rgba(var(--accent-rgb), 0.10)' : 'var(--shadow-soft)',
+            border: '1px solid var(--border-1)',
+            background: 'rgba(255,255,255,0.03)',
+            boxShadow: 'var(--shadow-soft)',
             overflow: 'hidden',
           }}
         >
@@ -81,8 +89,8 @@ export default function SubscriptionPlans({ onChoose }) {
           />
 
           <div style={{ position: 'relative' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div
                   style={{
                     width: 36,
@@ -100,25 +108,8 @@ export default function SubscriptionPlans({ onChoose }) {
                   {plan.icon}
                 </div>
                 <div style={{ fontWeight: 950, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>{plan.name}</div>
-              </div>
-
-              {plan.badge ? (
-                <div
-                  style={{
-                    padding: '6px 10px',
-                    borderRadius: 999,
-                    background: 'var(--accent-start)',
-                    color: 'black',
-                    fontWeight: 950,
-                    fontSize: '0.72rem',
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {plan.badge}
                 </div>
-              ) : null}
-            </div>
+              </div>
 
             <div style={{ marginTop: 12, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 14 }}>
               <div style={{ fontWeight: 980, fontSize: '1.8rem', letterSpacing: '-0.03em' }}>{plan.price}</div>
@@ -179,12 +170,10 @@ export default function SubscriptionPlans({ onChoose }) {
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 fontSize: '0.85rem',
-                color: plan.badge ? 'black' : 'var(--text-main)',
-                background: plan.badge
-                  ? 'linear-gradient(90deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)'
-                  : 'rgba(255,255,255,0.06)',
-                border: plan.badge ? '1px solid rgba(var(--accent-rgb), 0.25)' : '1px solid rgba(255,255,255,0.12)',
-                boxShadow: plan.badge ? '0 22px 70px rgba(var(--accent-rgb), 0.16)' : 'none',
+                color: 'var(--text-main)',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                boxShadow: 'none',
                 cursor: 'pointer',
               }}
             >
@@ -193,13 +182,6 @@ export default function SubscriptionPlans({ onChoose }) {
           </div>
         </motion.div>
       ))}
-
-      <style>{`
-        @media (max-width: 900px) {
-          div[style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   );
 }
-
