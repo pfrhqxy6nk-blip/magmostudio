@@ -385,10 +385,11 @@ export const AuthProvider = ({ children }) => {
     const { error } = await supabase.from('projects').update(newData).eq('id', projectId);
     if (error) {
       console.error('Error updating project data:', error);
-      return;
+      return { success: false, error };
     }
 
     setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, ...newData } : p)));
+    return { success: true };
   }, []);
 
   const deleteProject = useCallback(async (projectId) => {

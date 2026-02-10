@@ -4,7 +4,6 @@ import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../lib/supabase';
 import { PRESET_ACCENTS, applyAccent, clearAccent, deriveAccentFromStart, loadAccent, saveAccent } from '../theme/accent.js';
 import SubscriptionPlans from './SubscriptionPlans.jsx';
-import { safeGetItem, safeJsonParse, safeRemoveItem, safeSetItem } from '../utils/storage.js';
 import {
 	    Layout, Plus, Settings, LogOut, ChevronRight, Share2, Bell,
 	    Search, Filter, MoreHorizontal, ArrowUpRight, Folder,
@@ -18,6 +17,24 @@ import {
 
 const MOBILE_BREAKPOINT_PX = 1024;
 const DEFAULT_MONO_PAY_URL = 'https://send.monobank.ua/9eF51wt1iY';
+
+const normalizeMaintenanceStatus = (value) => {
+    if (typeof value !== 'string' || !value.trim()) return 'NONE';
+    return value.trim().toUpperCase();
+};
+
+const pickPrimaryClientProject = (clientProjects) => {
+    if (!Array.isArray(clientProjects) || clientProjects.length === 0) return null;
+
+    const byCreatedDesc = [...clientProjects].sort((a, b) => {
+        const at = new Date(a?.created_at || 0).getTime();
+        const bt = new Date(b?.created_at || 0).getTime();
+        return bt - at;
+    });
+
+    const activeOrDone = byCreatedDesc.find((p) => p?.status === 'ACTIVE' || p?.status === 'COMPLETED');
+    return activeOrDone || byCreatedDesc[0];
+};
 
 const getIsMobileLayout = () => {
     if (typeof window === 'undefined') return false;
@@ -285,6 +302,11 @@ const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
                                 <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '8px' }}>{p.category}</span>
                                 <span style={{ fontSize: '0.65rem', fontWeight: 950, color: status.color, background: status.bg, padding: '6px 12px', borderRadius: '30px', letterSpacing: '1px' }}>{status.label}</span>
+                                {normalizeMaintenanceStatus(p.maintenance_status) === 'ACTIVE' ? (
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'rgba(255,255,255,0.82)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', padding: '6px 12px', borderRadius: '30px', letterSpacing: '1px' }}>
+                                        MAINT: {String(p.maintenance_plan_name || p.maintenance_plan_id || '').toUpperCase()}
+                                    </span>
+                                ) : null}
                             </div>
 
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -325,6 +347,12 @@ const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
                                 <td style={{ padding: '24px' }}>
                                     <div style={{ fontSize: '0.65rem', fontWeight: 900, color: ADMIN_THEME.primary, marginBottom: '4px' }}>{p.owner_email}</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{p.title}</div>
+                                    {normalizeMaintenanceStatus(p.maintenance_status) === 'ACTIVE' ? (
+                                        <div style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.82)', fontSize: '0.62rem', fontWeight: 950, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                                            <span style={{ width: 8, height: 8, borderRadius: 999, background: 'rgba(76, 175, 80, 0.95)' }} />
+                                            Maintenance: {String(p.maintenance_plan_name || p.maintenance_plan_id || '').toUpperCase()}
+                                        </div>
+                                    ) : null}
                                 </td>
                                 <td style={{ padding: '24px' }}>
                                     <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '8px' }}>{p.category}</span>
@@ -366,7 +394,7 @@ const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
 };
 
 const Dashboard = () => {
-		    const { user, logout, projects, admins, addAdmin, removeAdmin, addProject, updateProjectStatus, updateProjectData, deleteProject, payForProject, updateUser, addComment, updateRoadmapStep, addRoadmapStep, deleteRoadmapStep, addResource } = useAuth();
+		    const { user, logout, projects, admins, addAdmin, removeAdmin, addProject, updateProjectStatus, updateProjectData, deleteProject, updateUser, addComment, updateRoadmapStep, addRoadmapStep, deleteRoadmapStep, addResource } = useAuth();
 		    const [activeTab, setActiveTab] = useState('projects');
 		    const [isModalOpen, setIsModalOpen] = useState(false);
 		    const [selectedProjectId, setSelectedProjectId] = useState(null);
@@ -434,6 +462,25 @@ const Dashboard = () => {
 	    const filteredProjects = isAdminMode
 	        ? (filterStatus ? projects.filter(p => p.status === filterStatus) : projects)
 	        : projects.filter(p => p.owner_email === user?.email);
+
+        const primaryClientProject = !user?.is_admin
+            ? pickPrimaryClientProject(filteredProjects)
+            : null;
+
+        const cancelMaintenanceForClient = async () => {
+            if (!primaryClientProject?.id) return;
+            const ok = window.confirm('Скасувати обслуговування сайту?');
+            if (!ok) return;
+            const result = await updateProjectData(primaryClientProject.id, {
+                maintenance_status: 'CANCELED',
+                maintenance_ended_at: new Date().toISOString(),
+            });
+            if (result?.success === false) {
+                alert('Не вдалося оновити план у базі. Запусти `supabase_maintenance_migration.sql` у Supabase SQL editor.');
+                return;
+            }
+            await addComment(primaryClientProject.id, '🧾 Скасовано обслуговування сайту.');
+        };
 	    const selectedProject = projects.find(p => p.id === selectedProjectId);
 	    const adminSchemeVars = isAdminMode ? {
 	        '--bg': '#000810',
@@ -660,7 +707,13 @@ const Dashboard = () => {
                     ) : activeTab === 'portfolio' ? (
                         <AdminPortfolioCMS />
                     ) : (
-                        <SettingsView user={user} updateUser={updateUser} isMobile={isMobile} />
+                        <SettingsView
+                            user={user}
+                            updateUser={updateUser}
+                            isMobile={isMobile}
+                            maintenanceProject={primaryClientProject}
+                            onCancelMaintenance={cancelMaintenanceForClient}
+                        />
                     )}
                 </AnimatePresence>
             </main>
@@ -720,9 +773,6 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const [isSendingComment, setIsSendingComment] = useState(false);
     const [isApprovingVersion, setIsApprovingVersion] = useState(false);
     const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
-    const [maintenancePlan, setMaintenancePlan] = useState(() =>
-        safeJsonParse(safeGetItem('magmo_maintenance_plan') || ''),
-    );
     const [pendingMaintenancePlan, setPendingMaintenancePlan] = useState(null);
     const [activeDevice, setActiveDevice] = useState('phone'); // 'phone' | 'laptop'
     const [isAddingStep, setIsAddingStep] = useState(false);
@@ -730,6 +780,24 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const isAdmin = user?.is_admin;
     const canBuyMaintenance = !isAdmin && (project?.status === 'ACTIVE' || project?.status === 'COMPLETED');
     const monoPayUrl = import.meta.env.VITE_MONO_PAY_URL || DEFAULT_MONO_PAY_URL;
+    const maintenanceStatus = normalizeMaintenanceStatus(project?.maintenance_status);
+    const activeMaintenancePlan =
+        maintenanceStatus === 'ACTIVE' && project?.maintenance_plan_id
+            ? {
+                id: project.maintenance_plan_id,
+                name: project.maintenance_plan_name || project.maintenance_plan_id,
+                price: project.maintenance_plan_price || '',
+            }
+            : null;
+    const requestedMaintenancePlan =
+        project?.maintenance_requested_plan_id
+            ? {
+                id: project.maintenance_requested_plan_id,
+                name: project.maintenance_requested_plan_name || project.maintenance_requested_plan_id,
+                price: project.maintenance_requested_plan_price || '',
+                requestedAt: project.maintenance_requested_at,
+            }
+            : null;
 
     // Layout helpers (ProjectDetails is rendered without Dashboard sidebar, so handle mobile here too).
     const gridColumnSpan = (span) => (isMobile ? '1 / -1' : `span ${span}`);
@@ -902,6 +970,176 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                             }}
                         >
                             Оплатити
+                        </a>
+                    </div>
+                </div>
+            ) : null}
+
+            {isAdmin ? (
+                <div
+                    style={{
+                        position: 'relative',
+                        zIndex: 10,
+                        marginBottom: 16,
+                        borderRadius: 24,
+                        padding: isMobile ? 16 : 20,
+                        border: '1px solid rgba(255,255,255,0.10)',
+                        background: 'rgba(255,255,255,0.03)',
+                        boxShadow: '0 26px 90px rgba(0,0,0,0.40)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 14,
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 240 }}>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--text-subtle)' }}>
+                            Обслуговування (адмiн)
+                        </div>
+                        {activeMaintenancePlan?.id ? (
+                            <div style={{ fontWeight: 950 }}>
+                                ACTIVE: {String(activeMaintenancePlan.name || activeMaintenancePlan.id).toUpperCase()} ({activeMaintenancePlan.price}/мiс)
+                            </div>
+                        ) : requestedMaintenancePlan?.id ? (
+                            <div style={{ fontWeight: 950 }}>
+                                REQUESTED: {String(requestedMaintenancePlan.name || requestedMaintenancePlan.id).toUpperCase()} ({requestedMaintenancePlan.price}/мiс)
+                            </div>
+                        ) : (
+                            <div style={{ color: 'var(--text-muted)', fontWeight: 850 }}>
+                                Немає активного плану / запиту
+                            </div>
+                        )}
+                        <div style={{ color: 'var(--text-muted)', lineHeight: 1.45 }}>
+                            Тут ти вмикаєш/вимикаєш план після перевірки оплати.
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                        {requestedMaintenancePlan?.id ? (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={async () => {
+                                        if (!project?.id) return;
+                                        const result = await updateProjectData(project.id, {
+                                            maintenance_status: 'ACTIVE',
+                                            maintenance_plan_id: requestedMaintenancePlan.id,
+                                            maintenance_plan_name: requestedMaintenancePlan.name,
+                                            maintenance_plan_price: requestedMaintenancePlan.price,
+                                            maintenance_started_at: new Date().toISOString(),
+                                            maintenance_ended_at: null,
+                                            maintenance_requested_plan_id: null,
+                                            maintenance_requested_plan_name: null,
+                                            maintenance_requested_plan_price: null,
+                                            maintenance_requested_at: null,
+                                        });
+                                        if (result?.success === false) {
+                                            alert('Не вдалося оновити план у базі. Запусти `supabase_maintenance_migration.sql` у Supabase SQL editor.');
+                                            return;
+                                        }
+                                        await addComment(project.id, `✅ (Admin) Активовано обслуговування: ${requestedMaintenancePlan.name} — ${requestedMaintenancePlan.price}/мiс.`);
+                                    }}
+                                    style={{
+                                        background: ADMIN_THEME.primary,
+                                        border: 'none',
+                                        color: 'black',
+                                        padding: '12px 14px',
+                                        borderRadius: 14,
+                                        fontWeight: 980,
+                                        letterSpacing: '0.08em',
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.72rem',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    Активувати
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={async () => {
+                                        if (!project?.id) return;
+                                        const result = await updateProjectData(project.id, {
+                                            maintenance_status: 'NONE',
+                                            maintenance_requested_plan_id: null,
+                                            maintenance_requested_plan_name: null,
+                                            maintenance_requested_plan_price: null,
+                                            maintenance_requested_at: null,
+                                        });
+                                        if (result?.success === false) {
+                                            alert('Не вдалося оновити план у базі. Запусти `supabase_maintenance_migration.sql` у Supabase SQL editor.');
+                                            return;
+                                        }
+                                        await addComment(project.id, '🧾 (Admin) Запит на обслуговування скинуто.');
+                                    }}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.06)',
+                                        border: '1px solid rgba(255,255,255,0.12)',
+                                        color: 'var(--text-main)',
+                                        padding: '12px 14px',
+                                        borderRadius: 14,
+                                        fontWeight: 900,
+                                        letterSpacing: '0.08em',
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.72rem',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    Скинути
+                                </button>
+                            </>
+                        ) : activeMaintenancePlan?.id ? (
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    if (!project?.id) return;
+                                    const ok = window.confirm('Скасувати активне обслуговування?');
+                                    if (!ok) return;
+                                    const result = await updateProjectData(project.id, {
+                                        maintenance_status: 'CANCELED',
+                                        maintenance_ended_at: new Date().toISOString(),
+                                    });
+                                    if (result?.success === false) {
+                                        alert('Не вдалося оновити план у базі. Запусти `supabase_maintenance_migration.sql` у Supabase SQL editor.');
+                                        return;
+                                    }
+                                    await addComment(project.id, '🧾 (Admin) Обслуговування скасовано.');
+                                }}
+                                style={{
+                                    background: 'rgba(255,50,50,0.12)',
+                                    border: '1px solid rgba(255,50,50,0.22)',
+                                    color: '#FF5A5A',
+                                    padding: '12px 14px',
+                                    borderRadius: 14,
+                                    fontWeight: 980,
+                                    letterSpacing: '0.08em',
+                                    textTransform: 'uppercase',
+                                    fontSize: '0.72rem',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                Скасувати
+                            </button>
+                        ) : null}
+
+                        <a
+                            href={monoPayUrl}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            style={{
+                                textDecoration: 'none',
+                                background: 'rgba(255,255,255,0.06)',
+                                border: '1px solid rgba(255,255,255,0.14)',
+                                color: 'var(--text-main)',
+                                padding: '12px 14px',
+                                borderRadius: 14,
+                                fontWeight: 950,
+                                letterSpacing: '0.08em',
+                                textTransform: 'uppercase',
+                                fontSize: '0.72rem',
+                            }}
+                        >
+                            Посилання на оплату
                         </a>
                     </div>
                 </div>
@@ -1417,32 +1655,58 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                                 </button>
                             </div>
 
-                            {maintenancePlan?.id ? (
+                            {activeMaintenancePlan?.id ? (
                                 <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 18, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                                     <div style={{ fontWeight: 950 }}>
-                                        Поточний план: {String(maintenancePlan.name || maintenancePlan.id).toUpperCase()} ({maintenancePlan.price}/мiс)
+                                        Поточний план: {String(activeMaintenancePlan.name || activeMaintenancePlan.id).toUpperCase()} ({activeMaintenancePlan.price}/мiс)
                                     </div>
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            safeRemoveItem('magmo_maintenance_plan');
-                                            setMaintenancePlan(null);
+                                        onClick={async () => {
+                                            if (!project?.id) return;
+                                            const ok = window.confirm('Скасувати обслуговування?');
+                                            if (!ok) return;
+                                            const result = await updateProjectData(project.id, {
+                                                maintenance_status: 'CANCELED',
+                                                maintenance_ended_at: new Date().toISOString(),
+                                            });
+                                            if (result?.success === false) {
+                                                alert('Не вдалося оновити план у базі. Запусти `supabase_maintenance_migration.sql` у Supabase SQL editor.');
+                                                return;
+                                            }
+                                            await addComment(project.id, '🧾 Скасовано обслуговування сайту.');
+                                            setIsMaintenanceModalOpen(false);
                                         }}
                                         style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: 14, fontWeight: 900, cursor: 'pointer' }}
                                     >
-                                        Скинути
+                                        Скасувати
                                     </button>
                                 </div>
                             ) : null}
 
-                            {!maintenancePlan?.id ? (
+                            {!activeMaintenancePlan?.id && requestedMaintenancePlan?.id ? (
+                                <div style={{ marginBottom: 16, padding: '12px 14px', borderRadius: 18, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                                    <div style={{ fontWeight: 900 }}>
+                                        Запит на план: {String(requestedMaintenancePlan.name || requestedMaintenancePlan.id).toUpperCase()} ({requestedMaintenancePlan.price}/мiс) — очiкує пiдтвердження
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPendingMaintenancePlan(null)}
+                                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: 14, fontWeight: 900, cursor: 'pointer' }}
+                                    >
+                                        Змiнити
+                                    </button>
+                                </div>
+                            ) : null}
+
+                            {!activeMaintenancePlan?.id ? (
                                 pendingMaintenancePlan ? (
                                     <div style={{ marginTop: 12, borderRadius: 22, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', padding: 16 }}>
                                         <div style={{ fontWeight: 980, fontSize: '1.1rem' }}>
                                             Обрано: {pendingMaintenancePlan.name} ({pendingMaintenancePlan.price}/мiс)
                                         </div>
                                         <div style={{ marginTop: 8, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                                            Натисни “Оплатити”, а пiсля оплати — “Пiдтвердити”, щоб активувати план.
+                                            Натисни “Оплатити”, а пiсля оплати — “Надiслати запит”, щоб ми активували план.
                                         </div>
 
                                         <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -1470,11 +1734,19 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                                                 onClick={async () => {
                                                     if (!project?.id) return;
                                                     const plan = pendingMaintenancePlan;
-                                                    const next = { id: plan.id, name: plan.name, price: plan.price, startedAt: new Date().toISOString() };
-                                                    safeSetItem('magmo_maintenance_plan', JSON.stringify(next));
-                                                    setMaintenancePlan(next);
                                                     setPendingMaintenancePlan(null);
-                                                    await addComment(project.id, `✅ Оплачено/пiдтверджую обслуговування: ${plan.name} — ${plan.price}/мiс.`);
+                                                    const result = await updateProjectData(project.id, {
+                                                        maintenance_status: 'REQUESTED',
+                                                        maintenance_requested_plan_id: plan.id,
+                                                        maintenance_requested_plan_name: plan.name,
+                                                        maintenance_requested_plan_price: plan.price,
+                                                        maintenance_requested_at: new Date().toISOString(),
+                                                    });
+                                                    if (result?.success === false) {
+                                                        alert('Не вдалося записати запит у базу. Запусти `supabase_maintenance_migration.sql` у Supabase SQL editor.');
+                                                        return;
+                                                    }
+                                                    await addComment(project.id, `🧾 Запит на обслуговування: ${plan.name} — ${plan.price}/мiс. Оплата: ${monoPayUrl}`);
                                                     setIsMaintenanceModalOpen(false);
                                                 }}
                                                 style={{
@@ -1490,7 +1762,7 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                                                     cursor: 'pointer',
                                                 }}
                                             >
-                                                Пiдтвердити
+                                                Надiслати запит
                                             </button>
                                             <button
                                                 type="button"
@@ -1694,7 +1966,7 @@ const Toggle = ({ active, onToggle, label }) => (
 	    </div>
 );
 
-const SettingsView = ({ user, updateUser, isMobile = false }) => {
+const SettingsView = ({ user, updateUser, isMobile = false, maintenanceProject = null, onCancelMaintenance = null }) => {
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [phone, setPhone] = useState(user?.phone || '');
@@ -1716,10 +1988,23 @@ const SettingsView = ({ user, updateUser, isMobile = false }) => {
         updateUser({ name, email, phone, company, role, avatar });
         alert('Збережено успішно');
     };
-
-    const [maintenance, setMaintenance] = useState(() =>
-        safeJsonParse(safeGetItem('magmo_maintenance_plan') || ''),
-    );
+    const maintenanceStatus = normalizeMaintenanceStatus(maintenanceProject?.maintenance_status);
+    const maintenanceActive =
+        maintenanceStatus === 'ACTIVE' && maintenanceProject?.maintenance_plan_id
+            ? {
+                id: maintenanceProject.maintenance_plan_id,
+                name: maintenanceProject.maintenance_plan_name || maintenanceProject.maintenance_plan_id,
+                price: maintenanceProject.maintenance_plan_price || '',
+            }
+            : null;
+    const maintenanceRequested =
+        !maintenanceActive?.id && maintenanceProject?.maintenance_requested_plan_id
+            ? {
+                id: maintenanceProject.maintenance_requested_plan_id,
+                name: maintenanceProject.maintenance_requested_plan_name || maintenanceProject.maintenance_requested_plan_id,
+                price: maintenanceProject.maintenance_requested_plan_price || '',
+            }
+            : null;
 
     const handlePasswordUpdate = () => {
         if (passwordData.current !== user.password) {
@@ -1775,26 +2060,38 @@ const SettingsView = ({ user, updateUser, isMobile = false }) => {
 	            <h2 style={{ fontSize: '2.5rem', fontWeight: 950, marginBottom: '48px', letterSpacing: '-0.04em' }}>Налаштування</h2>
 
             <Section title="Профіль" icon={User}>
-                {maintenance?.id ? (
+                {maintenanceActive?.id ? (
                     <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '14px 16px', borderRadius: 18, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <div style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--text-subtle)' }}>
                                 План обслуговування
                             </div>
                             <div style={{ fontWeight: 980, fontSize: '1.05rem' }}>
-                                {String(maintenance.name || maintenance.id).toUpperCase()} ({maintenance.price}/мiс)
+                                {String(maintenanceActive.name || maintenanceActive.id).toUpperCase()} ({maintenanceActive.price}/мiс)
                             </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => {
-                                safeRemoveItem('magmo_maintenance_plan');
-                                setMaintenance(null);
+                                if (typeof onCancelMaintenance === 'function') onCancelMaintenance();
                             }}
                             style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: 14, fontWeight: 950, cursor: 'pointer' }}
                         >
-                            Скинути
+                            Скасувати
                         </button>
+                    </div>
+                ) : null}
+
+                {maintenanceRequested?.id ? (
+                    <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '14px 16px', borderRadius: 18, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--text-subtle)' }}>
+                                Запит на обслуговування
+                            </div>
+                            <div style={{ fontWeight: 950, fontSize: '1.02rem' }}>
+                                {String(maintenanceRequested.name || maintenanceRequested.id).toUpperCase()} ({maintenanceRequested.price}/мiс) — очiкує пiдтвердження
+                            </div>
+                        </div>
                     </div>
                 ) : null}
 

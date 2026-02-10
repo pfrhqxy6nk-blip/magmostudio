@@ -111,6 +111,17 @@ create table if not exists public.projects (
   status text not null default 'PENDING',
   progress integer not null default 0,
   owner_id uuid not null references public.profiles(id) on delete cascade,
+  -- Maintenance (optional, after delivery)
+  maintenance_status text not null default 'NONE', -- NONE | REQUESTED | ACTIVE | CANCELED
+  maintenance_plan_id text,
+  maintenance_plan_name text,
+  maintenance_plan_price text,
+  maintenance_started_at timestamptz,
+  maintenance_ended_at timestamptz,
+  maintenance_requested_plan_id text,
+  maintenance_requested_plan_name text,
+  maintenance_requested_plan_price text,
+  maintenance_requested_at timestamptz,
   roadmap jsonb not null default '[]'::jsonb,
   resources jsonb not null default '[]'::jsonb,
   tech_log jsonb not null default '[]'::jsonb,

@@ -27,6 +27,17 @@ CREATE TABLE IF NOT EXISTS projects (
   status TEXT DEFAULT 'PENDING',
   progress INTEGER DEFAULT 0,
   owner_email TEXT NOT NULL,
+  -- Maintenance (optional, after delivery)
+  maintenance_status TEXT DEFAULT 'NONE', -- NONE | REQUESTED | ACTIVE | CANCELED
+  maintenance_plan_id TEXT,
+  maintenance_plan_name TEXT,
+  maintenance_plan_price TEXT,
+  maintenance_started_at TIMESTAMP WITH TIME ZONE,
+  maintenance_ended_at TIMESTAMP WITH TIME ZONE,
+  maintenance_requested_plan_id TEXT,
+  maintenance_requested_plan_name TEXT,
+  maintenance_requested_plan_price TEXT,
+  maintenance_requested_at TIMESTAMP WITH TIME ZONE,
   roadmap JSONB DEFAULT '[]'::jsonb,
   resources JSONB DEFAULT '[]'::jsonb,
   tech_log JSONB DEFAULT '[]'::jsonb,
