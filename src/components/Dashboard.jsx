@@ -302,6 +302,11 @@ const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
                                 <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '8px' }}>{p.category}</span>
                                 <span style={{ fontSize: '0.65rem', fontWeight: 950, color: status.color, background: status.bg, padding: '6px 12px', borderRadius: '30px', letterSpacing: '1px' }}>{status.label}</span>
+                                {normalizeMaintenanceStatus(p.maintenance_status) === 'REQUESTED' ? (
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'rgba(255,255,255,0.82)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', padding: '6px 12px', borderRadius: '30px', letterSpacing: '1px' }}>
+                                        MAINT REQ: {String(p.maintenance_requested_plan_name || p.maintenance_requested_plan_id || '').toUpperCase()}
+                                    </span>
+                                ) : null}
                                 {normalizeMaintenanceStatus(p.maintenance_status) === 'ACTIVE' ? (
                                     <span style={{ fontSize: '0.65rem', fontWeight: 950, color: 'rgba(255,255,255,0.82)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', padding: '6px 12px', borderRadius: '30px', letterSpacing: '1px' }}>
                                         MAINT: {String(p.maintenance_plan_name || p.maintenance_plan_id || '').toUpperCase()}
@@ -347,6 +352,12 @@ const AdminTable = ({ projects, onSelect, onDelete, isMobile }) => {
                                 <td style={{ padding: '24px' }}>
                                     <div style={{ fontSize: '0.65rem', fontWeight: 900, color: ADMIN_THEME.primary, marginBottom: '4px' }}>{p.owner_email}</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{p.title}</div>
+                                    {normalizeMaintenanceStatus(p.maintenance_status) === 'REQUESTED' ? (
+                                        <div style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.82)', fontSize: '0.62rem', fontWeight: 950, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                                            <span style={{ width: 8, height: 8, borderRadius: 999, background: 'rgba(255, 193, 7, 0.95)' }} />
+                                            Maintenance req: {String(p.maintenance_requested_plan_name || p.maintenance_requested_plan_id || '').toUpperCase()}
+                                        </div>
+                                    ) : null}
                                     {normalizeMaintenanceStatus(p.maintenance_status) === 'ACTIVE' ? (
                                         <div style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.82)', fontSize: '0.62rem', fontWeight: 950, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
                                             <span style={{ width: 8, height: 8, borderRadius: 999, background: 'rgba(76, 175, 80, 0.95)' }} />
