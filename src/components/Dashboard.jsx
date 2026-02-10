@@ -713,7 +713,7 @@ const LaptopFrame = ({ children }) => (
 // --- PROJECT DETAILS VIEW ---
 
 const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
-    const { updateProjectStatus, updateProjectData, deleteProject, payForProject, addComment, addRoadmapStep, updateRoadmapStep, deleteRoadmapStep, addResource, approveProject, uploadFile } = useAuth();
+    const { updateProjectStatus, updateProjectData, deleteProject, addComment, addRoadmapStep, updateRoadmapStep, deleteRoadmapStep, addResource, approveProject, uploadFile } = useAuth();
     const [commentText, setCommentText] = useState('');
     const [newResource, setNewResource] = useState({ label: '', link: '', type: 'Figma' });
     const [isUploading, setIsUploading] = useState(false);
@@ -724,7 +724,6 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
         safeJsonParse(safeGetItem('magmo_maintenance_plan') || ''),
     );
     const [pendingMaintenancePlan, setPendingMaintenancePlan] = useState(null);
-    const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
     const [activeDevice, setActiveDevice] = useState('phone'); // 'phone' | 'laptop'
     const [isAddingStep, setIsAddingStep] = useState(false);
     const [newStepTitle, setNewStepTitle] = useState('');
@@ -880,7 +879,7 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                             Для старту робiт потрiбна оплата (бюджет: {project?.budget || '—'}).
                         </div>
                         <div style={{ color: 'var(--text-muted)', lineHeight: 1.45 }}>
-                            Натисни “Оплатити”, а пiсля оплати — “Я оплатив”, щоб ми почали роботу.
+                            Натисни “Оплатити”. Пiсля оплати ми перевiримо надходження та оновимо статус.
                         </div>
                     </div>
 
@@ -904,35 +903,6 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                         >
                             Оплатити
                         </a>
-                        <button
-                            type="button"
-                            disabled={isConfirmingPayment}
-                            onClick={async () => {
-                                if (!project?.id) return;
-                                try {
-                                    setIsConfirmingPayment(true);
-                                    await addComment(project.id, '✅ Я оплатив. Можна починати роботу.');
-                                    await payForProject(project.id);
-                                } finally {
-                                    setIsConfirmingPayment(false);
-                                }
-                            }}
-                            style={{
-                                background: 'var(--accent-start)',
-                                border: 'none',
-                                color: 'black',
-                                padding: '12px 14px',
-                                borderRadius: 14,
-                                fontWeight: 980,
-                                letterSpacing: '0.08em',
-                                textTransform: 'uppercase',
-                                fontSize: '0.72rem',
-                                cursor: isConfirmingPayment ? 'not-allowed' : 'pointer',
-                                opacity: isConfirmingPayment ? 0.7 : 1,
-                            }}
-                        >
-                            Я оплатив
-                        </button>
                     </div>
                 </div>
             ) : null}
