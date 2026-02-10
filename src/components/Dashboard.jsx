@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 const MOBILE_BREAKPOINT_PX = 1024;
+const DEFAULT_MONO_PAY_URL = 'https://send.monobank.ua/9eF51wt1iY';
 
 const getIsMobileLayout = () => {
     if (typeof window === 'undefined') return false;
@@ -722,11 +723,14 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
     const [maintenancePlan, setMaintenancePlan] = useState(() =>
         safeJsonParse(safeGetItem('magmo_maintenance_plan') || ''),
     );
+    const [pendingMaintenancePlan, setPendingMaintenancePlan] = useState(null);
+    const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
     const [activeDevice, setActiveDevice] = useState('phone'); // 'phone' | 'laptop'
     const [isAddingStep, setIsAddingStep] = useState(false);
     const [newStepTitle, setNewStepTitle] = useState('');
     const isAdmin = user?.is_admin;
     const canBuyMaintenance = !isAdmin && (project?.status === 'ACTIVE' || project?.status === 'COMPLETED');
+    const monoPayUrl = import.meta.env.VITE_MONO_PAY_URL || DEFAULT_MONO_PAY_URL;
 
     // Layout helpers (ProjectDetails is rendered without Dashboard sidebar, so handle mobile here too).
     const gridColumnSpan = (span) => (isMobile ? '1 / -1' : `span ${span}`);
@@ -849,6 +853,89 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                     )}
                 </div>
             </div>
+
+            {!isAdmin && project?.status === 'PAYMENT' ? (
+                <div
+                    style={{
+                        position: 'relative',
+                        zIndex: 10,
+                        marginBottom: 16,
+                        borderRadius: 24,
+                        padding: isMobile ? 16 : 20,
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        background: 'rgba(255,255,255,0.04)',
+                        boxShadow: '0 26px 90px rgba(0,0,0,0.45)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 14,
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 240 }}>
+                        <div style={{ fontSize: '0.72rem', fontWeight: 950, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--text-subtle)' }}>
+                            Оплата проекту
+                        </div>
+                        <div style={{ fontWeight: 950, fontSize: isMobile ? '1.05rem' : '1.15rem' }}>
+                            Для старту робiт потрiбна оплата (бюджет: {project?.budget || '—'}).
+                        </div>
+                        <div style={{ color: 'var(--text-muted)', lineHeight: 1.45 }}>
+                            Натисни “Оплатити”, а пiсля оплати — “Я оплатив”, щоб ми почали роботу.
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <a
+                            href={monoPayUrl}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            style={{
+                                textDecoration: 'none',
+                                background: 'rgba(255,255,255,0.06)',
+                                border: '1px solid rgba(255,255,255,0.14)',
+                                color: 'var(--text-main)',
+                                padding: '12px 14px',
+                                borderRadius: 14,
+                                fontWeight: 950,
+                                letterSpacing: '0.08em',
+                                textTransform: 'uppercase',
+                                fontSize: '0.72rem',
+                            }}
+                        >
+                            Оплатити
+                        </a>
+                        <button
+                            type="button"
+                            disabled={isConfirmingPayment}
+                            onClick={async () => {
+                                if (!project?.id) return;
+                                try {
+                                    setIsConfirmingPayment(true);
+                                    await addComment(project.id, '✅ Я оплатив. Можна починати роботу.');
+                                    await payForProject(project.id);
+                                } finally {
+                                    setIsConfirmingPayment(false);
+                                }
+                            }}
+                            style={{
+                                background: 'var(--accent-start)',
+                                border: 'none',
+                                color: 'black',
+                                padding: '12px 14px',
+                                borderRadius: 14,
+                                fontWeight: 980,
+                                letterSpacing: '0.08em',
+                                textTransform: 'uppercase',
+                                fontSize: '0.72rem',
+                                cursor: isConfirmingPayment ? 'not-allowed' : 'pointer',
+                                opacity: isConfirmingPayment ? 0.7 : 1,
+                            }}
+                        >
+                            Я оплатив
+                        </button>
+                    </div>
+                </div>
+            ) : null}
 
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(12, 1fr)', gap: '16px' }}>
                 <motion.div
@@ -1378,16 +1465,87 @@ const ProjectDetailsView = ({ project, onBack, user, isMobile = false }) => {
                                 </div>
                             ) : null}
 
-                            <SubscriptionPlans
-                                onChoose={async (plan) => {
-                                    if (!project?.id) return;
-                                    const next = { id: plan.id, name: plan.name, price: plan.price, startedAt: new Date().toISOString() };
-                                    safeSetItem('magmo_maintenance_plan', JSON.stringify(next));
-                                    setMaintenancePlan(next);
-                                    await addComment(project.id, `✅ Хочу пiдключити обслуговування: ${plan.name} — ${plan.price}/мiс.`);
-                                    setIsMaintenanceModalOpen(false);
-                                }}
-                            />
+                            {!maintenancePlan?.id ? (
+                                pendingMaintenancePlan ? (
+                                    <div style={{ marginTop: 12, borderRadius: 22, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.04)', padding: 16 }}>
+                                        <div style={{ fontWeight: 980, fontSize: '1.1rem' }}>
+                                            Обрано: {pendingMaintenancePlan.name} ({pendingMaintenancePlan.price}/мiс)
+                                        </div>
+                                        <div style={{ marginTop: 8, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                                            Натисни “Оплатити”, а пiсля оплати — “Пiдтвердити”, щоб активувати план.
+                                        </div>
+
+                                        <div style={{ marginTop: 14, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                                            <a
+                                                href={monoPayUrl}
+                                                target="_blank"
+                                                rel="noreferrer noopener"
+                                                style={{
+                                                    textDecoration: 'none',
+                                                    background: 'rgba(255,255,255,0.06)',
+                                                    border: '1px solid rgba(255,255,255,0.14)',
+                                                    color: 'var(--text-main)',
+                                                    padding: '12px 14px',
+                                                    borderRadius: 14,
+                                                    fontWeight: 950,
+                                                    letterSpacing: '0.08em',
+                                                    textTransform: 'uppercase',
+                                                    fontSize: '0.72rem',
+                                                }}
+                                            >
+                                                Оплатити
+                                            </a>
+                                            <button
+                                                type="button"
+                                                onClick={async () => {
+                                                    if (!project?.id) return;
+                                                    const plan = pendingMaintenancePlan;
+                                                    const next = { id: plan.id, name: plan.name, price: plan.price, startedAt: new Date().toISOString() };
+                                                    safeSetItem('magmo_maintenance_plan', JSON.stringify(next));
+                                                    setMaintenancePlan(next);
+                                                    setPendingMaintenancePlan(null);
+                                                    await addComment(project.id, `✅ Оплачено/пiдтверджую обслуговування: ${plan.name} — ${plan.price}/мiс.`);
+                                                    setIsMaintenanceModalOpen(false);
+                                                }}
+                                                style={{
+                                                    background: 'var(--accent-start)',
+                                                    border: 'none',
+                                                    color: 'black',
+                                                    padding: '12px 14px',
+                                                    borderRadius: 14,
+                                                    fontWeight: 980,
+                                                    letterSpacing: '0.08em',
+                                                    textTransform: 'uppercase',
+                                                    fontSize: '0.72rem',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                Пiдтвердити
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setPendingMaintenancePlan(null)}
+                                                style={{
+                                                    background: 'rgba(255,255,255,0.06)',
+                                                    border: '1px solid rgba(255,255,255,0.12)',
+                                                    color: 'var(--text-main)',
+                                                    padding: '12px 14px',
+                                                    borderRadius: 14,
+                                                    fontWeight: 900,
+                                                    letterSpacing: '0.08em',
+                                                    textTransform: 'uppercase',
+                                                    fontSize: '0.72rem',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                Назад
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <SubscriptionPlans onChoose={(plan) => setPendingMaintenancePlan(plan)} />
+                                )
+                            ) : null}
                         </motion.div>
                     </motion.div>
                 )}
