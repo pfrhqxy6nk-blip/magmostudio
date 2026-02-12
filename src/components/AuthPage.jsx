@@ -7,11 +7,9 @@ const AuthPage = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [authStep, setAuthStep] = useState(1); // 1: Auth fields, 2+: Configurator steps
     const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '' });
-    const [emailCode, setEmailCode] = useState('');
-    const [isAwaitingCode, setIsAwaitingCode] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const { login, register, verifyEmailCode } = useAuth();
+    const { login, register } = useAuth();
 
     const handleAuthSubmit = async (e) => {
         if (e) e.preventDefault();
@@ -24,26 +22,21 @@ const AuthPage = () => {
                 setError('Користувача не знайдено або помилка входу.');
             }
         } else {
+            // Strict Registration without Project Setup
             try {
-                if (!isAwaitingCode) {
-                    await register({ email: formData.email });
-                    setIsAwaitingCode(true);
-                    setSuccess('Ми надiслали код на email. Введи код нижче, щоб створити акаунт.');
-                    return;
-                }
-
-                await verifyEmailCode({
-                    email: formData.email,
-                    code: emailCode,
-                    password: formData.password,
+                const result = await register({
                     name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
                     phone: formData.phone,
                     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + formData.name
                 });
-
-                setSuccess('Email підтверджено. Акаунт створено — можеш користуватися.');
-                setIsAwaitingCode(false);
-                setEmailCode('');
+                if (result?.needsEmailConfirmation) {
+                    setSuccess('Ми надiслали лист для пiдтвердження пошти. Вiдкрий email i натисни “Confirm”. Пiсля цього увiйди в акаунт.');
+                    setIsLogin(true);
+                    setFormData((prev) => ({ ...prev, password: '' }));
+                }
+                // If email confirmations are disabled, onAuthStateChange will redirect to Dashboard.
             } catch (err) {
                 console.error("Registration flow error:", err);
                 if (err.code === '23505') {
@@ -95,64 +88,20 @@ const AuthPage = () => {
                             )}
                             <div style={{ position: 'relative' }}>
                                 <Mail size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
-                                <input
-                                    type="email"
-                                    placeholder="Email"
-                                    required
-                                    value={formData.email}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, email: e.target.value });
-                                        if (!isLogin) {
-                                            setIsAwaitingCode(false);
-                                            setEmailCode('');
-                                        }
-                                    }}
-                                    style={{ width: '100%', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'var(--text-main)', fontSize: '1rem' }}
-                                />
+                                <input type="email" placeholder="Email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} style={{ width: '100%', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'var(--text-main)', fontSize: '1rem' }} />
                             </div>
                             <div style={{ position: 'relative' }}>
                                 <Lock size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
                                 <input type="password" placeholder="Пароль" required value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} style={{ width: '100%', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'var(--text-main)', fontSize: '1rem' }} />
                             </div>
-                            {!isLogin && isAwaitingCode ? (
-                                <div style={{ position: 'relative' }}>
-                                    <Send size={18} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-subtle)' }} />
-                                    <input
-                                        type="text"
-                                        inputMode="numeric"
-                                        autoComplete="one-time-code"
-                                        placeholder="Код з email"
-                                        required
-                                        value={emailCode}
-                                        onChange={(e) => setEmailCode(e.target.value)}
-                                        style={{ width: '100%', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '16px', padding: '16px 20px 16px 50px', color: 'var(--text-main)', fontSize: '1rem', letterSpacing: '0.12em' }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={async () => {
-                                            setError('');
-                                            setSuccess('');
-                                            try {
-                                                await register({ email: formData.email });
-                                                setSuccess('Код надiслано ще раз.');
-                                            } catch (err) {
-                                                setError(err?.message || 'Не вдалося надiслати код');
-                                            }
-                                        }}
-                                        style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-main)', padding: '10px 12px', borderRadius: 12, fontWeight: 900, cursor: 'pointer', fontSize: '0.75rem' }}
-                                    >
-                                        Надiслати ще раз
-                                    </button>
-                                </div>
-                            ) : null}
                             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" style={{ background: 'linear-gradient(90deg, var(--accent-start) 0%, var(--accent-mid) 55%, var(--accent-end) 100%)', color: 'var(--text-invert)', padding: '18px', borderRadius: '16px', fontWeight: 800, fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginTop: '10px', boxShadow: 'var(--shadow-accent)' }}>
-                                {isLogin ? 'Увійдіть' : (isAwaitingCode ? 'Пiдтвердити код' : 'Отримати код')}
+                                {isLogin ? 'Увійдіть' : 'Продовжити'}
                                 <ArrowRight size={20} />
                             </motion.button>
                         </form>
                         <div style={{ marginTop: '30px', textAlign: 'center' }}>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{isLogin ? 'Ще немає акаунту?' : 'Вже маєте акаунт?'}
-                                <button onClick={() => { setIsLogin(!isLogin); setIsAwaitingCode(false); setEmailCode(''); setError(''); setSuccess(''); }} style={{ color: 'var(--accent-start)', fontWeight: 700, marginLeft: '8px', background: 'transparent' }}>{isLogin ? 'Зареєструватися' : 'Увійти'}</button>
+                                <button onClick={() => setIsLogin(!isLogin)} style={{ color: 'var(--accent-start)', fontWeight: 700, marginLeft: '8px', background: 'transparent' }}>{isLogin ? 'Зареєструватися' : 'Увійти'}</button>
                             </p>
                         </div>
                     </motion.div>
