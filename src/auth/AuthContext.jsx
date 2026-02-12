@@ -173,42 +173,70 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   }, []);
 
+  // Step 1 (registration): send email code (OTP). User is created only after successful verification.
   const register = useCallback(async (userData) => {
     const email = String(userData?.email || '').trim();
-    const password = String(userData?.password || '');
     if (!email.includes('@')) throw new Error('Некоректний email');
-    if (password.length < MIN_PASSWORD_LEN) {
-      throw new Error(`Пароль занадто короткий (мін. ${MIN_PASSWORD_LEN} символів)`);
-    }
 
-    const name = userData?.name || email.split('@')[0];
-    const avatar =
-      userData?.avatar ||
-      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`;
-
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithOtp({
       email,
-      password,
       options: {
-        data: { name, phone: userData?.phone || '', avatar },
+        shouldCreateUser: true,
         emailRedirectTo: getEmailRedirectTo(),
       },
     });
 
     if (error) {
-      debug('Registration failed:', error);
+      debug('OTP send failed:', error);
       throw error;
     }
 
-    // Best-effort: keep legacy profiles in sync (email-keyed schema).
+    return { needsEmailCode: true };
+  }, []);
+
+  // Step 2 (registration): verify email code, then set password + profile metadata.
+  const verifyEmailCode = useCallback(async ({ email, code, password, name, phone, avatar }) => {
+    const normalizedEmail = String(email || '').trim();
+    const token = String(code || '').trim();
+    const nextPassword = String(password || '');
+    if (!normalizedEmail.includes('@')) throw new Error('Некоректний email');
+    if (!token) throw new Error('Введiть код з email');
+    if (nextPassword.length < MIN_PASSWORD_LEN) {
+      throw new Error(`Пароль занадто короткий (мін. ${MIN_PASSWORD_LEN} символів)`);
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: normalizedEmail,
+      token,
+      type: 'email',
+    });
+
+    if (error || !data?.session?.user) {
+      debug('OTP verify failed:', error);
+      throw error || new Error('Не вдалося пiдтвердити код');
+    }
+
+    const finalName = name || normalizedEmail.split('@')[0];
+    const finalAvatar =
+      avatar ||
+      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(normalizedEmail)}`;
+
+    const { error: updateErr } = await supabase.auth.updateUser({
+      password: nextPassword,
+      data: { name: finalName, phone: phone || '', avatar: finalAvatar },
+    });
+    if (updateErr) throw updateErr;
+
+    // Best-effort: ensure profiles row exists in legacy schema (email-keyed).
+    // Secure schema uses a trigger on auth.users.
     try {
-      const isRoot = email === ROOT_EMAIL;
+      const isRoot = normalizedEmail === ROOT_EMAIL;
       await supabase.from('profiles').upsert(
         {
-          email,
-          name,
-          phone: userData?.phone || '',
-          avatar,
+          email: normalizedEmail,
+          name: finalName,
+          phone: phone || '',
+          avatar: finalAvatar,
           is_admin: isRoot,
           is_root: isRoot,
         },
@@ -218,8 +246,7 @@ export const AuthProvider = ({ children }) => {
       // ignore
     }
 
-    // If Supabase "Confirm email" is enabled, session can be null until user confirms.
-    return { needsEmailConfirmation: !data?.session };
+    return { success: true };
   }, []);
 
   const addAdmin = useCallback(async (email) => {
@@ -518,6 +545,7 @@ export const AuthProvider = ({ children }) => {
       projects,
       login,
       register,
+      verifyEmailCode,
       logout,
       addAdmin,
       removeAdmin,
@@ -541,6 +569,7 @@ export const AuthProvider = ({ children }) => {
       projects,
       login,
       register,
+      verifyEmailCode,
       logout,
       addAdmin,
       removeAdmin,
