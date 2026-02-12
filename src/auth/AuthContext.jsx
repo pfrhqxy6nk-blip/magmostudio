@@ -7,6 +7,22 @@ const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 const ROOT_EMAIL = 'oleks160409@gmail.com';
+const MIN_PASSWORD_LEN = 6;
+
+const getEmailRedirectTo = () => {
+  // Where Supabase sends the user after email confirmation.
+  // Keep it stable across dev/prod.
+  try {
+    return `${window.location.origin}/profile`;
+  } catch {
+    return undefined;
+  }
+};
+
+const mergeProfile = (base, profile) => {
+  if (!profile) return base;
+  return { ...base, ...profile };
+};
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -25,31 +41,45 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const savedUser = safeGetItem('user');
-        if (!savedUser) return;
+        // If we have a Supabase session, prefer it.
+        const { data: sessionData } = await supabase.auth.getSession();
+        const sessionUser = sessionData?.session?.user || null;
 
-        const parsed = safeJsonParse(savedUser);
-        if (!parsed) {
-          safeRemoveItem('user');
+        if (sessionUser) {
+          const baseUser = {
+            id: sessionUser.id,
+            email: sessionUser.email,
+            name: sessionUser.user_metadata?.name,
+            phone: sessionUser.user_metadata?.phone,
+            avatar: sessionUser.user_metadata?.avatar,
+          };
+
+          // Support both schemas:
+          // - legacy: profiles keyed by email
+          // - secure: profiles.id == auth.uid()
+          let profile = null;
+          const byId = await supabase.from('profiles').select('*').eq('id', sessionUser.id).maybeSingle();
+          if (!byId.error && byId.data) profile = byId.data;
+          if (!profile) {
+            const byEmail = await supabase.from('profiles').select('*').eq('email', sessionUser.email).maybeSingle();
+            if (!byEmail.error && byEmail.data) profile = byEmail.data;
+          }
+
+          const merged = mergeProfile(baseUser, profile);
+          safeSetItem('user', JSON.stringify(merged));
+          setUser(merged);
           return;
         }
 
-        let userData = parsed;
-
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', userData.email)
-          .single();
-
-        if (error) debug('Profile fetch failed:', error);
-
-        if (profile) {
-          userData = { ...userData, ...profile };
-          safeSetItem('user', JSON.stringify(userData));
+        // Legacy fallback: localStorage user (keeps old sessions from hard-breaking).
+        const savedUser = safeGetItem('user');
+        if (!savedUser) return;
+        const parsed = safeJsonParse(savedUser);
+        if (!parsed?.email) {
+          safeRemoveItem('user');
+          return;
         }
-
-        setUser(userData);
+        setUser(parsed);
       } catch (error) {
         console.error('Auth init failed:', error);
         safeRemoveItem('user');
@@ -60,6 +90,42 @@ export const AuthProvider = ({ children }) => {
     };
 
     initAuth();
+  }, []);
+
+  useEffect(() => {
+    // Keep app state in sync with Supabase Auth.
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const sessionUser = session?.user || null;
+      if (!sessionUser) {
+        safeRemoveItem('user');
+        setUser(null);
+        return;
+      }
+
+      const baseUser = {
+        id: sessionUser.id,
+        email: sessionUser.email,
+        name: sessionUser.user_metadata?.name,
+        phone: sessionUser.user_metadata?.phone,
+        avatar: sessionUser.user_metadata?.avatar,
+      };
+
+      let profile = null;
+      const byId = await supabase.from('profiles').select('*').eq('id', sessionUser.id).maybeSingle();
+      if (!byId.error && byId.data) profile = byId.data;
+      if (!profile) {
+        const byEmail = await supabase.from('profiles').select('*').eq('email', sessionUser.email).maybeSingle();
+        if (!byEmail.error && byEmail.data) profile = byEmail.data;
+      }
+
+      const merged = mergeProfile(baseUser, profile);
+      safeSetItem('user', JSON.stringify(merged));
+      setUser(merged);
+    });
+
+    return () => {
+      sub?.subscription?.unsubscribe?.();
+    };
   }, []);
 
   useEffect(() => {
@@ -98,53 +164,62 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   const login = useCallback(async (email, password) => {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', email)
-      .eq('password', password)
-      .single();
-
-    if (error || !profile) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data?.user) {
       debug('Login failed:', error);
       return null;
     }
-
-    safeSetItem('user', JSON.stringify(profile));
-    setUser(profile);
-    return profile;
+    // onAuthStateChange will hydrate state.
+    return data.user;
   }, []);
 
   const register = useCallback(async (userData) => {
-    const isRoot = userData.email === ROOT_EMAIL;
-    const newProfile = {
-      email: userData.email,
-      password: userData.password,
-      name: userData.name || userData.email.split('@')[0],
-      phone: userData.phone,
-      is_admin: isRoot,
-      is_root: isRoot,
-      avatar:
-        userData.avatar ||
-        `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.email}`,
-    };
+    const email = String(userData.email || '').trim();
+    const password = String(userData.password || '');
+    if (password.length < MIN_PASSWORD_LEN) {
+      throw new Error(`Пароль занадто короткий (мін. ${MIN_PASSWORD_LEN} символів)`);
+    }
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .insert([newProfile])
-      .select()
-      .single();
+    const name = userData.name || email.split('@')[0];
+    const avatar =
+      userData.avatar ||
+      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`;
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name, phone: userData.phone || '', avatar },
+        emailRedirectTo: getEmailRedirectTo(),
+      },
+    });
 
     if (error) {
       debug('Registration failed:', error);
       throw error;
     }
 
-    if (!data) throw new Error('Registration failed: empty response');
+    // Compatibility: ensure profiles row exists (legacy schema keys by email).
+    // In a secure schema, a trigger will create it automatically on auth.users insert.
+    try {
+      const isRoot = email === ROOT_EMAIL;
+      await supabase.from('profiles').upsert(
+        {
+          email,
+          name,
+          phone: userData.phone || '',
+          avatar,
+          is_admin: isRoot,
+          is_root: isRoot,
+        },
+        { onConflict: 'email' },
+      );
+    } catch {
+      // ignore (RLS may block; secure schema should handle via trigger).
+    }
 
-    safeSetItem('user', JSON.stringify(data));
-    setUser(data);
-    return data;
+    // If email confirmations are enabled, there will be no session yet.
+    return { needsEmailConfirmation: !data?.session };
   }, []);
 
   const addAdmin = useCallback(async (email) => {
@@ -162,6 +237,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(() => {
+    // Best-effort sign out from Supabase Auth.
+    supabase.auth.signOut().catch(() => {});
     safeRemoveItem('user');
     setUser(null);
     setProjects([]);

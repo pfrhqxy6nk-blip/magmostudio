@@ -2018,18 +2018,20 @@ const SettingsView = ({ user, updateUser, isMobile = false, maintenanceProject =
             : null;
 
     const handlePasswordUpdate = () => {
-        if (passwordData.current !== user.password) {
-            alert('Поточний пароль невірний');
-            return;
-        }
-        if (passwordData.next.length < 4) {
-            alert('Новий пароль занадто короткий (мін. 4 символи)');
-            return;
-        }
-        updateUser({ password: passwordData.next });
-        setPasswordData({ current: '', next: '' });
-        setShowPassword(false);
-        alert('Пароль успішно змінено');
+        (async () => {
+            if (passwordData.next.length < 6) {
+                alert('Новий пароль занадто короткий (мін. 6 символiв)');
+                return;
+            }
+            const { error } = await supabase.auth.updateUser({ password: passwordData.next });
+            if (error) {
+                alert(error.message || 'Не вдалося змiнити пароль');
+                return;
+            }
+            setPasswordData({ current: '', next: '' });
+            setShowPassword(false);
+            alert('Пароль успiшно змiнено');
+        })();
     };
 
 	    const avatarStyles = [
@@ -2180,7 +2182,7 @@ const SettingsView = ({ user, updateUser, isMobile = false, maintenanceProject =
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <input
                             type="password"
-                            placeholder="Поточний пароль"
+                            placeholder="Поточний пароль (необовʼязково)"
                             value={passwordData.current}
                             onChange={e => setPasswordData({ ...passwordData, current: e.target.value })}
                             style={{ padding: '14px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '12px', color: 'var(--text-main)', outline: 'none' }}

@@ -8,11 +8,13 @@ const AuthPage = () => {
     const [authStep, setAuthStep] = useState(1); // 1: Auth fields, 2+: Configurator steps
     const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '' });
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const { login, register } = useAuth();
 
     const handleAuthSubmit = async (e) => {
         if (e) e.preventDefault();
         setError('');
+        setSuccess('');
 
         if (isLogin) {
             const user = await login(formData.email, formData.password);
@@ -22,14 +24,19 @@ const AuthPage = () => {
         } else {
             // Strict Registration without Project Setup
             try {
-                const newUser = await register({
+                const result = await register({
                     name: formData.name,
                     email: formData.email,
                     password: formData.password,
                     phone: formData.phone,
                     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + formData.name
                 });
-                // If successful, the AuthContext/useEffect will see the user and redirect to Dashboard
+                if (result?.needsEmailConfirmation) {
+                    setSuccess('Ми надiслали лист для пiдтвердження пошти. Вiдкрий email i натисни “Confirm”. Пiсля цього увiйди в акаунт.');
+                    setIsLogin(true);
+                    setFormData((prev) => ({ ...prev, password: '' }));
+                }
+                // If email confirmations are disabled, onAuthStateChange will redirect to Dashboard.
             } catch (err) {
                 console.error("Registration flow error:", err);
                 if (err.code === '23505') {
@@ -49,6 +56,13 @@ const AuthPage = () => {
                     <div style={{ padding: '15px', marginBottom: '20px', borderRadius: '12px', background: 'rgba(255, 50, 50, 0.1)', border: '1px solid rgba(255, 50, 50, 0.2)', color: '#FF3333', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <Info size={18} />
                         <p style={{ fontSize: '0.9rem', margin: 0 }}>{error}</p>
+                    </div>
+                )}
+
+                {success && (
+                    <div style={{ padding: '15px', marginBottom: '20px', borderRadius: '12px', background: 'rgba(76, 175, 80, 0.12)', border: '1px solid rgba(76, 175, 80, 0.22)', color: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <Check size={18} />
+                        <p style={{ fontSize: '0.9rem', margin: 0, lineHeight: 1.4 }}>{success}</p>
                     </div>
                 )}
 
