@@ -7,7 +7,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist', 'node_modules', '.vercel']),
   {
-    files: ['vite.config.js', 'eslint.config.js', 'api/**/*.js'],
+    files: ['vite.config.js', 'eslint.config.js'],
     languageOptions: {
       globals: globals.node,
     },

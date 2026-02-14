@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Send, Info, DollarSign, Wallet, Sparkles } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Send, Info, DollarSign, Wallet } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { safeRemoveItem } from '../utils/storage.js';
 
@@ -81,9 +81,6 @@ const Configurator = () => {
     const [customBudget, setCustomBudget] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const [aiEstimate, setAiEstimate] = useState(null);
-    const [aiLoading, setAiLoading] = useState(false);
-    const [aiError, setAiError] = useState('');
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -94,41 +91,6 @@ const Configurator = () => {
     const handleSelect = (optionId) => {
         setSelections({ ...selections, [currentStep]: optionId });
         if (steps[currentStep].isBudget) setCustomBudget('');
-    };
-
-    const getCurrentPayload = () => {
-        const categoryTitle = steps[0].options.find(o => o.id === selections[0])?.title || 'Web Project';
-        const finalBudget = customBudget ? `$${customBudget}` :
-            steps[1].options.find(o => o.id === selections[1])?.title || '';
-        return {
-            category: categoryTitle,
-            budget: finalBudget,
-            details: details,
-        };
-    };
-
-    const runAiEstimate = async () => {
-        setAiError('');
-        setAiEstimate(null);
-        setAiLoading(true);
-        try {
-            const payload = getCurrentPayload();
-            const res = await fetch('/api/estimate', {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-                setAiError(data?.error || 'Не вдалося отримати оцiнку');
-                return;
-            }
-            setAiEstimate(data?.estimate || null);
-        } catch (e) {
-            setAiError(e?.message || 'Помилка мережi');
-        } finally {
-            setAiLoading(false);
-        }
     };
 
     const nextStep = () => {
@@ -249,94 +211,7 @@ const Configurator = () => {
                                 </div>
                             </div>
                         ) : step.isDetails ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <textarea placeholder="Опишіть основні функції вашого майбутнього продукту..." value={details} onChange={(e) => setDetails(e.target.value)} style={{ width: '100%', height: '240px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '24px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', resize: 'none', lineHeight: 1.6, outline: 'none' }} />
-
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                        <div style={{ fontWeight: 950, letterSpacing: '0.12em', textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--text-subtle)' }}>
-                                            AI оцiнка
-                                        </div>
-                                        <div style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: 1.45 }}>
-                                            Орiєнтовна вартiсть на основi вибору категорiї, бюджету та опису.
-                                        </div>
-                                    </div>
-
-                                    <motion.button
-                                        type="button"
-                                        onClick={runAiEstimate}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        disabled={aiLoading || !details.trim() || selections[0] === undefined}
-                                        style={{
-                                            background: aiLoading ? 'rgba(255,255,255,0.08)' : 'var(--text-main)',
-                                            color: aiLoading ? 'rgba(255,255,255,0.75)' : 'var(--text-invert)',
-                                            padding: '14px 18px',
-                                            borderRadius: '16px',
-                                            fontWeight: 950,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '10px',
-                                            border: '1px solid rgba(255,255,255,0.10)',
-                                            cursor: aiLoading ? 'not-allowed' : 'pointer',
-                                            opacity: aiLoading ? 0.8 : 1,
-                                        }}
-                                    >
-                                        <Sparkles size={18} />
-                                        {aiLoading ? 'Рахую...' : 'Порахувати'}
-                                    </motion.button>
-                                </div>
-
-                                {aiError ? (
-                                    <div style={{ padding: '14px 16px', borderRadius: '16px', background: 'rgba(255, 50, 50, 0.10)', border: '1px solid rgba(255, 50, 50, 0.20)', color: '#FF3333', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <Info size={18} />
-                                        <div style={{ fontWeight: 800 }}>{aiError}</div>
-                                    </div>
-                                ) : null}
-
-                                {aiEstimate ? (
-                                    <div style={{ padding: '18px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.03)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                                            <div style={{ fontSize: '1.6rem', fontWeight: 980, letterSpacing: '-0.02em' }}>
-                                                ≈ ${Number(aiEstimate.estimated_total_usd || 0).toFixed(0)}
-                                            </div>
-                                            <div style={{ color: 'var(--text-muted)', fontWeight: 850 }}>
-                                                Дiапазон: ${Number(aiEstimate.range_usd?.min || 0).toFixed(0)} – ${Number(aiEstimate.range_usd?.max || 0).toFixed(0)} · {Number(aiEstimate.timeline_days || 0).toFixed(0)} днiв
-                                            </div>
-                                        </div>
-
-                                        <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
-                                            {(Array.isArray(aiEstimate.breakdown) ? aiEstimate.breakdown : []).slice(0, 6).map((b) => (
-                                                <div key={b.item} style={{ padding: '12px 14px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-                                                        <div style={{ fontWeight: 950 }}>{b.item}</div>
-                                                        <div style={{ fontWeight: 950, color: 'var(--text-subtle)' }}>${Number(b.usd || 0).toFixed(0)}</div>
-                                                    </div>
-                                                    <div style={{ marginTop: 6, color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.45 }}>
-                                                        {b.notes}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {(Array.isArray(aiEstimate.questions) && aiEstimate.questions.length > 0) ? (
-                                            <div style={{ marginTop: 14, color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                                                <div style={{ fontWeight: 950, letterSpacing: '0.12em', textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--text-subtle)' }}>
-                                                    Уточнення
-                                                </div>
-                                                <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                                    {aiEstimate.questions.slice(0, 5).map((q) => (
-                                                        <div key={q} style={{ display: 'flex', gap: 10 }}>
-                                                            <span style={{ color: 'var(--accent-start)', fontWeight: 950 }}>•</span>
-                                                            <span>{q}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ) : null}
-                                    </div>
-                                ) : null}
-                            </div>
+                            <textarea placeholder="Опишіть основні функції вашого майбутнього продукту..." value={details} onChange={(e) => setDetails(e.target.value)} style={{ width: '100%', height: '240px', background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '24px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', resize: 'none', lineHeight: 1.6, outline: 'none' }} />
                         ) : (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                                 {step.isBudget ? (
