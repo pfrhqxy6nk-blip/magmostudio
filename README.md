@@ -2,6 +2,14 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## AI Cost Estimator (OpenAI)
+
+This project includes a Vercel Function at `api/estimate.js` used by the configurator to calculate an approximate website cost (UA packages: START/GROW/SCALE).
+
+Required env vars (server-side on Vercel):
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL` (optional, defaults to `gpt-4o-mini-2024-07-18`)
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh

@@ -1,36 +1,30 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Send, Info, DollarSign, Wallet, Sparkles } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Send, Info, Wallet, Sparkles } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { safeRemoveItem } from '../utils/storage.js';
 
 const BUDGET_PLANS = [
     {
         id: 'start',
-        product: 'Start',
-        price: '$300',
-        forWhom: 'Малий бізнес / старт',
-        inside: '1 сторінка, адаптив, форма, базовий SEO',
-        title: '$300',
-        desc: '1 сторінка + базовий SEO',
+        product: 'START',
+        price: '9 000 грн',
+        forWhom: 'Старт / експерт / тест ніші',
+        inside: '1–3 сторінки, адаптив, домен+хостинг, форма, базове SEO, аналітика, 1 раунд правок',
     },
     {
-        id: 'business',
-        product: 'Business',
-        price: '$600',
-        forWhom: 'Основний сегмент',
-        inside: 'До 5 сторінок, інтеграції, UX, готовність до реклами',
-        title: '$600',
-        desc: 'До 5 сторінок + інтеграції',
+        id: 'grow',
+        product: 'GROW',
+        price: '19 000 грн',
+        forWhom: 'Малий бізнес / послуги',
+        inside: 'До 10 сторінок, дизайн, прототип, інтеграції (CRM/аналітика), структура під рекламу, 2 раунди правок',
     },
     {
-        id: 'pro',
-        product: 'Pro',
-        price: '$900',
-        forWhom: 'Складніші кейси',
-        inside: 'До 10 сторінок, логіка, пріоритет',
-        title: '$900',
-        desc: 'До 10 сторінок + пріоритет',
+        id: 'scale',
+        product: 'SCALE',
+        price: '35 000 грн',
+        forWhom: 'Магазин / онлайн-продажі',
+        inside: 'До 100 товарів, оплати, доставка, каталог+фільтри, CRM, e-commerce аналітика, 2 раунди правок',
     },
 ];
 
@@ -98,8 +92,8 @@ const Configurator = () => {
 
     const getCurrentPayload = () => {
         const categoryTitle = steps[0].options.find(o => o.id === selections[0])?.title || 'Web Project';
-        const finalBudget = customBudget ? `$${customBudget}` :
-            steps[1].options.find(o => o.id === selections[1])?.title || '';
+        const finalBudget = customBudget ? `${customBudget} грн` :
+            steps[1].options.find(o => o.id === selections[1])?.price || '';
         return {
             category: categoryTitle,
             budget: finalBudget,
@@ -131,12 +125,23 @@ const Configurator = () => {
         }
     };
 
+    const formatUah = (value) => {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return '';
+        return `${new Intl.NumberFormat('uk-UA').format(Math.round(n))} грн`;
+    };
+
+    const packageLabel = (value) => {
+        if (!value) return '';
+        return String(value).toUpperCase();
+    };
+
     const nextStep = () => {
         if (currentStep < steps.length - 1) {
             setCurrentStep(prev => prev + 1);
         } else {
-            const finalBudget = customBudget ? `$${customBudget}` :
-                steps[1].options.find(o => o.id === selections[1])?.title || 'N/A';
+            const finalBudget = customBudget ? `${customBudget} грн` :
+                steps[1].options.find(o => o.id === selections[1])?.price || 'N/A';
 
             const projectData = {
                 title: projectTitle || `${steps[0].options.find(o => o.id === selections[0])?.title || 'New Project'} Request`,
@@ -296,28 +301,52 @@ const Configurator = () => {
 
                                 {aiEstimate ? (
                                     <div style={{ padding: '18px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.03)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                                            <div style={{ fontSize: '1.6rem', fontWeight: 980, letterSpacing: '-0.02em' }}>
-                                                ≈ ${Number(aiEstimate.estimated_total_usd || 0).toFixed(0)}
-                                            </div>
-                                            <div style={{ color: 'var(--text-muted)', fontWeight: 850 }}>
-                                                Дiапазон: ${Number(aiEstimate.range_usd?.min || 0).toFixed(0)} – ${Number(aiEstimate.range_usd?.max || 0).toFixed(0)} · {Number(aiEstimate.timeline_days || 0).toFixed(0)} днiв
-                                            </div>
-                                        </div>
+	                                        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+	                                            <div style={{ fontSize: '1.6rem', fontWeight: 980, letterSpacing: '-0.02em' }}>
+	                                                ≈ {formatUah(aiEstimate.estimated_total_uah)}
+	                                            </div>
+	                                            <div style={{ color: 'var(--text-muted)', fontWeight: 850, lineHeight: 1.5 }}>
+	                                                {aiEstimate.recommended_package ? `Пакет: ${packageLabel(aiEstimate.recommended_package)}` : ''}
+	                                                {aiEstimate.range_uah ? ` · Дiапазон: ${formatUah(aiEstimate.range_uah?.min)} – ${formatUah(aiEstimate.range_uah?.max)}` : ''}
+	                                                {aiEstimate.timeline_days ? ` · Термiн: ${Number(aiEstimate.timeline_days?.min || 0)}–${Number(aiEstimate.timeline_days?.max || 0)} днiв` : ''}
+	                                            </div>
+	                                        </div>
 
-                                        <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
-                                            {(Array.isArray(aiEstimate.breakdown) ? aiEstimate.breakdown : []).slice(0, 6).map((b) => (
-                                                <div key={b.item} style={{ padding: '12px 14px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-                                                        <div style={{ fontWeight: 950 }}>{b.item}</div>
-                                                        <div style={{ fontWeight: 950, color: 'var(--text-subtle)' }}>${Number(b.usd || 0).toFixed(0)}</div>
-                                                    </div>
-                                                    <div style={{ marginTop: 6, color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.45 }}>
-                                                        {b.notes}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
+	                                        {aiEstimate.why_this_package ? (
+	                                            <div style={{ marginTop: 10, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+	                                                {aiEstimate.why_this_package}
+	                                            </div>
+	                                        ) : null}
+
+	                                        {(Array.isArray(aiEstimate.included) && aiEstimate.included.length > 0) ? (
+	                                            <div style={{ marginTop: 14, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+	                                                <div style={{ fontWeight: 950, letterSpacing: '0.12em', textTransform: 'uppercase', fontSize: '0.75rem', color: 'var(--text-subtle)' }}>
+	                                                    Що входить
+	                                                </div>
+	                                                <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+	                                                    {aiEstimate.included.slice(0, 10).map((t) => (
+	                                                        <div key={t} style={{ display: 'flex', gap: 10 }}>
+	                                                            <span style={{ color: 'var(--accent-start)', fontWeight: 950 }}>•</span>
+	                                                            <span>{t}</span>
+	                                                        </div>
+	                                                    ))}
+	                                                </div>
+	                                            </div>
+	                                        ) : null}
+
+	                                        <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
+	                                            {(Array.isArray(aiEstimate.additional_costs) ? aiEstimate.additional_costs : []).slice(0, 6).map((b) => (
+	                                                <div key={`${b.item}-${b.uah}`} style={{ padding: '12px 14px', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+	                                                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
+	                                                        <div style={{ fontWeight: 950 }}>{b.item}</div>
+	                                                        <div style={{ fontWeight: 950, color: 'var(--text-subtle)' }}>{formatUah(b.uah)}</div>
+	                                                    </div>
+	                                                    <div style={{ marginTop: 6, color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.45 }}>
+	                                                        {b.notes}
+	                                                    </div>
+	                                                </div>
+	                                            ))}
+	                                        </div>
 
                                         {(Array.isArray(aiEstimate.questions) && aiEstimate.questions.length > 0) ? (
                                             <div style={{ marginTop: 14, color: 'var(--text-muted)', lineHeight: 1.6 }}>
@@ -444,7 +473,7 @@ const Configurator = () => {
                                             </div>
 
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                                                <span style={{ fontSize: isMobile ? '2.2rem' : '3.2rem', fontWeight: 950, color: customBudget ? 'var(--accent-start)' : 'var(--text-subtle)', marginRight: '10px' }}>$</span>
+                                                <span style={{ fontSize: isMobile ? '2.2rem' : '3.2rem', fontWeight: 950, color: customBudget ? 'var(--accent-start)' : 'var(--text-subtle)', marginRight: '10px' }}>₴</span>
                                                 <input
                                                     type="number"
                                                     placeholder="0.00"
