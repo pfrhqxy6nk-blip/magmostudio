@@ -11,7 +11,7 @@ const Footer = () => {
                 </p>
 
                 <div className="footer-contacts">
-                    <a className="footer-link" href="mailto:koriahinsasha62@gmail.com">
+                    <a className="footer-link footer-email" href="mailto:koriahinsasha62@gmail.com">
                         koriahinsasha62@gmail.com
                     </a>
 
