@@ -1,36 +1,30 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Send, Info, DollarSign, Wallet } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Send, Info, Wallet } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { safeRemoveItem } from '../utils/storage.js';
 
 const BUDGET_PLANS = [
     {
-        id: 'start',
-        product: 'Start',
-        price: '$300',
-        forWhom: 'Малий бізнес / старт',
-        inside: '1 сторінка, адаптив, форма, базовий SEO',
-        title: '$300',
-        desc: '1 сторінка + базовий SEO',
+        id: 'quick_start',
+        product: 'Швидкий старт',
+        price: '8 900 грн',
+        forWhom: 'Тест ніші або 1 послуга',
+        inside: 'Лендинг до 5 блоків, адаптив, форма заявки, базова SEO-структура, 5–7 днів',
     },
     {
-        id: 'business',
-        product: 'Business',
-        price: '$600',
-        forWhom: 'Основний сегмент',
-        inside: 'До 5 сторінок, інтеграції, UX, готовність до реклами',
-        title: '$600',
-        desc: 'До 5 сторінок + інтеграції',
+        id: 'business_growth',
+        product: 'Бізнес-ріст',
+        price: '15 000–18 000 грн',
+        forWhom: 'Компанії з кількома послугами',
+        inside: 'До 5 сторінок, розширена структура, аналітика, базове SEO, інтеграції',
     },
     {
-        id: 'pro',
-        product: 'Pro',
-        price: '$900',
-        forWhom: 'Складніші кейси',
-        inside: 'До 10 сторінок, логіка, пріоритет',
-        title: '$900',
-        desc: 'До 10 сторінок + пріоритет',
+        id: 'pro_solution',
+        product: 'Профі-рішення',
+        price: 'від 24 000 грн',
+        forWhom: 'Системний бізнес',
+        inside: 'Індивідуальний дизайн, розширений функціонал, інтеграції/CRM, оплати, повна технічна настройка',
     },
 ];
 
@@ -97,8 +91,8 @@ const Configurator = () => {
         if (currentStep < steps.length - 1) {
             setCurrentStep(prev => prev + 1);
         } else {
-            const finalBudget = customBudget ? `$${customBudget}` :
-                steps[1].options.find(o => o.id === selections[1])?.title || 'N/A';
+            const finalBudget = customBudget ? `${customBudget} грн` :
+                steps[1].options.find(o => o.id === selections[1])?.price || 'N/A';
 
             const projectData = {
                 title: projectTitle || `${steps[0].options.find(o => o.id === selections[0])?.title || 'New Project'} Request`,
@@ -318,16 +312,16 @@ const Configurator = () => {
                                                 <h4 style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '2px', textTransform: 'uppercase' }}>Свiй бюджет</h4>
                                             </div>
 
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                                                <span style={{ fontSize: isMobile ? '2.2rem' : '3.2rem', fontWeight: 950, color: customBudget ? 'var(--accent-start)' : 'var(--text-subtle)', marginRight: '10px' }}>$</span>
-                                                <input
-                                                    type="number"
-                                                    placeholder="0.00"
-                                                    value={customBudget}
-                                                    onChange={(e) => {
-                                                        setCustomBudget(e.target.value);
-                                                        setSelections((prev) => (prev[currentStep] === undefined ? prev : { ...prev, [currentStep]: null }));
-                                                    }}
+	                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+	                                                <span style={{ fontSize: isMobile ? '2.2rem' : '3.2rem', fontWeight: 950, color: customBudget ? 'var(--accent-start)' : 'var(--text-subtle)', marginRight: '10px' }}>₴</span>
+	                                                <input
+	                                                    type="number"
+	                                                    placeholder="0"
+	                                                    value={customBudget}
+	                                                    onChange={(e) => {
+	                                                        setCustomBudget(e.target.value);
+	                                                        setSelections((prev) => (prev[currentStep] === undefined ? prev : { ...prev, [currentStep]: null }));
+	                                                    }}
                                                     style={{
                                                         background: 'transparent',
                                                         border: 'none',
