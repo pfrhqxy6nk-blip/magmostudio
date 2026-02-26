@@ -2,6 +2,21 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Telegram Lead Notifications
+
+This repo includes a Vercel Function that forwards new Supabase `requests` to Telegram:
+- `api/supabase-requests-to-telegram.js`
+
+Setup (recommended):
+1. In Supabase create a Database Webhook on table `public.requests` for event `INSERT`.
+2. Webhook URL: `https://<your-vercel-domain>/api/supabase-requests-to-telegram`
+3. Add a custom header `x-webhook-secret` with the same value as `SUPABASE_WEBHOOK_SECRET`.
+
+Vercel Environment Variables (Production):
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+- `SUPABASE_WEBHOOK_SECRET` (optional but recommended)
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
