@@ -69,7 +69,7 @@ const Configurator = () => {
     const { addProject } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
     const [selections, setSelections] = useState({});
-    const [contact, setContact] = useState({ name: '', email: '', telegram: '' });
+    const [contact, setContact] = useState({ name: '', email: '', telegram: '', phone: '' });
     const [details, setDetails] = useState('');
     const [projectTitle, setProjectTitle] = useState('');
     const [customBudget, setCustomBudget] = useState('');
@@ -102,6 +102,7 @@ const Configurator = () => {
                 owner_email: contact.email,
                 owner_name: contact.name,
                 telegram: contact.telegram,
+                phone: contact.phone,
                 status: 'PENDING',
                 created_at: new Date().toISOString()
             };
@@ -119,7 +120,9 @@ const Configurator = () => {
         const step = steps[currentStep];
         if (currentStep === 0) return selections[0] !== undefined && projectTitle.trim().length > 3;
         if (step.id === 4) {
-            return contact.name.length > 2 && contact.email.includes('@');
+            const hasTelegram = typeof contact.telegram === 'string' && contact.telegram.trim().length > 0;
+            const hasPhone = typeof contact.phone === 'string' && contact.phone.trim().length > 0;
+            return contact.name.length > 2 && contact.email.includes('@') && (hasTelegram || hasPhone);
         }
         if (step.isDetails) return details.length > 10;
         if (step.isBudget) return (selections[currentStep] !== undefined && selections[currentStep] !== null) || customBudget.length >= 3;
@@ -137,7 +140,7 @@ const Configurator = () => {
                     <p style={{ color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '32px' }}>
                         Ми вже почали аналізувати ваш проект. Очікуйте повідомлення у вказаному вікні найближчим часом.
                     </p>
-                    <button onClick={() => { setIsSubmitted(false); setCurrentStep(0); setSelections({}); setContact({ name: '', email: '', telegram: '' }); setDetails(''); setCustomBudget(''); }} style={{ color: 'var(--text-main)', background: 'var(--surface-1)', padding: '12px 24px', borderRadius: '50px', fontWeight: 600, border: '1px solid var(--border-1)' }}>Створити ще один</button>
+                    <button onClick={() => { setIsSubmitted(false); setCurrentStep(0); setSelections({}); setContact({ name: '', email: '', telegram: '', phone: '' }); setDetails(''); setCustomBudget(''); }} style={{ color: 'var(--text-main)', background: 'var(--surface-1)', padding: '12px 24px', borderRadius: '50px', fontWeight: 600, border: '1px solid var(--border-1)' }}>Створити ще один</button>
                 </motion.div>
             </section>
         );
@@ -201,7 +204,11 @@ const Configurator = () => {
                                 <input type="text" placeholder="Ваше ім'я" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '20px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', width: '100%', outline: 'none' }} />
                                 <div style={{ display: isMobile ? 'flex' : 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                     <input type="email" placeholder="Email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '20px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', outline: 'none' }} />
-                                    <input type="text" placeholder="Telegram @username" value={contact.telegram} onChange={(e) => setContact({ ...contact, telegram: e.target.value })} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '20px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', outline: 'none' }} />
+                                    <input type="text" placeholder="Телефон (або залиште Telegram)" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '20px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', outline: 'none' }} />
+                                </div>
+                                <input type="text" placeholder="Telegram @username (або залиште телефон)" value={contact.telegram} onChange={(e) => setContact({ ...contact, telegram: e.target.value })} style={{ background: 'var(--surface-1)', border: '1px solid var(--border-1)', borderRadius: '20px', padding: '24px', color: 'var(--text-main)', fontSize: '1.1rem', outline: 'none' }} />
+                                <div style={{ color: 'var(--text-subtle)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                                    Потрібно вказати або Telegram, або номер телефону — щоб ми могли швидко з вами звʼязатися.
                                 </div>
                             </div>
                         ) : step.isDetails ? (

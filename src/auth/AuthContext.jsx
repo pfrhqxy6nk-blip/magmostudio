@@ -168,11 +168,19 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const addProject = useCallback(async (projectData) => {
+    const telegram = typeof projectData.telegram === 'string' ? projectData.telegram.trim() : '';
+    const phone = typeof projectData.phone === 'string' ? projectData.phone.trim() : '';
+    const contactParts = [];
+    if (telegram) contactParts.push(`Telegram: ${telegram}`);
+    if (phone) contactParts.push(`Phone: ${phone}`);
+    const contactLine = contactParts.join(' | ');
+
     const newProject = {
       title: projectData.title,
       category: projectData.category,
       budget: projectData.budget,
       description: projectData.details || projectData.description,
+      contact: contactLine || null,
       owner_email: projectData.owner_email || user?.email,
       status: 'PENDING',
       progress: 0,
@@ -207,10 +215,16 @@ export const AuthProvider = ({ children }) => {
       {
         name: projectData.owner_name || 'Inquiry User',
         email: newProject.owner_email,
-        details: newProject.description,
+        details: phone && !telegram
+          ? `${newProject.description}\n\nPhone: ${phone}`
+          : (telegram && !phone)
+            ? `${newProject.description}\n\nTelegram: ${telegram}`
+            : (telegram || phone)
+              ? `${newProject.description}\n\n${contactLine}`
+              : newProject.description,
         category: newProject.category,
         budget: newProject.budget,
-        telegram: projectData.telegram || '',
+        telegram: contactLine || telegram || phone || '',
         status: 'NEW',
       },
     ]);
