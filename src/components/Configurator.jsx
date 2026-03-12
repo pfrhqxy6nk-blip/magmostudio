@@ -75,6 +75,8 @@ const Configurator = () => {
     const [customBudget, setCustomBudget] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [submitLoading, setSubmitLoading] = useState(false);
+    const [submitError, setSubmitError] = useState('');
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -87,12 +89,42 @@ const Configurator = () => {
         if (steps[currentStep].isBudget) setCustomBudget('');
     };
 
-    const nextStep = () => {
+    const normalizeTelegram = (value) => {
+        if (typeof value !== 'string') return '';
+        const raw = value.trim();
+        if (!raw) return '';
+        try {
+            const url = new URL(raw.startsWith('http') ? raw : `https://${raw}`);
+            if (url.hostname.endsWith('t.me')) {
+                const p = url.pathname.replace(/\//g, '').trim();
+                if (p) return p.startsWith('@') ? p : `@${p}`;
+            }
+        } catch {
+            // ignore
+        }
+        if (raw.startsWith('@')) return raw;
+        if (/^[a-zA-Z0-9_]{3,}$/.test(raw)) return `@${raw}`;
+        return raw;
+    };
+
+    const normalizePhone = (value) => {
+        if (typeof value !== 'string') return '';
+        const raw = value.trim();
+        if (!raw) return '';
+        const cleaned = raw.replace(/[^\d+]/g, '');
+        return cleaned;
+    };
+
+    const nextStep = async () => {
+        setSubmitError('');
         if (currentStep < steps.length - 1) {
             setCurrentStep(prev => prev + 1);
         } else {
             const finalBudget = customBudget ? `${customBudget} грн` :
                 steps[1].options.find(o => o.id === selections[1])?.price || 'N/A';
+
+            const telegram = normalizeTelegram(contact.telegram);
+            const phone = normalizePhone(contact.phone);
 
             const projectData = {
                 title: projectTitle || `${steps[0].options.find(o => o.id === selections[0])?.title || 'New Project'} Request`,
@@ -101,14 +133,26 @@ const Configurator = () => {
                 details: details,
                 owner_email: contact.email,
                 owner_name: contact.name,
-                telegram: contact.telegram,
-                phone: contact.phone,
+                telegram,
+                phone,
                 status: 'PENDING',
                 created_at: new Date().toISOString()
             };
-            addProject(projectData);
-            safeRemoveItem('magmo_subscription_plan');
-            setIsSubmitted(true);
+
+            setSubmitLoading(true);
+            try {
+                const result = await addProject(projectData);
+                if (!result?.success) {
+                    setSubmitError(result?.error?.message || 'Не вдалося створити заявку. Спробуйте ще раз.');
+                    return;
+                }
+                safeRemoveItem('magmo_subscription_plan');
+                setIsSubmitted(true);
+            } catch (e) {
+                setSubmitError(e?.message || 'Помилка мережі. Спробуйте ще раз.');
+            } finally {
+                setSubmitLoading(false);
+            }
         }
     };
 
@@ -122,7 +166,7 @@ const Configurator = () => {
         if (step.id === 4) {
             const hasTelegram = typeof contact.telegram === 'string' && contact.telegram.trim().length > 0;
             const hasPhone = typeof contact.phone === 'string' && contact.phone.trim().length > 0;
-            return contact.name.length > 2 && contact.email.includes('@') && (hasTelegram || hasPhone);
+            return !submitLoading && contact.name.length > 2 && contact.email.includes('@') && (hasTelegram || hasPhone);
         }
         if (step.isDetails) return details.length > 10;
         if (step.isBudget) return (selections[currentStep] !== undefined && selections[currentStep] !== null) || customBudget.length >= 3;
@@ -140,7 +184,7 @@ const Configurator = () => {
                     <p style={{ color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '32px' }}>
                         Ми вже почали аналізувати ваш проект. Очікуйте повідомлення у вказаному вікні найближчим часом.
                     </p>
-                    <button onClick={() => { setIsSubmitted(false); setCurrentStep(0); setSelections({}); setContact({ name: '', email: '', telegram: '', phone: '' }); setDetails(''); setCustomBudget(''); }} style={{ color: 'var(--text-main)', background: 'var(--surface-1)', padding: '12px 24px', borderRadius: '50px', fontWeight: 600, border: '1px solid var(--border-1)' }}>Створити ще один</button>
+                    <button onClick={() => { setIsSubmitted(false); setCurrentStep(0); setSelections({}); setContact({ name: '', email: '', telegram: '', phone: '' }); setDetails(''); setCustomBudget(''); setSubmitError(''); setSubmitLoading(false); }} style={{ color: 'var(--text-main)', background: 'var(--surface-1)', padding: '12px 24px', borderRadius: '50px', fontWeight: 600, border: '1px solid var(--border-1)' }}>Створити ще один</button>
                 </motion.div>
             </section>
         );
@@ -172,6 +216,13 @@ const Configurator = () => {
                             <Info size={24} color="var(--accent-start)" style={{ flexShrink: 0, marginTop: '2px' }} />
                             <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>{step.description}</p>
                         </div>
+
+                        {submitError ? (
+                            <div style={{ padding: '14px 16px', borderRadius: '16px', background: 'rgba(255, 50, 50, 0.10)', border: '1px solid rgba(255, 50, 50, 0.20)', color: '#FF3333', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 18 }}>
+                                <Info size={18} />
+                                <div style={{ fontWeight: 800 }}>{submitError}</div>
+                            </div>
+                        ) : null}
 
                         {/* Subscription plans are offered after delivery in the dashboard, not during lead capture. */}
 
@@ -368,8 +419,8 @@ const Configurator = () => {
                     <button onClick={prevStep} disabled={currentStep === 0} style={{ background: 'transparent', color: currentStep === 0 ? 'transparent' : 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ChevronLeft size={20} /> НАЗАД
                     </button>
-                    <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'var(--text-main)' : 'var(--surface-1)', color: isStepComplete() ? 'var(--text-invert)' : 'var(--text-subtle)', padding: isMobile ? '20px 32px' : '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s', border: '1px solid var(--border-1)' }}>
-                        {currentStep === steps.length - 1 ? 'СТВОРИТИ ПРОЕКТ' : 'ДАЛІ'}
+                    <motion.button whileHover={isStepComplete() ? { scale: 1.02 } : {}} whileTap={isStepComplete() ? { scale: 0.98 } : {}} onClick={nextStep} disabled={!isStepComplete()} style={{ background: isStepComplete() ? 'var(--text-main)' : 'var(--surface-1)', color: isStepComplete() ? 'var(--text-invert)' : 'var(--text-subtle)', padding: isMobile ? '20px 32px' : '20px 48px', borderRadius: '50px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.1rem', transition: '0.3s', border: '1px solid var(--border-1)', opacity: submitLoading ? 0.8 : 1, cursor: submitLoading ? 'not-allowed' : 'pointer' }}>
+                        {currentStep === steps.length - 1 ? (submitLoading ? 'НАДСИЛАЄМО…' : 'СТВОРИТИ ПРОЕКТ') : 'ДАЛІ'}
                         {currentStep === steps.length - 1 ? <Send size={20} /> : <ChevronRight size={20} />}
                     </motion.button>
                 </div>

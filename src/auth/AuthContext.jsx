@@ -174,6 +174,9 @@ export const AuthProvider = ({ children }) => {
     if (telegram) contactParts.push(`Telegram: ${telegram}`);
     if (phone) contactParts.push(`Phone: ${phone}`);
     const contactLine = contactParts.join(' | ');
+    if (!telegram && !phone) {
+      return { success: false, error: { message: 'Telegram або телефон обовʼязкові' } };
+    }
 
     const newProject = {
       title: projectData.title,
@@ -211,20 +214,18 @@ export const AuthProvider = ({ children }) => {
 
     if (!data) return { success: false, error: { message: 'Unknown error occurred' } };
 
+    const detailsWithContact = contactLine
+      ? `${newProject.description}\n\n${contactLine}`
+      : newProject.description;
+
     const { error: reqError } = await supabase.from('requests').insert([
       {
         name: projectData.owner_name || 'Inquiry User',
         email: newProject.owner_email,
-        details: phone && !telegram
-          ? `${newProject.description}\n\nPhone: ${phone}`
-          : (telegram && !phone)
-            ? `${newProject.description}\n\nTelegram: ${telegram}`
-            : (telegram || phone)
-              ? `${newProject.description}\n\n${contactLine}`
-              : newProject.description,
+        details: detailsWithContact,
         category: newProject.category,
         budget: newProject.budget,
-        telegram: contactLine || telegram || phone || '',
+        telegram: contactLine,
         status: 'NEW',
       },
     ]);
@@ -232,7 +233,7 @@ export const AuthProvider = ({ children }) => {
 
     setProjects((prev) => [data, ...prev]);
     return { success: true, data };
-  }, [user?.email]);
+  }, [user]);
 
   const addComment = useCallback(async (projectId, commentText) => {
     if (!user) return;
